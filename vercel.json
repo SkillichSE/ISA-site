@@ -1,7 +1,7 @@
 {
   "env": {
     "GUILD_ID": "1507774799194099903",
-    "LAUNCH_CHANNEL_ID": "1513506023892193392"
+    "LAUNCH_CHANNEL_ID": "1514303404103700530"
   },
   "functions": {
     "api/submit.js": {

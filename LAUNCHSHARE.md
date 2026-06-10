@@ -1,41 +1,47 @@
-# Launchshare form (Vercel)
+# Launchshare form → Discord
 
-## What happens on submit
+## Как это работает (простыми словами)
 
-1. User fills the form on `/launchshare/`
-2. Browser sends `POST /api/submit`
-3. Vercel posts an embed (+ optional file) to Discord channel **`1513506023892193392`**
+1. Ты заполняешь форму на сайте
+2. Сайт (Vercel) отправляет заявку в Discord-канал
+3. Модераторы видят её в канале
 
-No DMs — only the staff channel.
+Тебе **ничего в Discord настраивать не нужно** — только заполнить форму.
 
-## Vercel setup
+---
 
-**Settings → Environment Variables:**
+## Настройка (один раз, для того кто деплоит)
 
-| Name | Value |
-|------|--------|
-| `DISCORD_BOT_TOKEN` | Bot token from Developer Portal |
-| `LAUNCH_CHANNEL_ID` | `1513506023892193392` |
+### Способ 1 — Webhook (рекомендуется, проще)
 
-(`GUILD_ID` is optional — only in `vercel.json` for reference.)
+Попроси **создателя сервера**:
 
-**Bot on server:**
-- View Channel, Send Messages, Attach Files, Embed Links in the launch channel
+1. Открыть канал для заявок
+2. **Настройки канала** → **Интеграции** → **Вебхуки** → **Создать вебхук**
+3. Назвать `Launchshare`, выбрать этот канал
+4. **Скопировать URL вебхука** и прислать тебе (это секрет, как пароль)
 
-## Troubleshooting
+В **Vercel → Environment Variables** добавить:
 
-| Error | Fix |
-|-------|-----|
-| Invalid bot token | Use **Bot → Token**, not Application ID or Public Key |
-| Bot cannot see the channel | Invite bot to server; channel permissions → View Channel for bot role |
-| Missing Permissions | Send Messages, Embed Links, Attach Files in launch channel |
-| Launch channel not found | Confirm channel ID `1513506023892193392` |
-
-Local test (create `.env` from `.env.example`):
-
-```bash
-npm install dotenv
-node scripts/test-discord-submit.js
+```
+DISCORD_WEBHOOK_URL = https://discord.com/api/webhooks/...
 ```
 
-Redeploy Vercel after changing env vars.
+**Redeploy** — готово. Права бота не нужны.
+
+### Способ 2 — Bot token (сложнее)
+
+```
+DISCORD_BOT_TOKEN = токен бота
+LAUNCH_CHANNEL_ID = 1514303404103700530
+```
+
+Бот должен иметь доступ к каналу (часто не работает без прав от владельца сервера).
+
+---
+
+## Если форма пишет ошибку
+
+Значит сайт **не может отправить** в Discord. Это не твоя вина как пользователя формы.
+
+**Лучшее решение:** webhook (способ 1 выше).
