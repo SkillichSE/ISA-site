@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ISA Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --surface2: #1a1a24;
+      --border: rgba(255,255,255,0.08);
+      --accent: #4f6ef7;
+      --accent-hover: #6b85ff;
+      --danger: #e05555;
+      --success: #4caf82;
+      --text: #e8e8f0;
+      --text-muted: rgba(232,232,240,0.45);
+      --radius: 10px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* LOGIN */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 400px;
+    }
+    .login-logo { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px; }
+    .login-sub { color: var(--text-muted); font-size: 13px; margin-bottom: 32px; }
+    .field-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; display: block; }
+    .field-input {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 12px 14px; color: var(--text);
+      font-family: inherit; font-size: 14px; outline: none; transition: border-color 0.2s;
+      margin-bottom: 20px;
+    }
+    .field-input:focus { border-color: var(--accent); }
+    .btn-primary {
+      width: 100%; background: var(--accent); color: #fff; border: none;
+      border-radius: var(--radius); padding: 13px; font-family: inherit;
+      font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s;
+    }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .login-error { color: var(--danger); font-size: 13px; margin-top: 14px; display: none; }
+
+    /* SHELL */
+    #app { display: none; min-height: 100vh; }
+
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 24px; }
+    .topbar-logo { font-weight: 800; font-size: 18px; letter-spacing: -0.3px; }
+    .topbar-badge { font-size: 11px; background: var(--accent); color: #fff; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .repo-link { font-size: 12px; color: var(--text-muted); text-decoration: none; }
+    .repo-link:hover { color: var(--text); }
+    .btn-logout {
+      background: transparent; border: 1px solid var(--border); color: var(--text-muted);
+      border-radius: 8px; padding: 6px 14px; font-family: inherit; font-size: 13px;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-logout:hover { border-color: var(--danger); color: var(--danger); }
+
+    .layout { display: flex; min-height: calc(100vh - 56px); }
+
+    .sidebar {
+      width: 200px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 20px 12px;
+    }
+    .sidebar-section { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; padding: 0 10px; margin-bottom: 8px; margin-top: 20px; }
+    .sidebar-section:first-child { margin-top: 0; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 10px; border-radius: 8px; cursor: pointer;
+      font-size: 13px; font-weight: 500; color: var(--text-muted);
+      transition: all 0.15s; border: none; background: none; width: 100%; text-align: left;
+    }
+    .nav-item:hover { background: var(--surface2); color: var(--text); }
+    .nav-item.active { background: rgba(79,110,247,0.15); color: var(--accent); }
+    .nav-icon { font-size: 16px; }
+
+    .main { flex: 1; padding: 32px 36px; overflow-y: auto; max-width: 960px; }
+
+    .page-header { margin-bottom: 28px; }
+    .page-title { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+    .page-desc { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
+
+    /* CARDS */
+    .item-list { display: flex; flex-direction: column; gap: 12px; }
+    .item-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      transition: border-color 0.2s;
+    }
+    .item-card:hover { border-color: rgba(255,255,255,0.15); }
+    .item-card-body { flex: 1; min-width: 0; }
+    .item-card-title { font-weight: 600; font-size: 15px; margin-bottom: 3px; }
+    .item-card-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+    .item-card-desc { font-size: 13px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 560px; }
+    .item-card-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+    .badge {
+      display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 9px;
+      border-radius: 20px; text-transform: capitalize;
+    }
+    .badge-active { background: rgba(76,175,130,0.15); color: var(--success); }
+    .badge-development { background: rgba(255,180,50,0.12); color: #f0a830; }
+    .badge-upcoming { background: rgba(79,110,247,0.15); color: var(--accent); }
+    .badge-open { background: rgba(76,175,130,0.15); color: var(--success); }
+    .badge-closed { background: rgba(255,255,255,0.07); color: var(--text-muted); }
+
+    .btn-sm {
+      border: 1px solid var(--border); background: var(--surface2); color: var(--text);
+      border-radius: 7px; padding: 6px 14px; font-family: inherit; font-size: 12px;
+      font-weight: 500; cursor: pointer; transition: all 0.15s;
+    }
+    .btn-sm:hover { border-color: rgba(255,255,255,0.2); }
+    .btn-sm.danger { border-color: rgba(224,85,85,0.3); color: var(--danger); }
+    .btn-sm.danger:hover { background: rgba(224,85,85,0.1); }
+    .btn-add {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--accent); color: #fff; border: none; border-radius: var(--radius);
+      padding: 10px 18px; font-family: inherit; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: background 0.2s; margin-bottom: 20px;
+    }
+    .btn-add:hover { background: var(--accent-hover); }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200; padding: 24px; backdrop-filter: blur(4px);
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; width: 100%; max-width: 560px;
+      max-height: 90vh; overflow-y: auto; padding: 32px;
+    }
+    .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 24px; letter-spacing: -0.3px; }
+    .form-row { margin-bottom: 18px; }
+    .form-row label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 7px; }
+    .form-row input, .form-row textarea, .form-row select {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 12px; color: var(--text);
+      font-family: inherit; font-size: 14px; outline: none; transition: border-color 0.2s;
+    }
+    .form-row input:focus, .form-row textarea:focus, .form-row select:focus { border-color: var(--accent); }
+    .form-row textarea { resize: vertical; min-height: 90px; }
+    .form-row select option { background: var(--surface2); }
+    .form-hint { font-size: 11px; color: var(--text-muted); margin-top: 5px; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 28px; }
+    .btn-cancel {
+      background: transparent; border: 1px solid var(--border); color: var(--text-muted);
+      border-radius: 8px; padding: 10px 20px; font-family: inherit; font-size: 14px;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-cancel:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
+
+    /* TOAST */
+    #toast {
+      position: fixed; bottom: 28px; right: 28px; z-index: 999;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 20px;
+      font-size: 13px; font-weight: 500;
+      transform: translateY(80px); opacity: 0;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events: none; max-width: 320px;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.success { border-color: rgba(76,175,130,0.4); color: var(--success); }
+    #toast.error { border-color: rgba(224,85,85,0.4); color: var(--danger); }
+
+    /* SAVING OVERLAY */
+    #saving-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 300; backdrop-filter: blur(4px);
+    }
+    #saving-overlay.hidden { display: none; }
+    .saving-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 32px 40px; text-align: center;
+    }
+    .saving-spinner {
+      width: 36px; height: 36px; border: 3px solid var(--border);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .saving-text { font-size: 14px; color: var(--text-muted); }
+
+    .empty-state { padding: 48px; text-align: center; color: var(--text-muted); font-size: 14px; }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">ISA Admin</div>
+    <div class="login-sub">Enter your GitHub Personal Access Token to continue.</div>
+    <label class="field-label">GitHub Token</label>
+    <input class="field-input" type="password" id="token-input" placeholder="ghp_..." autocomplete="off">
+    <div class="form-hint" style="margin-top:-14px;margin-bottom:18px;">Token needs <code>repo</code> scope. Never stored — lives only in memory.</div>
+    <button class="btn-primary" id="login-btn" onclick="doLogin()">Sign in</button>
+    <div class="login-error" id="login-error">Invalid token or no access to repo.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-logo">ISA</span>
+      <span class="topbar-badge">Admin</span>
+    </div>
+    <div class="topbar-right">
+      <a class="repo-link" href="https://github.com/SkillichSE/ISA-site" target="_blank">SkillichSE/ISA-site ↗</a>
+      <button class="btn-logout" onclick="logout()">Sign out</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <nav class="sidebar">
+      <div class="sidebar-section">Content</div>
+      <button class="nav-item active" onclick="showPage('missions', this)">
+        <span class="nav-icon">🚀</span> Missions
+      </button>
+      <button class="nav-item" onclick="showPage('careers', this)">
+        <span class="nav-icon">💼</span> Careers
+      </button>
+      <button class="nav-item" onclick="showPage('launches', this)">
+        <span class="nav-icon">🛰️</span> Launches
+      </button>
+    </nav>
+
+    <main class="main" id="main-content"></main>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay hidden" id="modal-overlay" onclick="closeModalOutside(event)">
+  <div class="modal" id="modal">
+    <div class="modal-title" id="modal-title"></div>
+    <div id="modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" id="modal-save-btn" style="width:auto;padding:10px 24px" onclick="saveItem()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- SAVING -->
+<div class="saving-overlay hidden" id="saving-overlay">
+  <div class="saving-box">
+    <div class="saving-spinner"></div>
+    <div class="saving-text">Saving to GitHub…</div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+const REPO = 'SkillichSE/ISA-site';
+const DATA_PATH = 'data.json';
+let TOKEN = null;
+let data = null;
+let fileSha = null;
+let currentPage = 'missions';
+let editingId = null;
+let editingType = null;
+
+// ── AUTH ──────────────────────────────────────────────
+async function doLogin() {
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('login-error');
+  const t = document.getElementById('token-input').value.trim();
+  if (!t) return;
+  btn.disabled = true;
+  btn.textContent = 'Signing in…';
+  err.style.display = 'none';
+  try {
+    const ok = await fetchData(t);
+    if (ok) {
+      TOKEN = t;
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      renderPage('missions');
+    } else {
+      err.style.display = 'block';
+    }
+  } catch(e) {
+    err.style.display = 'block';
+  }
+  btn.disabled = false;
+  btn.textContent = 'Sign in';
+}
+
+document.getElementById('token-input').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+function logout() {
+  TOKEN = null; data = null; fileSha = null;
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('token-input').value = '';
+}
+
+// ── GITHUB API ────────────────────────────────────────
+async function fetchData(token) {
+  const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${DATA_PATH}`, {
+    headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github.v3+json' }
+  });
+  if (!res.ok) return false;
+  const json = await res.json();
+  fileSha = json.sha;
+  data = JSON.parse(atob(json.content.replace(/\n/g, '')));
+  return true;
+}
+
+async function pushData() {
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+  const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${DATA_PATH}`, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      message: 'admin: update data.json',
+      content,
+      sha: fileSha
+    })
+  });
+  if (!res.ok) throw new Error('GitHub API error');
+  const json = await res.json();
+  fileSha = json.content.sha;
+}
+
+// ── NAV ───────────────────────────────────────────────
+function showPage(page, el) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+  currentPage = page;
+  renderPage(page);
+}
+
+function renderPage(page) {
+  const el = document.getElementById('main-content');
+  if (page === 'missions') el.innerHTML = renderMissions();
+  else if (page === 'careers') el.innerHTML = renderCareers();
+  else if (page === 'launches') el.innerHTML = renderLaunches();
+}
+
+// ── MISSIONS ──────────────────────────────────────────
+function renderMissions() {
+  const items = data.missions.map(m => `
+    <div class="item-card">
+      <div class="item-card-body">
+        <div class="item-card-title">${m.name} <span class="badge badge-${m.status}">${m.status}</span></div>
+        <div class="item-card-meta">${m.division}</div>
+        <div class="item-card-desc">${m.description}</div>
+      </div>
+      <div class="item-card-actions">
+        <button class="btn-sm" onclick="editItem('missions','${m.id}')">Edit</button>
+        <button class="btn-sm danger" onclick="deleteItem('missions','${m.id}')">Delete</button>
+      </div>
+    </div>`).join('');
+  return `
+    <div class="page-header">
+      <div class="page-title">Missions</div>
+      <div class="page-desc">Manage active research programs shown on the Projects page.</div>
+    </div>
+    <button class="btn-add" onclick="newItem('missions')">+ Add Mission</button>
+    <div class="item-list">${items || '<div class="empty-state">No missions yet.</div>'}</div>`;
+}
+
+// ── CAREERS ───────────────────────────────────────────
+function renderCareers() {
+  const items = data.careers.map(c => `
+    <div class="item-card">
+      <div class="item-card-body">
+        <div class="item-card-title">${c.title}</div>
+        <div class="item-card-meta">${c.program} · <span class="badge badge-open">${c.type}</span></div>
+        <div class="item-card-desc">${c.description}</div>
+      </div>
+      <div class="item-card-actions">
+        <button class="btn-sm" onclick="editItem('careers','${c.id}')">Edit</button>
+        <button class="btn-sm danger" onclick="deleteItem('careers','${c.id}')">Delete</button>
+      </div>
+    </div>`).join('');
+  return `
+    <div class="page-header">
+      <div class="page-title">Careers</div>
+      <div class="page-desc">Open volunteer positions shown on the Careers page.</div>
+    </div>
+    <button class="btn-add" onclick="newItem('careers')">+ Add Position</button>
+    <div class="item-list">${items || '<div class="empty-state">No positions yet.</div>'}</div>`;
+}
+
+// ── LAUNCHES ──────────────────────────────────────────
+function renderLaunches() {
+  const items = data.launches.map(l => `
+    <div class="item-card">
+      <div class="item-card-body">
+        <div class="item-card-title">${l.name} <span class="badge badge-${l.status}">${l.status}</span></div>
+        <div class="item-card-meta">${l.orbit} · ${l.date} · ${l.slots_taken}/${l.slots_total} slots</div>
+        <div class="item-card-desc">${l.description}</div>
+      </div>
+      <div class="item-card-actions">
+        <button class="btn-sm" onclick="editItem('launches','${l.id}')">Edit</button>
+        <button class="btn-sm danger" onclick="deleteItem('launches','${l.id}')">Delete</button>
+      </div>
+    </div>`).join('');
+  return `
+    <div class="page-header">
+      <div class="page-title">Launches</div>
+      <div class="page-desc">Manage Launchshare mission slots.</div>
+    </div>
+    <button class="btn-add" onclick="newItem('launches')">+ Add Launch</button>
+    <div class="item-list">${items || '<div class="empty-state">No launches yet.</div>'}</div>`;
+}
+
+// ── MODAL ─────────────────────────────────────────────
+function newItem(type) {
+  editingId = null;
+  editingType = type;
+  document.getElementById('modal-title').textContent = `Add ${type.slice(0,-1)}`;
+  document.getElementById('modal-body').innerHTML = buildForm(type, null);
+  document.getElementById('modal-overlay').classList.remove('hidden');
+}
+
+function editItem(type, id) {
+  editingId = id;
+  editingType = type;
+  const item = data[type].find(x => x.id === id);
+  document.getElementById('modal-title').textContent = `Edit ${type.slice(0,-1)}`;
+  document.getElementById('modal-body').innerHTML = buildForm(type, item);
+  document.getElementById('modal-overlay').classList.remove('hidden');
+}
+
+function closeModal() { document.getElementById('modal-overlay').classList.add('hidden'); }
+function closeModalOutside(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
+
+function buildForm(type, item) {
+  const v = (k, d='') => item ? (item[k] ?? d) : d;
+  const inp = (id, label, val, hint='', type2='text') =>
+    `<div class="form-row"><label>${label}</label><input type="${type2}" id="f-${id}" value="${esc(String(val))}"><div class="form-hint">${hint}</div></div>`;
+  const ta = (id, label, val) =>
+    `<div class="form-row"><label>${label}</label><textarea id="f-${id}">${esc(String(val))}</textarea></div>`;
+  const sel = (id, label, val, opts) =>
+    `<div class="form-row"><label>${label}</label><select id="f-${id}">${opts.map(o=>`<option value="${o}" ${o===val?'selected':''}>${o}</option>`).join('')}</select></div>`;
+
+  if (type === 'missions') return `
+    ${inp('id', 'ID (slug)', v('id'), 'e.g. atlas — no spaces')}
+    ${inp('name', 'Name', v('name'))}
+    ${inp('division', 'Division', v('division'), 'e.g. Launch Systems')}
+    ${sel('status', 'Status', v('status','active'), ['active','development','inactive'])}
+    ${ta('description', 'Description', v('description'))}
+    ${inp('tags', 'Tags', Array.isArray(v('tags')) ? v('tags',[]).join(', ') : v('tags'), 'Comma-separated')}
+    ${inp('image', 'Image URL', v('image'))}`;
+
+  if (type === 'careers') return `
+    ${inp('id', 'ID (slug)', v('id'), 'e.g. gnc-engineer')}
+    ${inp('title', 'Job Title', v('title'))}
+    ${inp('program', 'Program', v('program'), 'e.g. Atlas — Launch Systems')}
+    ${sel('type', 'Type', v('type','Volunteer'), ['Volunteer','Part-time','Full-time'])}
+    ${ta('description', 'Description', v('description'))}
+    ${inp('skills', 'Skills', Array.isArray(v('skills')) ? v('skills',[]).join(', ') : v('skills'), 'Comma-separated')}`;
+
+  if (type === 'launches') return `
+    ${inp('id', 'ID (slug)', v('id'), 'e.g. launch-003')}
+    ${inp('name', 'Mission Name', v('name'))}
+    ${sel('orbit', 'Orbit', v('orbit','LEO'), ['LEO','MEO','GEO','SSO','HEO'])}
+    ${sel('status', 'Status', v('status','open'), ['open','upcoming','closed','full'])}
+    ${inp('date', 'Date', v('date'), 'YYYY-MM-DD')}
+    ${ta('description', 'Description', v('description'))}
+    ${inp('slots_total', 'Total Slots', v('slots_total',4), '', 'number')}
+    ${inp('slots_taken', 'Slots Taken', v('slots_taken',0), '', 'number')}`;
+}
+
+function esc(s) { return s.replace(/"/g, '&quot;').replace(/</g,'&lt;'); }
+
+function getFormData(type) {
+  const g = id => document.getElementById('f-'+id)?.value.trim();
+  const arr = id => g(id).split(',').map(s=>s.trim()).filter(Boolean);
+  if (type === 'missions') return { id: g('id'), name: g('name'), division: g('division'), status: g('status'), description: g('description'), tags: arr('tags'), image: g('image') };
+  if (type === 'careers') return { id: g('id'), title: g('title'), program: g('program'), type: g('type'), description: g('description'), skills: arr('skills') };
+  if (type === 'launches') return { id: g('id'), name: g('name'), orbit: g('orbit'), status: g('status'), date: g('date'), description: g('description'), slots_total: parseInt(g('slots_total'))||0, slots_taken: parseInt(g('slots_taken'))||0 };
+}
+
+async function saveItem() {
+  const item = getFormData(editingType);
+  if (!item.id) { showToast('ID is required', 'error'); return; }
+  if (editingId) {
+    const idx = data[editingType].findIndex(x => x.id === editingId);
+    if (idx > -1) data[editingType][idx] = item;
+  } else {
+    if (data[editingType].find(x => x.id === item.id)) { showToast('ID already exists', 'error'); return; }
+    data[editingType].push(item);
+  }
+  closeModal();
+  await save();
+}
+
+async function deleteItem(type, id) {
+  if (!confirm('Delete this item? This cannot be undone.')) return;
+  data[type] = data[type].filter(x => x.id !== id);
+  await save();
+}
+
+async function save() {
+  document.getElementById('saving-overlay').classList.remove('hidden');
+  try {
+    await pushData();
+    showToast('Saved & deployed to GitHub ✓', 'success');
+    renderPage(currentPage);
+  } catch(e) {
+    showToast('Save failed: ' + e.message, 'error');
+    // reload fresh data
+    await fetchData(TOKEN);
+    renderPage(currentPage);
+  } finally {
+    document.getElementById('saving-overlay').classList.add('hidden');
+  }
+}
+
+// ── TOAST ─────────────────────────────────────────────
+let toastTimer;
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `show ${type}`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = ''; }, 3500);
+}
+</script>
+</body>
+</html>

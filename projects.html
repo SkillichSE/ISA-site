@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="shared.css">
   <link rel="stylesheet" href="projects.css">
+  <link rel="icon" type="image/png" href="ISSSSSSSAAAA.png">
 </head>
 <body>
   <nav id="navbar">
@@ -34,52 +35,8 @@
 
   <section class="section-missions">
     <div class="container">
-      <div class="missions-list">
-        <div class="mission-item reveal-target">
-          <div class="mission-image" style="background-image:url('https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?q=80&w=900&auto=format&fit=crop')"></div>
-          <div class="mission-body">
-            <div class="mission-meta"><span class="mission-status status-active">Active</span><span class="mission-division">Launch Systems</span></div>
-            <h2 class="mission-title">Atlas</h2>
-            <p class="mission-desc">Development of next-generation launch vehicle architecture for ISA missions. Atlas encompasses rocket design, stage separation, and trajectory optimization for low and medium Earth orbit payloads.</p>
-            <div class="mission-tags"><span>Propulsion</span><span>Trajectory</span><span>Stage Sep</span></div>
-          </div>
-        </div>
-        <div class="mission-item reveal-target">
-          <div class="mission-image" style="background-image:url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=900&auto=format&fit=crop')"></div>
-          <div class="mission-body">
-            <div class="mission-meta"><span class="mission-status status-active">Active</span><span class="mission-division">Deep Space Research</span></div>
-            <h2 class="mission-title">Horizon</h2>
-            <p class="mission-desc">Theoretical and simulation-based research into deep space mission profiles. Horizon investigates interplanetary transit windows, radiation shielding concepts, and long-duration life support frameworks.</p>
-            <div class="mission-tags"><span>Interplanetary</span><span>Simulation</span><span>Life Support</span></div>
-          </div>
-        </div>
-        <div class="mission-item reveal-target">
-          <div class="mission-image" style="background-image:url('https://images.unsplash.com/photo-1446776858070-70c3d5ed6758?q=80&w=900&auto=format&fit=crop')"></div>
-          <div class="mission-body">
-            <div class="mission-meta"><span class="mission-status status-development">In Development</span><span class="mission-division">Orbital Infrastructure</span></div>
-            <h2 class="mission-title">Titan</h2>
-            <p class="mission-desc">Design of modular orbital station components and docking systems. Titan focuses on habitat ring architecture, power systems, and attitude control for a future ISA orbital platform.</p>
-            <div class="mission-tags"><span>Station Design</span><span>Docking</span><span>Power Systems</span></div>
-          </div>
-        </div>
-        <div class="mission-item reveal-target">
-          <div class="mission-image" style="background-image:url('https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?q=80&w=900&auto=format&fit=crop')"></div>
-          <div class="mission-body">
-            <div class="mission-meta"><span class="mission-status status-active">Active</span><span class="mission-division">Propulsion Engineering</span></div>
-            <h2 class="mission-title">Ares</h2>
-            <p class="mission-desc">Advanced propulsion concepts including electric ion drives, cold gas thrusters, and experimental hybrid engines. Ares produces engineering documentation and simulation models for ISA launch vehicles.</p>
-            <div class="mission-tags"><span>Ion Drive</span><span>Hybrid Engine</span><span>Thruster Design</span></div>
-          </div>
-        </div>
-        <div class="mission-item reveal-target">
-          <div class="mission-image" style="background-image:url('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=900&auto=format&fit=crop')"></div>
-          <div class="mission-body">
-            <div class="mission-meta"><span class="mission-status status-development">In Development</span><span class="mission-division">Satellite Systems</span></div>
-            <h2 class="mission-title">Nova</h2>
-            <p class="mission-desc">CubeSat-class satellite design, ADCS, and onboard computing for ISA's Launchshare program. Nova defines the technical specification all Launchshare payloads must meet.</p>
-            <div class="mission-tags"><span>CubeSat</span><span>ADCS</span><span>Onboard Compute</span></div>
-          </div>
-        </div>
+      <div class="missions-list" id="missions-list">
+        <!-- rendered by JS -->
       </div>
     </div>
   </section>
@@ -116,6 +73,31 @@
       </div>
     </div>
   </footer>
+
   <script src="shared.js"></script>
+  <script>
+    fetch('data.json?_=' + Date.now())
+      .then(r => r.json())
+      .then(data => {
+        const statusLabel = { active: 'Active', development: 'In Development', inactive: 'Inactive' };
+        const statusClass = { active: 'status-active', development: 'status-development', inactive: 'status-inactive' };
+        document.getElementById('missions-list').innerHTML = data.missions.map(m => `
+          <div class="mission-item reveal-target">
+            <div class="mission-image" style="background-image:url('${m.image}')"></div>
+            <div class="mission-body">
+              <div class="mission-meta">
+                <span class="mission-status ${statusClass[m.status] || ''}">${statusLabel[m.status] || m.status}</span>
+                <span class="mission-division">${m.division}</span>
+              </div>
+              <h2 class="mission-title">${m.name}</h2>
+              <p class="mission-desc">${m.description}</p>
+              <div class="mission-tags">${m.tags.map(t => `<span>${t}</span>`).join('')}</div>
+            </div>
+          </div>`).join('');
+      })
+      .catch(() => {
+        document.getElementById('missions-list').innerHTML = '<p style="color:rgba(255,255,255,0.4);padding:40px 0">Failed to load missions.</p>';
+      });
+  </script>
 </body>
 </html>

@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="shared.css">
   <link rel="stylesheet" href="careers.css">
+  <link rel="icon" type="image/png" href="ISSSSSSSAAAA.png">
 </head>
 <body>
   <nav id="navbar">
@@ -36,99 +37,8 @@
     <div class="container">
       <p class="eyebrow">OPEN POSITIONS</p>
       <h2 class="section-title">Where we need people.</h2>
-
-      <div class="careers-list">
-
-        <div class="career-item reveal-target">
-          <div class="career-header">
-            <div>
-              <h3>Trajectory & GNC Engineer</h3>
-              <span class="career-program">Atlas — Launch Systems</span>
-            </div>
-            <div class="career-right">
-              <span class="career-type">Volunteer</span>
-              <a href="https://discord.gg/CMDSKwTBnm" target="_blank" class="btn-apply">Apply via Discord →</a>
-            </div>
-          </div>
-          <p>Model ascent trajectories, stage separation events, and closed-loop guidance logic for the Atlas launch vehicle. Experience with orbital mechanics software (GMAT, STK, or equivalent) preferred.</p>
-          <div class="career-skills"><span>Orbital Mechanics</span><span>MATLAB / Python</span><span>GNC</span></div>
-        </div>
-
-        <div class="career-item reveal-target">
-          <div class="career-header">
-            <div>
-              <h3>Deep Space Mission Analyst</h3>
-              <span class="career-program">Horizon — Deep Space Research</span>
-            </div>
-            <div class="career-right">
-              <span class="career-type">Volunteer</span>
-              <a href="https://discord.gg/CMDSKwTBnm" target="_blank" class="btn-apply">Apply via Discord →</a>
-            </div>
-          </div>
-          <p>Research and document interplanetary mission concepts. Analyze transit windows, delta-v budgets, and life support requirements. Strong academic background in aerospace or physics preferred.</p>
-          <div class="career-skills"><span>Mission Analysis</span><span>Astrodynamics</span><span>Research Writing</span></div>
-        </div>
-
-        <div class="career-item reveal-target">
-          <div class="career-header">
-            <div>
-              <h3>Structural Systems Engineer</h3>
-              <span class="career-program">Titan — Orbital Infrastructure</span>
-            </div>
-            <div class="career-right">
-              <span class="career-type">Volunteer</span>
-              <a href="https://discord.gg/CMDSKwTBnm" target="_blank" class="btn-apply">Apply via Discord →</a>
-            </div>
-          </div>
-          <p>Design habitat module structural elements, load path analysis, and docking interface geometry for the Titan orbital station concept. FEA experience a plus.</p>
-          <div class="career-skills"><span>Structural Analysis</span><span>CAD</span><span>FEA</span></div>
-        </div>
-
-        <div class="career-item reveal-target">
-          <div class="career-header">
-            <div>
-              <h3>Propulsion Simulation Engineer</h3>
-              <span class="career-program">Ares — Propulsion Engineering</span>
-            </div>
-            <div class="career-right">
-              <span class="career-type">Volunteer</span>
-              <a href="https://discord.gg/CMDSKwTBnm" target="_blank" class="btn-apply">Apply via Discord →</a>
-            </div>
-          </div>
-          <p>Develop and validate simulation models for Ares thruster concepts. Work alongside hardware leads to ensure simulation fidelity matches bench test results.</p>
-          <div class="career-skills"><span>CFD</span><span>Python / C++</span><span>Thermodynamics</span></div>
-        </div>
-
-        <div class="career-item reveal-target">
-          <div class="career-header">
-            <div>
-              <h3>Embedded Systems Engineer</h3>
-              <span class="career-program">Nova — Satellite Systems</span>
-            </div>
-            <div class="career-right">
-              <span class="career-type">Volunteer</span>
-              <a href="https://discord.gg/CMDSKwTBnm" target="_blank" class="btn-apply">Apply via Discord →</a>
-            </div>
-          </div>
-          <p>Develop onboard software for the Nova CubeSat platform. Implement ADCS control loops, telemetry pipelines, and fault detection routines on a resource-constrained embedded target.</p>
-          <div class="career-skills"><span>Embedded C</span><span>RTOS</span><span>ADCS</span></div>
-        </div>
-
-        <div class="career-item reveal-target">
-          <div class="career-header">
-            <div>
-              <h3>Community & Operations Lead</h3>
-              <span class="career-program">ISA — Operations</span>
-            </div>
-            <div class="career-right">
-              <span class="career-type">Volunteer</span>
-              <a href="https://discord.gg/CMDSKwTBnm" target="_blank" class="btn-apply">Apply via Discord →</a>
-            </div>
-          </div>
-          <p>Coordinate community events, manage Discord server health, and act as bridge between engineering teams and the broader ISA membership. Strong communication skills required.</p>
-          <div class="career-skills"><span>Community Management</span><span>Discord</span><span>Communication</span></div>
-        </div>
-
+      <div class="careers-list" id="careers-list">
+        <!-- rendered by JS -->
       </div>
     </div>
   </section>
@@ -165,6 +75,31 @@
       </div>
     </div>
   </footer>
+
   <script src="shared.js"></script>
+  <script>
+    fetch('data.json?_=' + Date.now())
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('careers-list').innerHTML = data.careers.map(c => `
+          <div class="career-item reveal-target">
+            <div class="career-header">
+              <div>
+                <h3>${c.title}</h3>
+                <span class="career-program">${c.program}</span>
+              </div>
+              <div class="career-right">
+                <span class="career-type">${c.type}</span>
+                <a href="https://discord.gg/CMDSKwTBnm" target="_blank" class="btn-apply">Apply via Discord →</a>
+              </div>
+            </div>
+            <p>${c.description}</p>
+            <div class="career-skills">${c.skills.map(s => `<span>${s}</span>`).join('')}</div>
+          </div>`).join('');
+      })
+      .catch(() => {
+        document.getElementById('careers-list').innerHTML = '<p style="color:rgba(255,255,255,0.4);padding:40px 0">Failed to load positions.</p>';
+      });
+  </script>
 </body>
 </html>

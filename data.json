@@ -1,0 +1,121 @@
+{
+  "missions": [
+    {
+      "id": "atlas",
+      "name": "Atlas",
+      "division": "Launch Systems",
+      "status": "active",
+      "description": "Development of next-generation launch vehicle architecture for ISA missions. Atlas encompasses rocket design, stage separation, and trajectory optimization for low and medium Earth orbit payloads.",
+      "tags": ["Propulsion", "Trajectory", "Stage Sep"],
+      "image": "https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?q=80&w=900&auto=format&fit=crop"
+    },
+    {
+      "id": "horizon",
+      "name": "Horizon",
+      "division": "Deep Space Research",
+      "status": "active",
+      "description": "Theoretical and simulation-based research into deep space mission profiles. Horizon investigates interplanetary transit windows, radiation shielding concepts, and long-duration life support frameworks.",
+      "tags": ["Interplanetary", "Simulation", "Life Support"],
+      "image": "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=900&auto=format&fit=crop"
+    },
+    {
+      "id": "titan",
+      "name": "Titan",
+      "division": "Orbital Infrastructure",
+      "status": "development",
+      "description": "Design of modular orbital station components and docking systems. Titan focuses on habitat ring architecture, power systems, and attitude control for a future ISA orbital platform.",
+      "tags": ["Station Design", "Docking", "Power Systems"],
+      "image": "https://images.unsplash.com/photo-1446776858070-70c3d5ed6758?q=80&w=900&auto=format&fit=crop"
+    },
+    {
+      "id": "ares",
+      "name": "Ares",
+      "division": "Propulsion Engineering",
+      "status": "active",
+      "description": "Advanced propulsion concepts including electric ion drives, cold gas thrusters, and experimental hybrid engines. Ares produces engineering documentation and simulation models for ISA launch vehicles.",
+      "tags": ["Ion Drive", "Hybrid Engine", "Thruster Design"],
+      "image": "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?q=80&w=900&auto=format&fit=crop"
+    },
+    {
+      "id": "nova",
+      "name": "Nova",
+      "division": "Satellite Systems",
+      "status": "development",
+      "description": "CubeSat-class satellite design, ADCS, and onboard computing for ISA's Launchshare program. Nova defines the technical specification all Launchshare payloads must meet.",
+      "tags": ["CubeSat", "ADCS", "Onboard Compute"],
+      "image": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=900&auto=format&fit=crop"
+    }
+  ],
+  "careers": [
+    {
+      "id": "gnc-engineer",
+      "title": "Trajectory & GNC Engineer",
+      "program": "Atlas — Launch Systems",
+      "type": "Volunteer",
+      "description": "Model ascent trajectories, stage separation events, and closed-loop guidance logic for the Atlas launch vehicle. Experience with orbital mechanics software (GMAT, STK, or equivalent) preferred.",
+      "skills": ["Orbital Mechanics", "MATLAB / Python", "GNC"]
+    },
+    {
+      "id": "mission-analyst",
+      "title": "Deep Space Mission Analyst",
+      "program": "Horizon — Deep Space Research",
+      "type": "Volunteer",
+      "description": "Research and document interplanetary mission concepts. Analyze transit windows, delta-v budgets, and life support requirements. Strong academic background in aerospace or physics preferred.",
+      "skills": ["Mission Analysis", "Astrodynamics", "Research Writing"]
+    },
+    {
+      "id": "structural-engineer",
+      "title": "Structural Systems Engineer",
+      "program": "Titan — Orbital Infrastructure",
+      "type": "Volunteer",
+      "description": "Design habitat module structural elements, load path analysis, and docking interface geometry for the Titan orbital station concept. FEA experience a plus.",
+      "skills": ["Structural Analysis", "CAD", "FEA"]
+    },
+    {
+      "id": "propulsion-sim",
+      "title": "Propulsion Simulation Engineer",
+      "program": "Ares — Propulsion Engineering",
+      "type": "Volunteer",
+      "description": "Develop and validate simulation models for Ares thruster concepts. Work alongside hardware leads to ensure simulation fidelity matches bench test results.",
+      "skills": ["CFD", "Python / C++", "Thermodynamics"]
+    },
+    {
+      "id": "embedded-engineer",
+      "title": "Embedded Systems Engineer",
+      "program": "Nova — Satellite Systems",
+      "type": "Volunteer",
+      "description": "Develop onboard software for the Nova CubeSat platform. Implement ADCS control loops, telemetry pipelines, and fault detection routines on a resource-constrained embedded target.",
+      "skills": ["Embedded C", "RTOS", "ADCS"]
+    },
+    {
+      "id": "community-lead",
+      "title": "Community & Operations Lead",
+      "program": "ISA — Operations",
+      "type": "Volunteer",
+      "description": "Coordinate community events, manage Discord server health, and act as bridge between engineering teams and the broader ISA membership. Strong communication skills required.",
+      "skills": ["Community Management", "Discord", "Communication"]
+    }
+  ],
+  "launches": [
+    {
+      "id": "launch-001",
+      "name": "ISA-1 LEO Demo",
+      "orbit": "LEO",
+      "status": "upcoming",
+      "date": "2026-09-15",
+      "description": "First official ISA launch carrying three Nova-spec CubeSats to low Earth orbit.",
+      "slots_total": 5,
+      "slots_taken": 3
+    },
+    {
+      "id": "launch-002",
+      "name": "ISA-2 MEO Research",
+      "orbit": "MEO",
+      "status": "open",
+      "date": "2026-12-01",
+      "description": "Medium Earth orbit mission for communications research payloads.",
+      "slots_total": 4,
+      "slots_taken": 1
+    }
+  ]
+}
