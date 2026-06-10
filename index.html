@@ -45,20 +45,20 @@
     <div class="container">
       <div class="stats-grid" data-stagger>
         <div class="stat-card reveal-target">
-          <div class="stat-num"><span class="discord-member-count">16</span></div>
+          <div class="stat-num"><span class="discord-member-count">—</span></div>
           <div class="stat-lbl">Members</div>
         </div>
         <div class="stat-card reveal-target">
-          <div class="stat-num">5</div>
+          <div class="stat-num" id="stat-projects">—</div>
           <div class="stat-lbl">Projects</div>
         </div>
         <div class="stat-card reveal-target">
-          <div class="stat-num"><span class="discord-online-count">8</span></div>
+          <div class="stat-num"><span class="discord-online-count">—</span></div>
           <div class="stat-lbl">Online Now</div>
         </div>
         <div class="stat-card reveal-target">
-          <div class="stat-num">Discord</div>
-          <div class="stat-lbl">Community</div>
+          <div class="stat-num" id="stat-launches">—</div>
+          <div class="stat-lbl">Open Launches</div>
         </div>
       </div>
     </div>
@@ -69,27 +69,8 @@
     <div class="container">
       <p class="eyebrow">PROJECTS</p>
       <h2 class="section-title">Research. Design. Exploration.</h2>
-      <div class="projects-grid">
-        <a class="project-card project-large reveal-target" href="projects.html" style="background-image:url('https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?q=80&w=1200&auto=format&fit=crop')">
-          <div class="project-overlay"></div>
-          <div class="project-info"><span class="project-name">Atlas</span><span class="project-sub">Launch Systems</span></div>
-        </a>
-        <a class="project-card project-large reveal-target" href="projects.html" style="background-image:url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=1200&auto=format&fit=crop')">
-          <div class="project-overlay"></div>
-          <div class="project-info"><span class="project-name">Horizon</span><span class="project-sub">Deep Space Research</span></div>
-        </a>
-        <a class="project-card project-small reveal-target" href="projects.html" style="background-image:url('https://images.unsplash.com/photo-1446776858070-70c3d5ed6758?q=80&w=900&auto=format&fit=crop')">
-          <div class="project-overlay"></div>
-          <div class="project-info"><span class="project-name">Titan</span><span class="project-sub">Orbital Infrastructure</span></div>
-        </a>
-        <a class="project-card project-small reveal-target" href="projects.html" style="background-image:url('https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?q=80&w=900&auto=format&fit=crop')">
-          <div class="project-overlay"></div>
-          <div class="project-info"><span class="project-name">Ares</span><span class="project-sub">Propulsion Engineering</span></div>
-        </a>
-        <a class="project-card project-small reveal-target" href="projects.html" style="background-image:url('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=900&auto=format&fit=crop')">
-          <div class="project-overlay"></div>
-          <div class="project-info"><span class="project-name">Nova</span><span class="project-sub">Satellite Systems</span></div>
-        </a>
+      <div class="projects-grid" id="projects-grid">
+        <!-- rendered by JS -->
       </div>
       <div class="projects-cta">
         <a href="projects.html" class="btn-outline">All projects →</a>
@@ -156,5 +137,27 @@
   </footer>
 
   <script src="shared.js"></script>
+  <script>
+    fetch('data.json?_=' + Date.now())
+      .then(r => r.json())
+      .then(data => {
+        // Stats
+        document.getElementById('stat-projects').textContent = data.missions.length;
+        const openLaunches = data.launches.filter(l => l.status === 'open' || l.status === 'upcoming').length;
+        document.getElementById('stat-launches').textContent = openLaunches;
+
+        // Projects grid — first 2 large, rest small
+        const sizeClass = (i) => i < 2 ? 'project-large' : 'project-small';
+        document.getElementById('projects-grid').innerHTML = data.missions.map((m, i) => `
+          <a class="project-card ${sizeClass(i)} reveal-target" href="projects.html" style="background-image:url('${m.image}')">
+            <div class="project-overlay"></div>
+            <div class="project-info">
+              <span class="project-name">${m.name}</span>
+              <span class="project-sub">${m.division}</span>
+            </div>
+          </a>`).join('');
+      })
+      .catch(() => {});
+  </script>
 </body>
 </html>
