@@ -1,5 +1,5 @@
 .section-careers { padding: 80px 0; border-bottom: 1px solid var(--line); }
-.careers-list { display: flex; flex-direction: column; gap: 2px; }
+.careers-list { display: flex; flex-direction: column; gap: 12px; }
 .career-item {
   border: 1px solid var(--line);
   border-radius: 14px;
