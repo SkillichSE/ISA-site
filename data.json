@@ -4,7 +4,7 @@
     {
       "id": "gnc-engineer",
       "title": "Trajectory & GNC Engineer",
-      "program": "Atlas â Launch Systems",
+      "program": "Atlas Ã¢ÂÂ Launch Systems",
       "type": "Volunteer",
       "description": "Model ascent trajectories, stage separation events, and closed-loop guidance logic for the Atlas launch vehicle. Experience with orbital mechanics software (GMAT, STK, or equivalent) preferred.",
       "skills": [
@@ -16,7 +16,7 @@
     {
       "id": "mission-analyst",
       "title": "Deep Space Mission Analyst",
-      "program": "Horizon â Deep Space Research",
+      "program": "Horizon Ã¢ÂÂ Deep Space Research",
       "type": "Volunteer",
       "description": "Research and document interplanetary mission concepts. Analyze transit windows, delta-v budgets, and life support requirements. Strong academic background in aerospace or physics preferred.",
       "skills": [
@@ -28,7 +28,7 @@
     {
       "id": "structural-engineer",
       "title": "Structural Systems Engineer",
-      "program": "Titan â Orbital Infrastructure",
+      "program": "Titan Ã¢ÂÂ Orbital Infrastructure",
       "type": "Volunteer",
       "description": "Design habitat module structural elements, load path analysis, and docking interface geometry for the Titan orbital station concept. FEA experience a plus.",
       "skills": [
@@ -40,7 +40,7 @@
     {
       "id": "propulsion-sim",
       "title": "Propulsion Simulation Engineer",
-      "program": "Ares â Propulsion Engineering",
+      "program": "Ares Ã¢ÂÂ Propulsion Engineering",
       "type": "Volunteer",
       "description": "Develop and validate simulation models for Ares thruster concepts. Work alongside hardware leads to ensure simulation fidelity matches bench test results.",
       "skills": [
@@ -52,7 +52,7 @@
     {
       "id": "embedded-engineer",
       "title": "Embedded Systems Engineer",
-      "program": "Nova â Satellite Systems",
+      "program": "Nova Ã¢ÂÂ Satellite Systems",
       "type": "Volunteer",
       "description": "Develop onboard software for the Nova CubeSat platform. Implement ADCS control loops, telemetry pipelines, and fault detection routines on a resource-constrained embedded target.",
       "skills": [
@@ -64,7 +64,7 @@
     {
       "id": "community-lead",
       "title": "Community & Operations Lead",
-      "program": "ISA â Operations",
+      "program": "ISA Ã¢ÂÂ Operations",
       "type": "Volunteer",
       "description": "Coordinate community events, manage Discord server health, and act as bridge between engineering teams and the broader ISA membership. Strong communication skills required.",
       "skills": [
@@ -76,16 +76,6 @@
   ],
   "launches": [
     {
-      "id": "launch-001",
-      "name": "ISA-1 LEO Demo",
-      "orbit": "LEO",
-      "status": "upcoming",
-      "date": "2026-09-15",
-      "description": "First official ISA launch carrying three Nova-spec CubeSats to low Earth orbit.",
-      "slots_total": 5,
-      "slots_taken": 3
-    },
-    {
       "id": "launch-002",
       "name": "ISA-2 MEO Research",
       "orbit": "MEO",
@@ -95,5 +85,6 @@
       "slots_total": 4,
       "slots_taken": 1
     }
-  ]
+  ],
+  "news": []
 }
