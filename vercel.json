@@ -6,6 +6,9 @@
   "functions": {
     "api/submit.js": {
       "maxDuration": 15
+    },
+    "api/discord-health.js": {
+      "maxDuration": 10
     }
   }
 }

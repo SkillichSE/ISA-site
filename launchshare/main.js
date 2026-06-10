@@ -119,9 +119,8 @@ const uploadZone = document.getElementById('upload-zone');
 const fileInput = document.getElementById('file-input');
 
 uploadZone.addEventListener('click', (e) => {
-  if (e.target === uploadZone || e.target.id === 'upload-inner' || e.target.closest('#upload-inner')) {
-    fileInput.click();
-  }
+  if (e.target.closest('.upload-remove') || e.target.closest('#upload-selected')) return;
+  fileInput.click();
 });
 
 uploadZone.addEventListener('dragover', (e) => {
