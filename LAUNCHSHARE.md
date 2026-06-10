@@ -1,42 +1,41 @@
-# Launchshare + Discord
+# Launchshare form (Vercel)
 
-## Website form → server channel
+## What happens on submit
 
-Users submit on the site → `/api/submit` (Vercel) → embed + file in channel `1513506023892193392` → auto-DM confirmation to the user.
+1. User fills the form on `/launchshare/`
+2. Browser sends `POST /api/submit`
+3. Vercel posts an embed (+ optional file) to Discord channel **`1513506023892193392`**
 
-**Vercel env:** `DISCORD_BOT_TOKEN`, `LAUNCH_CHANNEL_ID`, `GUILD_ID`
+No DMs — only the staff channel.
 
----
+## Vercel setup
 
-## Staff DMs → members (private, no server spam)
+**Settings → Environment Variables:**
 
-Message the bot **in DM** — nothing gets posted on the server.
+| Name | Value |
+|------|--------|
+| `DISCORD_BOT_TOKEN` | Bot token from Developer Portal |
+| `LAUNCH_CHANNEL_ID` | `1513506023892193392` |
 
+(`GUILD_ID` is optional — only in `vercel.json` for reference.)
+
+**Bot on server:**
+- View Channel, Send Messages, Attach Files, Embed Links in the launch channel
+
+## Troubleshooting
+
+| Error | Fix |
+|-------|-----|
+| Invalid bot token | Use **Bot → Token**, not Application ID or Public Key |
+| Bot cannot see the channel | Invite bot to server; channel permissions → View Channel for bot role |
+| Missing Permissions | Send Messages, Embed Links, Attach Files in launch channel |
+| Launch channel not found | Confirm channel ID `1513506023892193392` |
+
+Local test (create `.env` from `.env.example`):
+
+```bash
+npm install dotenv
+node scripts/test-discord-submit.js
 ```
-dm username Your launch slot is confirmed!
-send @user Please update your contraption file.
-```
 
-### Bot setup
-
-1. Developer Portal → Bot:
-   - **Message Content Intent** ✅
-   - **Server Members Intent** ✅
-
-2. `.env`:
-   ```
-   DISCORD_BOT_TOKEN=...
-   ADMIN_DISCORD_IDS=your_discord_user_id
-   GUILD_ID=1507774799194099903
-   ```
-
-3. Run (must stay online 24/7):
-   ```bash
-   cd bot
-   npm install
-   npm start
-   ```
-
-Deploy `bot/` to Railway or Render — see `bot/README.md`.
-
-Only IDs in `ADMIN_DISCORD_IDS` can use the bot. Multiple admins: `111,222,333`
+Redeploy Vercel after changing env vars.

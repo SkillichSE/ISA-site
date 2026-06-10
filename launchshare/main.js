@@ -151,8 +151,8 @@ function handleFile(file) {
     alert('File type not allowed. Accepted: .nbt, .snbt, .json, .png, .jpg');
     return;
   }
-  if (file.size > 4 * 1024 * 1024) {
-    alert('File is too large. Max size is 4 MB.');
+  if (file.size > 3 * 1024 * 1024) {
+    alert('File is too large. Max size is 3 MB.');
     return;
   }
   document.getElementById('upload-inner').style.display = 'none';
@@ -198,17 +198,13 @@ function showFormError(message) {
   el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-function showFormSuccess(dmSent) {
+function showFormSuccess() {
   document.getElementById('launch-form').style.display = 'none';
   document.querySelector('.form-progress').style.display = 'none';
   document.getElementById('form-success').style.display = 'block';
 
-  const sub = document.getElementById('form-success-sub');
-  if (dmSent) {
-    sub.innerHTML = 'A confirmation was sent to your Discord DMs. Make sure you\'re in the <a href="https://discord.gg/CMDSKwTBnm" target="_blank">ISA Discord</a>.';
-  } else {
-    sub.innerHTML = 'Your request was posted for the ISA team. We couldn\'t DM you — check that your Discord username is correct and that you\'re in the <a href="https://discord.gg/CMDSKwTBnm" target="_blank">ISA Discord</a> with DMs open.';
-  }
+  document.getElementById('form-success-sub').innerHTML =
+    'Your request was sent to the ISA team. We will review it within <strong>48 hours</strong>. Make sure you\'re in the <a href="https://discord.gg/CMDSKwTBnm" target="_blank">ISA Discord</a>.';
 }
 
 function getLaunchApiUrl() {
@@ -280,7 +276,7 @@ document.getElementById('launch-form').addEventListener('submit', async (e) => {
       throw new Error(result.error || 'Submission failed. Please try again.');
     }
 
-    showFormSuccess(Boolean(result.dmSent));
+    showFormSuccess();
   } catch (error) {
     showFormError(error.message || 'Could not submit your request. Try again in a moment.');
     submitBtn.textContent = defaultLabel;

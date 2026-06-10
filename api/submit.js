@@ -1,12 +1,28 @@
 const { processLaunchRequest } = require('../lib/discord-launch');
 
+async function readJsonBody(req) {
+  if (req.body && typeof req.body === 'object') {
+    return req.body;
+  }
+
+  const chunks = [];
+  for await (const chunk of req) {
+    chunks.push(chunk);
+  }
+
+  const raw = Buffer.concat(chunks).toString('utf8');
+  if (!raw) return {};
+  return JSON.parse(raw);
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
   try {
-    const result = await processLaunchRequest(req.body || {}, process.env);
+    const body = await readJsonBody(req);
+    const result = await processLaunchRequest(body, process.env);
     return res.status(200).json(result);
   } catch (error) {
     const status = error.status || 500;
