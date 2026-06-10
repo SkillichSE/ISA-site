@@ -2,18 +2,6 @@
   "missions": [],
   "careers": [
     {
-      "id": "mission-analyst",
-      "title": "Deep Space Mission Analyst",
-      "program": "Horizon Ã¢ÂÂ Deep Space Research",
-      "type": "Volunteer",
-      "description": "Research and document interplanetary mission concepts. Analyze transit windows, delta-v budgets, and life support requirements. Strong academic background in aerospace or physics preferred.",
-      "skills": [
-        "Mission Analysis",
-        "Astrodynamics",
-        "Research Writing"
-      ]
-    },
-    {
       "id": "structural-engineer",
       "title": "Structural Systems Engineer",
       "program": "Titan Ã¢ÂÂ Orbital Infrastructure",
