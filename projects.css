@@ -1,0 +1,99 @@
+.section-missions {
+  padding: 80px 0 120px;
+  border-bottom: 1px solid var(--line);
+}
+.missions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mission-item {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.mission-item:hover { border-color: var(--line2); }
+.mission-image {
+  background-size: cover;
+  background-position: center;
+  min-height: 240px;
+}
+.mission-body {
+  padding: 36px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--panel);
+}
+.mission-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mission-status {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+.status-active { background: rgba(34,197,94,0.12); color: #22c55e; }
+.status-development { background: rgba(251,191,36,0.12); color: #fbbf24; }
+.mission-division { font-size: 0.78rem; color: var(--muted2); font-weight: 500; }
+.mission-title {
+  font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+  font-weight: 900;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+.mission-desc {
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 600px;
+}
+.mission-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+.mission-tags span {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted2);
+  border: 1px solid var(--line2);
+  border-radius: 6px;
+  padding: 4px 10px;
+  letter-spacing: 0.3px;
+}
+.section-join-cta {
+  padding: 100px 0;
+}
+.join-cta-inner {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 64px;
+  align-items: center;
+}
+.join-cta-inner h2 {
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  font-weight: 900;
+  letter-spacing: -1.5px;
+  line-height: 1.02;
+  margin-bottom: 12px;
+  margin-top: 12px;
+}
+.join-cta-inner p { color: var(--muted); font-size: 0.95rem; max-width: 420px; }
+.join-cta-actions { display: flex; flex-direction: column; gap: 12px; min-width: 200px; }
+
+@media (max-width: 900px) {
+  .mission-item { grid-template-columns: 1fr; }
+  .mission-image { min-height: 200px; }
+}
+@media (max-width: 768px) {
+  .join-cta-inner { grid-template-columns: 1fr; gap: 32px; }
+}
