@@ -138,26 +138,28 @@
 
   <script src="shared.js"></script>
   <script>
-    fetch('data.json?_=' + Date.now())
-      .then(r => r.json())
-      .then(data => {
-        // Stats
-        document.getElementById('stat-projects').textContent = data.missions.length;
-        const openLaunches = data.launches.filter(l => l.status === 'open' || l.status === 'upcoming').length;
-        document.getElementById('stat-launches').textContent = openLaunches;
+    const SB_URL = 'https://fqvghuvmgswegirgitom.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxdmdodXZtZ3N3ZWdpcmdpdG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTI4MTAsImV4cCI6MjA5NjY4ODgxMH0.7tKrak3ANnnhp4pISK2ythPdCt557vMACUhpQsqWn0s';
+    const sbHeaders = { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` };
 
-        // Projects grid — first 2 large, rest small
-        const sizeClass = (i) => i < 2 ? 'project-large' : 'project-small';
-        document.getElementById('projects-grid').innerHTML = data.missions.map((m, i) => `
-          <a class="project-card ${sizeClass(i)} reveal-target" href="projects.html" style="background-image:url('${m.image}')">
-            <div class="project-overlay"></div>
-            <div class="project-info">
-              <span class="project-name">${m.name}</span>
-              <span class="project-sub">${m.division}</span>
-            </div>
-          </a>`).join('');
-      })
-      .catch(() => {});
+    Promise.all([
+      fetch(`${SB_URL}/rest/v1/missions?order=id`, { headers: sbHeaders }).then(r => r.json()),
+      fetch(`${SB_URL}/rest/v1/launches?order=id`, { headers: sbHeaders }).then(r => r.json()),
+    ]).then(([missions, launches]) => {
+      document.getElementById('stat-projects').textContent = missions.length;
+      const openLaunches = launches.filter(l => l.status === 'open' || l.status === 'upcoming').length;
+      document.getElementById('stat-launches').textContent = openLaunches;
+
+      const sizeClass = (i) => i < 2 ? 'project-large' : 'project-small';
+      document.getElementById('projects-grid').innerHTML = missions.map((m, i) => `
+        <a class="project-card ${sizeClass(i)} reveal-target" href="projects.html" style="background-image:url('${m.image||''}')">
+          <div class="project-overlay"></div>
+          <div class="project-info">
+            <span class="project-name">${m.name}</span>
+            <span class="project-sub">${m.division}</span>
+          </div>
+        </a>`).join('');
+    }).catch(() => {});
   </script>
 </body>
 </html>

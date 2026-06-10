@@ -162,6 +162,17 @@
     /* ── LAUNCH SLOTS ── */
     .slots-bar { height:4px; background:var(--surface3); border-radius:2px; margin-top:6px; overflow:hidden; width:120px; }
     .slots-fill { height:100%; background:var(--accent); border-radius:2px; transition:width .4s; }
+
+    /* ── IMAGE UPLOAD ── */
+    .img-field-wrap { display:flex; flex-direction:column; gap:8px; }
+    .img-input-row { display:flex; gap:8px; align-items:center; }
+    .img-input-row input { flex:1; }
+    .btn-upload-img { background:var(--surface3); border:1px solid var(--border); color:var(--text-2); border-radius:var(--r-sm); padding:9px 14px; font-family:inherit; font-size:12px; font-weight:500; cursor:pointer; white-space:nowrap; transition:all .15s; flex-shrink:0; }
+    .btn-upload-img:hover { border-color:var(--border2); color:var(--text); }
+    .btn-upload-img:disabled { opacity:.5; cursor:not-allowed; }
+    .img-preview { width:100%; height:120px; border-radius:var(--r-sm); background:var(--surface3); border:1px solid var(--border); background-size:cover; background-position:center; display:none; }
+    .img-preview.visible { display:block; }
+    #img-file-input { display:none; }
   </style>
 </head>
 <body>
@@ -245,6 +256,7 @@
 </div>
 
 <div id="toast"><div class="toast-dot"></div><span id="toast-msg"></span></div>
+<input type="file" id="img-file-input" accept="image/*">
 
 <script>
 const SB_URL  = 'https://fqvghuvmgswegirgitom.supabase.co';
@@ -438,6 +450,53 @@ function overlayClick(e) { if(e.target===document.getElementById('overlay')) clo
 function field(id, lbl, val='', hint='', type='text') {
   return `<div class="form-row"><label>${lbl}</label><input type="${type}" id="f-${id}" value="${esc(String(val))}"><div class="form-hint">${hint}</div></div>`;
 }
+function imgField(id, lbl, val='') {
+  return `<div class="form-row"><label>${lbl}</label>
+    <div class="img-field-wrap">
+      <div class="img-input-row">
+        <input type="text" id="f-${id}" value="${esc(String(val))}" placeholder="https://... or upload below" oninput="updateImgPreview('${id}')">
+        <button type="button" class="btn-upload-img" id="upload-btn-${id}" onclick="triggerUpload('${id}')">↑ Upload</button>
+      </div>
+      <div class="img-preview" id="img-preview-${id}" style="${val ? `background-image:url('${esc(val)}')` : ''}; ${val ? 'display:block' : ''}"></div>
+    </div>
+  </div>`;
+}
+function updateImgPreview(id) {
+  const url = document.getElementById('f-'+id)?.value?.trim();
+  const preview = document.getElementById('img-preview-'+id);
+  if (!preview) return;
+  if (url) { preview.style.backgroundImage = `url('${url}')`; preview.classList.add('visible'); }
+  else { preview.classList.remove('visible'); }
+}
+function triggerUpload(fieldId) {
+  const input = document.getElementById('img-file-input');
+  input.onchange = () => uploadImage(input, fieldId);
+  input.click();
+}
+async function uploadImage(input, fieldId) {
+  const file = input.files[0];
+  if (!file) return;
+  const btn = document.getElementById('upload-btn-'+fieldId);
+  btn.disabled = true; btn.textContent = 'Uploading…';
+  try {
+    const ext = file.name.split('.').pop();
+    const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const r = await fetch(`${SB_URL}/storage/v1/object/images/${filename}`, {
+      method: 'POST',
+      headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': file.type, 'x-upsert': 'true' },
+      body: file
+    });
+    if (!r.ok) throw new Error((await r.json()).message || 'Upload failed');
+    const publicUrl = `${SB_URL}/storage/v1/object/public/images/${filename}`;
+    document.getElementById('f-'+fieldId).value = publicUrl;
+    updateImgPreview(fieldId);
+    toast('Image uploaded ✓', 'success');
+  } catch(e) {
+    toast('Upload error: '+e.message, 'error');
+  }
+  btn.disabled = false; btn.textContent = '↑ Upload';
+  input.value = '';
+}
 function ta(id, lbl, val='') {
   return `<div class="form-row"><label>${lbl}</label><textarea id="f-${id}">${esc(String(val))}</textarea></div>`;
 }
@@ -456,7 +515,7 @@ function buildForm(type, item) {
     ${field('division','Division',v('division'),'e.g. Launch Systems')}
     ${ta('description','Description',v('description'))}
     ${field('tags','Tags',Array.isArray(v('tags'))?v('tags',[]).join(', '):v('tags'),'Comma-separated')}
-    ${field('image','Image URL',v('image'))}`;
+    ${imgField('image','Image',v('image'))}`;
   if (type==='careers') return `
     <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. gnc-engineer')}${sel('type','Type',v('type','Volunteer'),['Volunteer','Part-time','Full-time'])}</div>
     ${field('title','Job Title',v('title'))}
@@ -474,7 +533,7 @@ function buildForm(type, item) {
     ${field('title','Title',v('title'))}
     ${field('date','Date',v('date'),'e.g. Jun 2, 2026')}
     ${ta('body','Summary / Body',v('body'))}
-    ${field('image','Image URL',v('image'),'Unsplash or other image URL')}
+    ${imgField('image','Image',v('image'))}
     ${field('link','Read More Link',v('link','projects.html'),'Relative or absolute URL')}`;
 }
 

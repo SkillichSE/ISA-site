@@ -76,14 +76,19 @@
 
   <script src="shared.js"></script>
   <script>
-    fetch('data.json?_=' + Date.now())
+    const SB_URL = 'https://fqvghuvmgswegirgitom.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxdmdodXZtZ3N3ZWdpcmdpdG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTI4MTAsImV4cCI6MjA5NjY4ODgxMH0.7tKrak3ANnnhp4pISK2ythPdCt557vMACUhpQsqWn0s';
+
+    fetch(`${SB_URL}/rest/v1/missions?order=id`, {
+      headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+    })
       .then(r => r.json())
-      .then(data => {
+      .then(missions => {
         const statusLabel = { active: 'Active', development: 'In Development', inactive: 'Inactive' };
         const statusClass = { active: 'status-active', development: 'status-development', inactive: 'status-inactive' };
-        document.getElementById('missions-list').innerHTML = data.missions.map(m => `
+        document.getElementById('missions-list').innerHTML = missions.map(m => `
           <div class="mission-item reveal-target">
-            <div class="mission-image" style="background-image:url('${m.image}')"></div>
+            <div class="mission-image" style="background-image:url('${m.image||''}')"></div>
             <div class="mission-body">
               <div class="mission-meta">
                 <span class="mission-status ${statusClass[m.status] || ''}">${statusLabel[m.status] || m.status}</span>
@@ -91,7 +96,7 @@
               </div>
               <h2 class="mission-title">${m.name}</h2>
               <p class="mission-desc">${m.description}</p>
-              <div class="mission-tags">${m.tags.map(t => `<span>${t}</span>`).join('')}</div>
+              <div class="mission-tags">${(m.tags||[]).map(t => `<span>${t}</span>`).join('')}</div>
             </div>
           </div>`).join('');
       })

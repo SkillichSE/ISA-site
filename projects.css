@@ -5,7 +5,7 @@
 .missions-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 12px;
 }
 .mission-item {
   display: grid;
