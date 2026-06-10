@@ -1,19 +1,6 @@
 {
   "missions": [
     {
-      "id": "horizon",
-      "name": "Horizon",
-      "division": "Deep Space Research",
-      "status": "active",
-      "description": "Theoretical and simulation-based research into deep space mission profiles. Horizon investigates interplanetary transit windows, radiation shielding concepts, and long-duration life support frameworks.",
-      "tags": [
-        "Interplanetary",
-        "Simulation",
-        "Life Support"
-      ],
-      "image": "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=900&auto=format&fit=crop"
-    },
-    {
       "id": "titan",
       "name": "Titan",
       "division": "Orbital Infrastructure",
