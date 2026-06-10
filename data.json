@@ -2,18 +2,6 @@
   "missions": [],
   "careers": [
     {
-      "id": "gnc-engineer",
-      "title": "Trajectory & GNC Engineer",
-      "program": "Atlas Ã¢ÂÂ Launch Systems",
-      "type": "Volunteer",
-      "description": "Model ascent trajectories, stage separation events, and closed-loop guidance logic for the Atlas launch vehicle. Experience with orbital mechanics software (GMAT, STK, or equivalent) preferred.",
-      "skills": [
-        "Orbital Mechanics",
-        "MATLAB / Python",
-        "GNC"
-      ]
-    },
-    {
       "id": "mission-analyst",
       "title": "Deep Space Mission Analyst",
       "program": "Horizon Ã¢ÂÂ Deep Space Research",
