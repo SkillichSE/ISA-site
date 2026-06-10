@@ -78,10 +78,15 @@
 
   <script src="shared.js"></script>
   <script>
-    fetch('data.json?_=' + Date.now())
+    const SB_URL = 'https://fqvghuvmgswegirgitom.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxdmdodXZtZ3N3ZWdpcmdpdG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTI4MTAsImV4cCI6MjA5NjY4ODgxMH0.7tKrak3ANnnhp4pISK2ythPdCt557vMACUhpQsqWn0s';
+
+    fetch(`${SB_URL}/rest/v1/careers?order=id`, {
+      headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+    })
       .then(r => r.json())
-      .then(data => {
-        document.getElementById('careers-list').innerHTML = data.careers.map(c => `
+      .then(careers => {
+        document.getElementById('careers-list').innerHTML = careers.map(c => `
           <div class="career-item reveal-target">
             <div class="career-header">
               <div>
@@ -94,7 +99,7 @@
               </div>
             </div>
             <p>${c.description}</p>
-            <div class="career-skills">${c.skills.map(s => `<span>${s}</span>`).join('')}</div>
+            <div class="career-skills">${(c.skills||[]).map(s => `<span>${s}</span>`).join('')}</div>
           </div>`).join('');
       })
       .catch(() => {

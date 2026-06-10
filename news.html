@@ -55,18 +55,20 @@
     </div>
   </footer>
   <script>
-    const DATA_URL = 'https://raw.githubusercontent.com/SkillichSE/ISA-site/main/data.json';
+    const SB_URL = 'https://fqvghuvmgswegirgitom.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxdmdodXZtZ3N3ZWdpcmdpdG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTI4MTAsImV4cCI6MjA5NjY4ODgxMH0.7tKrak3ANnnhp4pISK2ythPdCt557vMACUhpQsqWn0s';
 
     async function loadNews() {
       const featuredWrap = document.getElementById('news-featured-wrap');
       const grid = document.getElementById('news-grid');
       try {
-        const res = await fetch(DATA_URL);
-        const data = await res.json();
-        const posts = (data.news || []);
+        const r = await fetch(`${SB_URL}/rest/v1/news?order=id.desc`, {
+          headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+        });
+        const posts = await r.json();
         if (!posts.length) {
           featuredWrap.innerHTML = '';
-          grid.innerHTML = '<p style="color:var(--text-2,#aaa);padding:40px 0">No news yet.</p>';
+          grid.innerHTML = '<p style="color:var(--muted,#aaa);padding:40px 0">No news yet.</p>';
           return;
         }
         const [featured, ...rest] = posts;

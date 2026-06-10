@@ -178,14 +178,14 @@
     </div>
     <div class="login-card">
       <div class="login-title">Sign in</div>
-      <div class="login-desc">Enter your GitHub fine-grained token to access the panel.</div>
+      <div class="login-desc">Enter the admin password to access the panel.</div>
       <div class="field">
-        <label>GitHub Token</label>
-        <input type="password" id="token-input" placeholder="github_pat_..." autocomplete="off" spellcheck="false">
-        <div class="field-hint">Needs Contents: read &amp; write on ISA-site. Token stays in memory only.</div>
+        <label>Password</label>
+        <input type="password" id="token-input" placeholder="••••••••" autocomplete="off">
+        <div class="field-hint">Contact the site owner if you don't have access.</div>
       </div>
       <button class="btn-login" id="login-btn" onclick="doLogin()">Continue →</button>
-      <div class="login-err" id="login-err">Invalid token or no access to repository.</div>
+      <div class="login-err" id="login-err">Incorrect password.</div>
     </div>
   </div>
 </div>
@@ -199,7 +199,7 @@
       <span class="topbar-pill">Content Manager</span>
     </div>
     <div class="topbar-right">
-      <a class="topbar-repo" href="https://github.com/SkillichSE/ISA-site" target="_blank">SkillichSE/ISA-site ↗</a>
+      <a class="topbar-repo" href="https://supabase.com/dashboard/project/fqvghuvmgswegirgitom" target="_blank">Supabase ↗</a>
       <button class="btn-logout" onclick="logout()">Sign out</button>
     </div>
   </div>
@@ -213,7 +213,7 @@
       <button class="nav-btn" onclick="nav('news',this)"><span class="nav-icon">📰</span> News</button>
 
       <div class="sidebar-bottom">
-        <div class="sidebar-info">Changes commit directly to GitHub. Vercel auto-deploys within ~30s.</div>
+        <div class="sidebar-info">Changes save instantly to Supabase. No deploys needed.</div>
       </div>
     </nav>
 
@@ -247,60 +247,74 @@
 <div id="toast"><div class="toast-dot"></div><span id="toast-msg"></span></div>
 
 <script>
-const REPO = 'SkillichSE/ISA-site';
-const FILE = 'data.json';
-let TOKEN = null, data = null, sha = null;
+const SB_URL  = 'https://fqvghuvmgswegirgitom.supabase.co';
+const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxdmdodXZtZ3N3ZWdpcmdpdG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTI4MTAsImV4cCI6MjA5NjY4ODgxMH0.7tKrak3ANnnhp4pISK2ythPdCt557vMACUhpQsqWn0s';
+const ADMIN_PASSWORD = 'isa-admin-2026'; // ← поменяй на свой пароль
+
+let data = { missions:[], careers:[], launches:[], news:[] };
 let page = 'missions', editId = null, editType = null;
+
+// ── SUPABASE HELPERS
+async function sbFetch(table, method='GET', body=null, filters='') {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}${filters}`, {
+    method,
+    headers: {
+      'apikey': SB_KEY,
+      'Authorization': `Bearer ${SB_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': method === 'POST' ? 'return=representation' : 'return=minimal'
+    },
+    body: body ? JSON.stringify(body) : null
+  });
+  if (!r.ok) {
+    const e = await r.json().catch(()=>({}));
+    throw new Error(e.message || `HTTP ${r.status}`);
+  }
+  if (method === 'GET') return r.json();
+  return true;
+}
+
+async function loadAll() {
+  const [missions, careers, launches, news] = await Promise.all([
+    sbFetch('missions', 'GET', null, '?order=id'),
+    sbFetch('careers',  'GET', null, '?order=id'),
+    sbFetch('launches', 'GET', null, '?order=id'),
+    sbFetch('news',     'GET', null, '?order=id'),
+  ]);
+  data = { missions, careers, launches, news };
+}
 
 // ── AUTH
 async function doLogin() {
   const btn = document.getElementById('login-btn');
   const err = document.getElementById('login-err');
-  const t = document.getElementById('token-input').value.trim();
-  if (!t) return;
+  const pwd = document.getElementById('token-input').value.trim();
+  if (!pwd) return;
   btn.disabled = true; btn.textContent = 'Signing in…'; err.style.display = 'none';
   try {
-    if (await loadData(t)) {
-      TOKEN = t;
-      document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('app').style.display = 'block';
-      render();
-    } else { err.style.display = 'block'; }
-  } catch { err.style.display = 'block'; }
+    const check = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pwd })
+    });
+    if (!check.ok) { err.textContent = 'Incorrect password.'; err.style.display = 'block'; btn.disabled=false; btn.textContent='Continue →'; return; }
+    await loadAll();
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    render();
+  } catch(e) {
+    err.textContent = 'Connection error: ' + e.message;
+    err.style.display = 'block';
+  }
   btn.disabled = false; btn.textContent = 'Continue →';
 }
 document.getElementById('token-input').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
 
 function logout() {
-  TOKEN=null; data=null; sha=null;
+  data = { missions:[], careers:[], launches:[], news:[] };
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('app').style.display='none';
   document.getElementById('token-input').value='';
-}
-
-// ── GITHUB
-async function loadData(token) {
-  const r = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE}`, {
-    headers: { Authorization:`Bearer ${token}`, Accept:'application/vnd.github.v3+json' }
-  });
-  if (!r.ok) return false;
-  const j = await r.json();
-  sha = j.sha;
-  data = JSON.parse(atob(j.content.replace(/\n/g,'')));
-  if (!data.news) data.news = [];
-  return true;
-}
-
-async function pushData() {
-  const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
-  const r = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE}`, {
-    method:'PUT',
-    headers:{ Authorization:`Bearer ${TOKEN}`, 'Content-Type':'application/json' },
-    body: JSON.stringify({ message:'admin: update data.json', content, sha })
-  });
-  if (!r.ok) throw new Error((await r.json()).message || 'GitHub error');
-  const j = await r.json();
-  sha = j.content.sha;
 }
 
 // ── NAV
@@ -336,7 +350,7 @@ function pageMissions() {
         <button class="btn-edit" onclick="openEdit('missions','${m.id}')">Edit</button>
         <button class="btn-del" onclick="del('missions','${m.id}')" title="Delete">✕</button>
       </div>
-    </div>`).join('') : `<div class="empty"><div class="empty-icon">🚀</div>No missions yet. Add one to get started.</div>`;
+    </div>`).join('') : `<div class="empty"><div class="empty-icon">🚀</div>No missions yet.</div>`;
   return `<div class="page-head"><div class="page-head-left"><div class="page-title">Missions</div><div class="page-desc">Programs shown on the Projects page.</div></div><button class="btn-add" onclick="openNew('missions')">+ Add Mission</button></div><div class="item-list">${items}</div>`;
 }
 
@@ -358,7 +372,7 @@ function pageCareers() {
         <button class="btn-del" onclick="del('careers','${c.id}')" title="Delete">✕</button>
       </div>
     </div>`).join('') : `<div class="empty"><div class="empty-icon">💼</div>No positions yet.</div>`;
-  return `<div class="page-head"><div class="page-head-left"><div class="page-title">Careers</div><div class="page-desc">Open volunteer positions on the Careers page.</div></div><button class="btn-add" onclick="openNew('careers')">+ Add Position</button></div><div class="item-list">${items}</div>`;
+  return `<div class="page-head"><div class="page-head-left"><div class="page-title">Careers</div><div class="page-desc">Open volunteer positions.</div></div><button class="btn-add" onclick="openNew('careers')">+ Add Position</button></div><div class="item-list">${items}</div>`;
 }
 
 // ── LAUNCHES
@@ -388,7 +402,6 @@ function pageLaunches() {
 
 // ── NEWS
 function pageNews() {
-  if (!data.news) data.news = [];
   const tagColors = { 'Mission Update':'badge-active','Community':'badge-upcoming','Research':'badge-development','Engineering':'badge-volunteer','Launchshare':'badge-inactive' };
   const items = data.news.length ? data.news.map(n=>`
     <div class="item-card">
@@ -409,6 +422,7 @@ function pageNews() {
   return `<div class="page-head"><div class="page-head-left"><div class="page-title">News</div><div class="page-desc">Updates shown on the News page.</div></div><button class="btn-add" onclick="openNew('news')">+ Add Post</button></div><div class="item-list">${items}</div>`;
 }
 
+// ── MODAL
 function openNew(type) { editId=null; editType=type; openModal(`New ${label(type)}`, buildForm(type, null)); }
 function openEdit(type, id) { editId=id; editType=type; openModal(`Edit ${label(type)}`, buildForm(type, data[type].find(x=>x.id===id))); }
 function label(t) { return {missions:'Mission',careers:'Position',launches:'Launch',news:'News Post'}[t]; }
@@ -449,6 +463,12 @@ function buildForm(type, item) {
     ${field('program','Program',v('program'),'e.g. Atlas — Launch Systems')}
     ${ta('description','Description',v('description'))}
     ${field('skills','Skills',Array.isArray(v('skills'))?v('skills',[]).join(', '):v('skills'),'Comma-separated')}`;
+  if (type==='launches') return `
+    <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. launch-003')}${sel('status','Status',v('status','open'),['open','upcoming','closed','full'])}</div>
+    ${field('name','Mission Name',v('name'))}
+    <div class="form-row-2">${sel('orbit','Orbit',v('orbit','LEO'),['LEO','MEO','GEO','SSO','HEO'])}${field('date','Date',v('date'),'YYYY-MM-DD')}</div>
+    ${ta('description','Description',v('description'))}
+    <div class="form-row-2">${field('slots_total','Total Slots',v('slots_total',4),'','number')}${field('slots_taken','Slots Taken',v('slots_taken',0),'','number')}</div>`;
   if (type==='news') return `
     <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. atlas-review-2026')}${sel('tag','Tag',v('tag','Mission Update'),['Mission Update','Community','Research','Engineering','Launchshare'])}</div>
     ${field('title','Title',v('title'))}
@@ -456,12 +476,6 @@ function buildForm(type, item) {
     ${ta('body','Summary / Body',v('body'))}
     ${field('image','Image URL',v('image'),'Unsplash or other image URL')}
     ${field('link','Read More Link',v('link','projects.html'),'Relative or absolute URL')}`;
-  if (type==='launches') return `
-    <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. launch-003')}${sel('status','Status',v('status','open'),['open','upcoming','closed','full'])}</div>
-    ${field('name','Mission Name',v('name'))}
-    <div class="form-row-2">${sel('orbit','Orbit',v('orbit','LEO'),['LEO','MEO','GEO','SSO','HEO'])}${field('date','Date',v('date'),'YYYY-MM-DD')}</div>
-    ${ta('description','Description',v('description'))}
-    <div class="form-row-2">${field('slots_total','Total Slots',v('slots_total',4),'',  'number')}${field('slots_taken','Slots Taken',v('slots_taken',0),'','number')}</div>`;
 }
 
 function getForm(type) {
@@ -476,37 +490,42 @@ async function saveItem() {
   if (!item.id) { toast('ID is required','error'); return; }
   const btn = document.getElementById('btn-save');
   btn.disabled = true;
-  if (editId) {
-    const i = data[editType].findIndex(x=>x.id===editId);
-    if (i>-1) data[editType][i]=item;
-  } else {
-    if (data[editType].find(x=>x.id===item.id)) { toast('ID already exists','error'); btn.disabled=false; return; }
-    data[editType].push(item);
+  document.getElementById('saving-overlay').classList.remove('hidden');
+  try {
+    const exists = data[editType].find(x=>x.id===item.id);
+    if (editId) {
+      // UPDATE
+      await sbFetch(editType, 'PATCH', item, `?id=eq.${encodeURIComponent(editId)}`);
+      const i = data[editType].findIndex(x=>x.id===editId);
+      if (i>-1) data[editType][i] = item;
+    } else {
+      // INSERT
+      if (exists) { toast('ID already exists','error'); btn.disabled=false; document.getElementById('saving-overlay').classList.add('hidden'); return; }
+      await sbFetch(editType, 'POST', item);
+      data[editType].push(item);
+    }
+    closeModal();
+    toast('Saved ✓','success');
+    render();
+  } catch(e) {
+    toast('Error: '+e.message,'error');
   }
-  closeModal();
-  await save();
   btn.disabled = false;
+  document.getElementById('saving-overlay').classList.add('hidden');
 }
 
 async function del(type, id) {
   if (!confirm('Delete this item?')) return;
-  data[type] = data[type].filter(x=>x.id!==id);
-  await save();
-}
-
-async function save() {
   document.getElementById('saving-overlay').classList.remove('hidden');
   try {
-    await pushData();
-    toast('Saved & deployed ✓','success');
+    await sbFetch(type, 'DELETE', null, `?id=eq.${encodeURIComponent(id)}`);
+    data[type] = data[type].filter(x=>x.id!==id);
+    toast('Deleted','success');
     render();
   } catch(e) {
-    toast('Save failed: '+e.message,'error');
-    await loadData(TOKEN);
-    render();
-  } finally {
-    document.getElementById('saving-overlay').classList.add('hidden');
+    toast('Error: '+e.message,'error');
   }
+  document.getElementById('saving-overlay').classList.add('hidden');
 }
 
 // ── TOAST
