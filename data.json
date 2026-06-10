@@ -1,19 +1,6 @@
 {
   "missions": [
     {
-      "id": "ares",
-      "name": "Ares",
-      "division": "Propulsion Engineering",
-      "status": "active",
-      "description": "Advanced propulsion concepts including electric ion drives, cold gas thrusters, and experimental hybrid engines. Ares produces engineering documentation and simulation models for ISA launch vehicles.",
-      "tags": [
-        "Ion Drive",
-        "Hybrid Engine",
-        "Thruster Design"
-      ],
-      "image": "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?q=80&w=900&auto=format&fit=crop"
-    },
-    {
       "id": "nova",
       "name": "Nova",
       "division": "Satellite Systems",
