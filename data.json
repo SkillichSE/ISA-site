@@ -2,18 +2,6 @@
   "missions": [],
   "careers": [
     {
-      "id": "structural-engineer",
-      "title": "Structural Systems Engineer",
-      "program": "Titan Ã¢ÂÂ Orbital Infrastructure",
-      "type": "Volunteer",
-      "description": "Design habitat module structural elements, load path analysis, and docking interface geometry for the Titan orbital station concept. FEA experience a plus.",
-      "skills": [
-        "Structural Analysis",
-        "CAD",
-        "FEA"
-      ]
-    },
-    {
       "id": "propulsion-sim",
       "title": "Propulsion Simulation Engineer",
       "program": "Ares Ã¢ÂÂ Propulsion Engineering",
