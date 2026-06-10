@@ -176,6 +176,19 @@ body {
 }
 .footer-links a:hover { color: var(--text); }
 
+.isa-social-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.join-social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
 /* ---- BUTTONS ---- */
 .btn-discord {
   display: inline-flex;

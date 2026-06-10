@@ -98,6 +98,41 @@ if (burger && navLinks) {
   });
 })();
 
+// ---- SOCIAL LINKS ----
+const ISA_SOCIAL = {
+  tiktok: 'https://www.tiktok.com/@isaspaceagency',
+  youtube: 'https://www.youtube.com/@isa-space-agency',
+};
+
+(function injectSocialLinks() {
+  const items = [
+    ['TikTok', ISA_SOCIAL.tiktok],
+    ['YouTube', ISA_SOCIAL.youtube],
+  ];
+
+  function addLink(container, label, href, className) {
+    if (container.querySelector(`a[href="${href}"]`)) return;
+    const link = document.createElement('a');
+    link.href = href;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = label;
+    if (className) link.className = className;
+    container.appendChild(link);
+  }
+
+  document.querySelectorAll('.footer-links').forEach((container) => {
+    items.forEach(([label, href]) => addLink(container, label, href));
+  });
+
+  document.querySelectorAll('[data-isa-social]').forEach((container) => {
+    const asButtons = container.dataset.isaSocial === 'buttons';
+    items.forEach(([label, href]) => {
+      addLink(container, label, href, asButtons ? 'btn-outline' : '');
+    });
+  });
+})();
+
 // ---- DISCORD STATS ----
 fetchDiscordStats();
 setInterval(fetchDiscordStats, 300000);
