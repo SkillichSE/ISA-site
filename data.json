@@ -2,18 +2,6 @@
   "missions": [],
   "careers": [
     {
-      "id": "embedded-engineer",
-      "title": "Embedded Systems Engineer",
-      "program": "Nova Ã¢ÂÂ Satellite Systems",
-      "type": "Volunteer",
-      "description": "Develop onboard software for the Nova CubeSat platform. Implement ADCS control loops, telemetry pipelines, and fault detection routines on a resource-constrained embedded target.",
-      "skills": [
-        "Embedded C",
-        "RTOS",
-        "ADCS"
-      ]
-    },
-    {
       "id": "community-lead",
       "title": "Community & Operations Lead",
       "program": "ISA Ã¢ÂÂ Operations",
