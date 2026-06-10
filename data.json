@@ -2,18 +2,6 @@
   "missions": [],
   "careers": [
     {
-      "id": "propulsion-sim",
-      "title": "Propulsion Simulation Engineer",
-      "program": "Ares Ã¢ÂÂ Propulsion Engineering",
-      "type": "Volunteer",
-      "description": "Develop and validate simulation models for Ares thruster concepts. Work alongside hardware leads to ensure simulation fidelity matches bench test results.",
-      "skills": [
-        "CFD",
-        "Python / C++",
-        "Thermodynamics"
-      ]
-    },
-    {
       "id": "embedded-engineer",
       "title": "Embedded Systems Engineer",
       "program": "Nova Ã¢ÂÂ Satellite Systems",
