@@ -210,6 +210,7 @@
       <button class="nav-btn active" onclick="nav('missions',this)"><span class="nav-icon">🚀</span> Missions</button>
       <button class="nav-btn" onclick="nav('careers',this)"><span class="nav-icon">💼</span> Careers</button>
       <button class="nav-btn" onclick="nav('launches',this)"><span class="nav-icon">🛰️</span> Launches</button>
+      <button class="nav-btn" onclick="nav('news',this)"><span class="nav-icon">📰</span> News</button>
 
       <div class="sidebar-bottom">
         <div class="sidebar-info">Changes commit directly to GitHub. Vercel auto-deploys within ~30s.</div>
@@ -286,6 +287,7 @@ async function loadData(token) {
   const j = await r.json();
   sha = j.sha;
   data = JSON.parse(atob(j.content.replace(/\n/g,'')));
+  if (!data.news) data.news = [];
   return true;
 }
 
@@ -312,7 +314,8 @@ function render() {
   const m = document.getElementById('main');
   if (page==='missions') m.innerHTML = pageMissions();
   else if (page==='careers') m.innerHTML = pageCareers();
-  else m.innerHTML = pageLaunches();
+  else if (page==='launches') m.innerHTML = pageLaunches();
+  else if (page==='news') m.innerHTML = pageNews();
 }
 
 // ── MISSIONS
@@ -383,10 +386,32 @@ function pageLaunches() {
   return `<div class="page-head"><div class="page-head-left"><div class="page-title">Launches</div><div class="page-desc">Launchshare mission slots.</div></div><button class="btn-add" onclick="openNew('launches')">+ Add Launch</button></div><div class="item-list">${items}</div>`;
 }
 
-// ── MODAL
+// ── NEWS
+function pageNews() {
+  if (!data.news) data.news = [];
+  const tagColors = { 'Mission Update':'badge-active','Community':'badge-upcoming','Research':'badge-development','Engineering':'badge-volunteer','Launchshare':'badge-inactive' };
+  const items = data.news.length ? data.news.map(n=>`
+    <div class="item-card">
+      <div class="item-thumb" style="background-image:url('${n.image||''}');background-color:var(--surface3)"></div>
+      <div class="item-body">
+        <div class="item-top">
+          <span class="item-title">${n.title}</span>
+          <span class="badge ${tagColors[n.tag]||'badge-inactive'}">${n.tag||'—'}</span>
+        </div>
+        <div class="item-meta">${n.date}</div>
+        <div class="item-desc">${n.body}</div>
+      </div>
+      <div class="item-actions">
+        <button class="btn-edit" onclick="openEdit('news','${n.id}')">Edit</button>
+        <button class="btn-del" onclick="del('news','${n.id}')" title="Delete">✕</button>
+      </div>
+    </div>`).join('') : `<div class="empty"><div class="empty-icon">📰</div>No news posts yet.</div>`;
+  return `<div class="page-head"><div class="page-head-left"><div class="page-title">News</div><div class="page-desc">Updates shown on the News page.</div></div><button class="btn-add" onclick="openNew('news')">+ Add Post</button></div><div class="item-list">${items}</div>`;
+}
+
 function openNew(type) { editId=null; editType=type; openModal(`New ${label(type)}`, buildForm(type, null)); }
 function openEdit(type, id) { editId=id; editType=type; openModal(`Edit ${label(type)}`, buildForm(type, data[type].find(x=>x.id===id))); }
-function label(t) { return {missions:'Mission',careers:'Position',launches:'Launch'}[t]; }
+function label(t) { return {missions:'Mission',careers:'Position',launches:'Launch',news:'News Post'}[t]; }
 
 function openModal(title, body) {
   document.getElementById('modal-title').textContent = title;
@@ -424,6 +449,13 @@ function buildForm(type, item) {
     ${field('program','Program',v('program'),'e.g. Atlas — Launch Systems')}
     ${ta('description','Description',v('description'))}
     ${field('skills','Skills',Array.isArray(v('skills'))?v('skills',[]).join(', '):v('skills'),'Comma-separated')}`;
+  if (type==='news') return `
+    <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. atlas-review-2026')}${sel('tag','Tag',v('tag','Mission Update'),['Mission Update','Community','Research','Engineering','Launchshare'])}</div>
+    ${field('title','Title',v('title'))}
+    ${field('date','Date',v('date'),'e.g. Jun 2, 2026')}
+    ${ta('body','Summary / Body',v('body'))}
+    ${field('image','Image URL',v('image'),'Unsplash or other image URL')}
+    ${field('link','Read More Link',v('link','projects.html'),'Relative or absolute URL')}`;
   if (type==='launches') return `
     <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. launch-003')}${sel('status','Status',v('status','open'),['open','upcoming','closed','full'])}</div>
     ${field('name','Mission Name',v('name'))}
@@ -436,6 +468,7 @@ function getForm(type) {
   if (type==='missions') return { id:g('id'),name:g('name'),division:g('division'),status:g('status'),description:g('description'),tags:arr('tags'),image:g('image') };
   if (type==='careers') return { id:g('id'),title:g('title'),program:g('program'),type:g('type'),description:g('description'),skills:arr('skills') };
   if (type==='launches') return { id:g('id'),name:g('name'),orbit:g('orbit'),status:g('status'),date:g('date'),description:g('description'),slots_total:parseInt(g('slots_total'))||0,slots_taken:parseInt(g('slots_taken'))||0 };
+  if (type==='news') return { id:g('id'),tag:g('tag'),title:g('title'),date:g('date'),body:g('body'),image:g('image'),link:g('link') };
 }
 
 async function saveItem() {
