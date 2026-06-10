@@ -1,30 +1,42 @@
-# Launchshare + Discord (Vercel)
+# Launchshare + Discord
 
-## Куда уходят заявки
+## Website form → server channel
 
-| Куда | Что |
-|------|-----|
-| Discord-канал `1513506023892193392` | Embed с заявкой + файл |
-| Личка пользователя | Подтверждение, если бот нашёл username на сервере |
+Users submit on the site → `/api/submit` (Vercel) → embed + file in channel `1513506023892193392` → auto-DM confirmation to the user.
 
-## Настройка на Vercel
+**Vercel env:** `DISCORD_BOT_TOKEN`, `LAUNCH_CHANNEL_ID`, `GUILD_ID`
 
-1. **Discord bot** — токен, Server Members Intent, бот на сервере ISA
-2. **Vercel → Project → Settings → Environment Variables:**
+---
 
-| Name | Value |
-|------|-------|
-| `DISCORD_BOT_TOKEN` | токен бота |
-| `LAUNCH_CHANNEL_ID` | `1513506023892193392` |
-| `GUILD_ID` | `1507774799194099903` |
+## Staff DMs → members (private, no server spam)
 
-3. **Deploy** — после пуша в Git Vercel сам подхватит `/api/submit`
-4. Форма шлёт на `/api/submit` (уже в `launchshare/config.js`)
+Message the bot **in DM** — nothing gets posted on the server.
 
-## Локально
-
-```bash
-npx vercel dev
+```
+dm username Your launch slot is confirmed!
+send @user Please update your contraption file.
 ```
 
-Создай `.env` из `.env.example` и вставь токен бота.
+### Bot setup
+
+1. Developer Portal → Bot:
+   - **Message Content Intent** ✅
+   - **Server Members Intent** ✅
+
+2. `.env`:
+   ```
+   DISCORD_BOT_TOKEN=...
+   ADMIN_DISCORD_IDS=your_discord_user_id
+   GUILD_ID=1507774799194099903
+   ```
+
+3. Run (must stay online 24/7):
+   ```bash
+   cd bot
+   npm install
+   npm start
+   ```
+
+Deploy `bot/` to Railway or Render — see `bot/README.md`.
+
+Only IDs in `ADMIN_DISCORD_IDS` can use the bot. Multiple admins: `111,222,333`

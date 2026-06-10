@@ -1,4 +1,6 @@
 launchshare-api/node_modules/
 launchshare-api/.wrangler/
+bot/node_modules/
+node_modules/
 .env
 .vercel
