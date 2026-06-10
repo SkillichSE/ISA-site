@@ -42,13 +42,13 @@
         </a>
       </div>
       <div class="hero-stats">
-        <div class="stat"><span class="stat-num discord-member-count">—</span><span class="stat-lbl">Members</span></div>
-        <div class="stat-div"></div>
-        <div class="stat"><span class="stat-num discord-online-count">—</span><span class="stat-lbl">Online</span></div>
-        <div class="stat-div"></div>
+        <div class="stat"><span class="stat-num discord-member-count">16</span><span class="stat-lbl">Members</span></div>
+        <div class="stat-div" aria-hidden="true"></div>
+        <div class="stat"><span class="stat-num discord-online-count">8</span><span class="stat-lbl">Online</span></div>
+        <div class="stat-div" aria-hidden="true"></div>
         <div class="stat"><span class="stat-num">5</span><span class="stat-lbl">Projects</span></div>
-        <div class="stat-div"></div>
-        <div class="stat"><span class="stat-num discord-guild-name" style="font-size:1rem">—</span><span class="stat-lbl">Server</span></div>
+        <div class="stat-div" aria-hidden="true"></div>
+        <div class="stat"><span class="stat-num">Discord</span><span class="stat-lbl">Community</span></div>
       </div>
     </div>
     <div class="hero-scroll-hint">
@@ -273,6 +273,8 @@
 
           </form>
 
+          <div class="form-error" id="form-error" style="display:none" role="alert"></div>
+
           <!-- SUCCESS STATE -->
           <div class="form-success" id="form-success" style="display:none">
             <div class="success-icon">
@@ -280,7 +282,7 @@
             </div>
             <h3>Request submitted!</h3>
             <p>Our team will review your satellite and get back to you within <strong>48 hours</strong> via Discord DM.</p>
-            <p class="success-sub">Make sure you're in the <a href="https://discord.gg/CMDSKwTBnm" target="_blank">ISA Discord</a> so the bot can reach you.</p>
+            <p class="success-sub" id="form-success-sub">Make sure you're in the <a href="https://discord.gg/CMDSKwTBnm" target="_blank">ISA Discord</a> so the bot can reach you.</p>
             <button class="btn btn-primary" onclick="resetForm()">Submit another</button>
           </div>
         </div>
@@ -320,6 +322,7 @@
   </footer>
 
   <script src="../shared.js"></script>
+  <script src="config.js"></script>
   <script src="main.js"></script>
 </body>
 </html>

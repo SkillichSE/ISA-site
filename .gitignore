@@ -1,0 +1,4 @@
+launchshare-api/node_modules/
+launchshare-api/.wrangler/
+.env
+.vercel

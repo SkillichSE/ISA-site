@@ -91,6 +91,8 @@
   letter-spacing: -1px;
   line-height: 1;
   margin-bottom: 8px;
+  min-height: 2.8rem;
+  font-variant-numeric: tabular-nums;
 }
 .stat-lbl { font-size: 0.85rem; color: var(--muted); }
 
@@ -244,10 +246,16 @@
   .project-large { height: 280px; }
   .project-small { height: 200px; }
   .join-inner { grid-template-columns: 1fr; gap: 32px; }
+  .join-actions { width: 100%; min-width: 0; }
+  .join-actions .btn-discord,
+  .join-actions .btn-outline { width: 100%; }
   .launch-cta-card { padding: 40px 28px; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .stat-card { min-width: 0; padding: 24px 20px; }
+  .stat-num { font-size: 2.2rem; min-height: 2.2rem; }
 }
 @media (max-width: 480px) {
   .hero-title { font-size: 3rem; letter-spacing: -1px; }
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .stat-num { font-size: 1.9rem; min-height: 1.9rem; }
 }

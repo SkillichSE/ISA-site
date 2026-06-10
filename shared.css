@@ -19,13 +19,17 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
 body {
   font-family: var(--font);
   background: var(--bg);
   color: var(--text);
   line-height: 1.6;
   overflow-x: hidden;
+  max-width: 100%;
 }
 
 .container {
@@ -237,6 +241,14 @@ body {
 /* ---- RESPONSIVE ---- */
 @media (max-width: 768px) {
   .container { padding: 0 20px; }
+  .nav-inner { min-width: 0; }
+  .nav-logo {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: calc(100% - 52px);
+  }
   .nav-links {
     display: none;
     position: fixed;
@@ -251,9 +263,24 @@ body {
   }
   .nav-links.open { display: flex; }
   .nav-links a { width: 100%; padding: 12px 16px; }
-  .burger { display: flex; }
+  .burger {
+    display: flex;
+    flex-shrink: 0;
+    margin-left: 8px;
+  }
   .footer-inner { flex-direction: column; align-items: flex-start; }
   .footer-left { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .footer-links {
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    width: 100%;
+  }
+  .page-hero {
+    padding: 100px 0 56px;
+  }
+  .page-hero h1 {
+    letter-spacing: -1px;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }

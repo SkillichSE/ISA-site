@@ -151,6 +151,10 @@ function handleFile(file) {
     alert('File type not allowed. Accepted: .nbt, .snbt, .json, .png, .jpg');
     return;
   }
+  if (file.size > 4 * 1024 * 1024) {
+    alert('File is too large. Max size is 4 MB.');
+    return;
+  }
   document.getElementById('upload-inner').style.display = 'none';
   document.getElementById('upload-selected').style.display = 'flex';
   document.getElementById('file-display-name').textContent = file.name;
@@ -181,32 +185,111 @@ textarea.addEventListener('input', () => {
   }
 });
 
+function hideFormError() {
+  const el = document.getElementById('form-error');
+  el.style.display = 'none';
+  el.textContent = '';
+}
+
+function showFormError(message) {
+  const el = document.getElementById('form-error');
+  el.textContent = message;
+  el.style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function showFormSuccess(dmSent) {
+  document.getElementById('launch-form').style.display = 'none';
+  document.querySelector('.form-progress').style.display = 'none';
+  document.getElementById('form-success').style.display = 'block';
+
+  const sub = document.getElementById('form-success-sub');
+  if (dmSent) {
+    sub.innerHTML = 'A confirmation was sent to your Discord DMs. Make sure you\'re in the <a href="https://discord.gg/CMDSKwTBnm" target="_blank">ISA Discord</a>.';
+  } else {
+    sub.innerHTML = 'Your request was posted for the ISA team. We couldn\'t DM you — check that your Discord username is correct and that you\'re in the <a href="https://discord.gg/CMDSKwTBnm" target="_blank">ISA Discord</a> with DMs open.';
+  }
+}
+
+function getLaunchApiUrl() {
+  const url = (window.LAUNCHSHARE_API || '').trim();
+  return url || '/api/submit';
+}
+
+function readFileAsBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = () => reject(new Error('Could not read the uploaded file.'));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function buildSubmitPayload() {
+  const payload = {
+    discord: document.getElementById('discord-name').value.trim(),
+    satName: document.getElementById('sat-name').value.trim(),
+    orbit: document.getElementById('orbit-value').value,
+    launchDate: document.getElementById('launch-date').value,
+    launchDateMax: document.getElementById('launch-date-max').value,
+    description: document.getElementById('mission-desc').value.trim(),
+    file: null,
+  };
+
+  if (fileInput.files[0]) {
+    const file = fileInput.files[0];
+    payload.file = {
+      name: file.name,
+      type: file.type || 'application/octet-stream',
+      data: await readFileAsBase64(file),
+    };
+  }
+
+  return payload;
+}
+
 // ---- FORM SUBMIT ----
-document.getElementById('launch-form').addEventListener('submit', (e) => {
+document.getElementById('launch-form').addEventListener('submit', async (e) => {
   e.preventDefault();
+  hideFormError();
 
-  const discord = document.getElementById('discord-name').value.trim();
-  const satName = document.getElementById('sat-name').value.trim();
-
-  if (!discord || !satName) {
+  if (!validateStep1()) {
     showStep(1);
     return;
   }
+  if (!validateStep2()) {
+    showStep(2);
+    return;
+  }
 
-  // simulate submission
   const submitBtn = e.target.querySelector('.btn-submit');
+  const defaultLabel = submitBtn.textContent;
   submitBtn.textContent = 'Sending…';
   submitBtn.disabled = true;
 
-  setTimeout(() => {
-    document.getElementById('launch-form').style.display = 'none';
-    document.getElementById('form-progress').style.display = 'none';
-    document.querySelector('.form-progress').style.display = 'none';
-    document.getElementById('form-success').style.display = 'block';
-  }, 1200);
+  try {
+    const response = await fetch(getLaunchApiUrl(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(await buildSubmitPayload()),
+    });
+
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok || !result.ok) {
+      throw new Error(result.error || 'Submission failed. Please try again.');
+    }
+
+    showFormSuccess(Boolean(result.dmSent));
+  } catch (error) {
+    showFormError(error.message || 'Could not submit your request. Try again in a moment.');
+    submitBtn.textContent = defaultLabel;
+    submitBtn.disabled = false;
+  }
 });
 
 function resetForm() {
+  hideFormError();
   document.getElementById('launch-form').reset();
   document.getElementById('launch-form').style.display = 'block';
   document.querySelector('.form-progress').style.display = 'flex';
