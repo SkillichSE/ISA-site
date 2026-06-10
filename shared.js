@@ -3,6 +3,71 @@
    ============================================= */
 
 const GUILD_ID = '1507774799194099903';
+const INVITE_CODE = 'CMDSKwTBnm';
+
+const DISCORD_STATS_FALLBACK = {
+  guild_id: GUILD_ID,
+  guild_name: 'ISA- community server',
+  invite_url: `https://discord.gg/${INVITE_CODE}`,
+  member_count: 16,
+  online_count: 8,
+  icon: '08113c0188539b6cadaf1245b896bc25',
+};
+
+function discordStatsPath() {
+  const segments = window.location.pathname.split('/').filter(Boolean);
+  const last = segments[segments.length - 1] || '';
+  const dirDepth = last.includes('.') ? segments.length - 1 : segments.length;
+  return (dirDepth > 0 ? '../'.repeat(dirDepth) : '') + 'discord-stats.json';
+}
+
+function formatCount(value) {
+  return value != null ? value.toLocaleString() : '—';
+}
+
+function guildIconUrl(stats) {
+  if (!stats.icon) return null;
+  return `https://cdn.discordapp.com/icons/${stats.guild_id}/${stats.icon}.png?size=128`;
+}
+
+function applyDiscordStats(stats) {
+  document.querySelectorAll('.discord-member-count').forEach(el => {
+    el.textContent = formatCount(stats.member_count);
+  });
+  document.querySelectorAll('.discord-online-count').forEach(el => {
+    el.textContent = formatCount(stats.online_count);
+  });
+  document.querySelectorAll('.discord-guild-name').forEach(el => {
+    el.textContent = stats.guild_name || 'ISA Discord';
+  });
+  document.querySelectorAll('.discord-stats-line').forEach(el => {
+    el.textContent = `${formatCount(stats.member_count)} Members · ${formatCount(stats.online_count)} Online`;
+  });
+
+  const iconUrl = guildIconUrl(stats);
+  document.querySelectorAll('.discord-guild-icon').forEach(el => {
+    if (iconUrl) {
+      el.src = iconUrl;
+      el.alt = stats.guild_name || 'Discord server';
+      el.hidden = false;
+    }
+  });
+
+  document.querySelectorAll('a[data-discord-invite]').forEach(el => {
+    el.href = stats.invite_url || `https://discord.gg/${INVITE_CODE}`;
+  });
+}
+
+async function fetchDiscordStats() {
+  try {
+    const res = await fetch(discordStatsPath(), { cache: 'no-store' });
+    if (!res.ok) throw new Error('stats file missing');
+    applyDiscordStats(await res.json());
+    return;
+  } catch {
+    applyDiscordStats(DISCORD_STATS_FALLBACK);
+  }
+}
 
 // ---- NAV SCROLL ----
 const navbar = document.getElementById('navbar');
@@ -33,24 +98,9 @@ if (burger && navLinks) {
   });
 })();
 
-// ---- DISCORD ONLINE COUNT ----
-async function fetchDiscordOnline() {
-  const els = document.querySelectorAll('.discord-online-count');
-  if (!els.length) return;
-  try {
-    const res = await fetch(`https://discord.com/api/guilds/${GUILD_ID}/widget.json`, { mode: 'cors' });
-    if (!res.ok) throw new Error('widget disabled');
-    const data = await res.json();
-    const count = data.presence_count ?? data.members?.length ?? null;
-    els.forEach(el => {
-      el.textContent = count !== null ? count.toLocaleString() : 'some';
-    });
-  } catch {
-    els.forEach(el => el.textContent = 'some');
-  }
-}
-fetchDiscordOnline();
-setInterval(fetchDiscordOnline, 60000);
+// ---- DISCORD STATS ----
+fetchDiscordStats();
+setInterval(fetchDiscordStats, 300000);
 
 // ---- SCROLL REVEAL ----
 const observer = new IntersectionObserver((entries) => {

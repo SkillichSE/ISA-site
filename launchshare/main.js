@@ -2,23 +2,7 @@
    LAUNCHSHARE — ISA Platform JS
    ============================================= */
 
-// ---- NAV SCROLL ----
-const navbar = document.getElementById('navbar');
-window.addEventListener('scroll', () => {
-  navbar.classList.toggle('scrolled', window.scrollY > 40);
-}, { passive: true });
-
-// ---- BURGER ----
-const burger = document.getElementById('burger');
-const navLinks = document.querySelector('.nav-links');
-burger.addEventListener('click', () => {
-  navLinks.classList.toggle('open');
-});
-
-// close menu on link click
-navLinks.querySelectorAll('a').forEach(a => {
-  a.addEventListener('click', () => navLinks.classList.remove('open'));
-});
+// Nav scroll + burger menu are handled by ../shared.js
 
 // ---- FORM STATE ----
 let currentStep = 1;
