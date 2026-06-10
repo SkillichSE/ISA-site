@@ -646,7 +646,7 @@ body {
 }
 
 .form-group input[type="text"],
-.form-group input[type="month"],
+.form-group select,
 .form-group textarea {
   width: 100%;
   background: #07101e;
@@ -659,10 +659,25 @@ body {
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
   -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238899bb' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+}
+
+.date-picker {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 10px;
+}
+
+.date-picker select {
+  width: 100%;
 }
 
 .form-group input[type="text"]:focus,
-.form-group input[type="month"]:focus,
+.form-group select:focus,
 .form-group textarea:focus {
   border-color: var(--accent-light);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
@@ -671,11 +686,8 @@ body {
 .form-group textarea {
   resize: vertical;
   line-height: 1.6;
-}
-
-.form-group input[type="month"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.6);
-  cursor: pointer;
+  background-image: none;
+  padding-right: 16px;
 }
 
 .field-hint {

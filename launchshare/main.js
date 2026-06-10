@@ -4,6 +4,53 @@
 
 // Nav scroll + burger menu are handled by ../shared.js
 
+const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function fillYearSelect(selectEl, includeEmpty) {
+  const startYear = new Date().getFullYear();
+  if (includeEmpty && !selectEl.querySelector('option[value=""]')) {
+    const empty = document.createElement('option');
+    empty.value = '';
+    empty.textContent = '—';
+    selectEl.appendChild(empty);
+  }
+  for (let year = startYear; year <= startYear + 8; year += 1) {
+    const option = document.createElement('option');
+    option.value = String(year);
+    option.textContent = String(year);
+    selectEl.appendChild(option);
+  }
+}
+
+function getLaunchDateValue() {
+  const month = document.getElementById('launch-month').value;
+  const year = document.getElementById('launch-year').value;
+  return month && year ? `${year}-${month}` : '';
+}
+
+function getLaunchDateMaxValue() {
+  const month = document.getElementById('launch-date-max-month').value;
+  const year = document.getElementById('launch-date-max-year').value;
+  return month && year ? `${year}-${month}` : '';
+}
+
+function setLaunchDateDefaults() {
+  document.getElementById('launch-month').value = '10';
+  document.getElementById('launch-year').value = '2026';
+  document.getElementById('launch-date-max-month').value = '';
+  document.getElementById('launch-date-max-year').value = '';
+}
+
+function initDatePickers() {
+  fillYearSelect(document.getElementById('launch-year'), false);
+  fillYearSelect(document.getElementById('launch-date-max-year'), true);
+  setLaunchDateDefaults();
+
+  ['launch-month', 'launch-year', 'launch-date-max-month', 'launch-date-max-year'].forEach((id) => {
+    document.getElementById(id).addEventListener('change', updateSidebar);
+  });
+}
+
 // ---- FORM STATE ----
 let currentStep = 1;
 
@@ -49,9 +96,9 @@ function validateStep1() {
 }
 
 function validateStep2() {
-  const date = document.getElementById('launch-date').value;
+  const date = getLaunchDateValue();
   if (!date) {
-    shakeInput('launch-date');
+    shakeInput('launch-month');
     return false;
   }
   return true;
@@ -95,15 +142,14 @@ document.getElementById('orbit-selector').addEventListener('click', (e) => {
 // ---- SIDEBAR LIVE UPDATE ----
 function updateSidebar() {
   const orbit = document.getElementById('orbit-value').value || 'LEO';
-  const date = document.getElementById('launch-date').value;
+  const date = getLaunchDateValue();
   const satName = document.getElementById('sat-name').value.trim();
 
   document.getElementById('sidebar-orbit').textContent = orbit;
 
   if (date) {
     const [year, month] = date.split('-');
-    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    document.getElementById('sidebar-date').textContent = months[parseInt(month, 10) - 1] + ' ' + year;
+    document.getElementById('sidebar-date').textContent = MONTH_SHORT[parseInt(month, 10) - 1] + ' ' + year;
   }
 
   document.getElementById('sidebar-sat').textContent = satName || '—';
@@ -112,7 +158,6 @@ function updateSidebar() {
 // listen for live inputs
 document.getElementById('discord-name').addEventListener('input', updateSidebar);
 document.getElementById('sat-name').addEventListener('input', updateSidebar);
-document.getElementById('launch-date').addEventListener('change', updateSidebar);
 
 // ---- FILE UPLOAD ----
 const uploadZone = document.getElementById('upload-zone');
@@ -225,8 +270,8 @@ async function buildSubmitPayload() {
     discord: document.getElementById('discord-name').value.trim(),
     satName: document.getElementById('sat-name').value.trim(),
     orbit: document.getElementById('orbit-value').value,
-    launchDate: document.getElementById('launch-date').value,
-    launchDateMax: document.getElementById('launch-date-max').value,
+    launchDate: getLaunchDateValue(),
+    launchDateMax: getLaunchDateMaxValue(),
     description: document.getElementById('mission-desc').value.trim(),
     file: null,
   };
@@ -291,6 +336,7 @@ function resetForm() {
   document.getElementById('form-success').style.display = 'none';
   removeFile();
   charCount.textContent = '0';
+  setLaunchDateDefaults();
   document.getElementById('orbit-value').value = 'LEO';
   document.querySelectorAll('.orbit-btn').forEach(b => b.classList.remove('active'));
   document.querySelector('.orbit-btn[data-orbit="LEO"]').classList.add('active');
@@ -307,5 +353,6 @@ function resetForm() {
 }
 
 // ---- INIT ----
+initDatePickers();
 updateProgress(1);
 updateSidebar();
