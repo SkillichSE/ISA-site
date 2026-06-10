@@ -1,19 +1,6 @@
 {
   "missions": [
     {
-      "id": "titan",
-      "name": "Titan",
-      "division": "Orbital Infrastructure",
-      "status": "development",
-      "description": "Design of modular orbital station components and docking systems. Titan focuses on habitat ring architecture, power systems, and attitude control for a future ISA orbital platform.",
-      "tags": [
-        "Station Design",
-        "Docking",
-        "Power Systems"
-      ],
-      "image": "https://images.unsplash.com/photo-1446776858070-70c3d5ed6758?q=80&w=900&auto=format&fit=crop"
-    },
-    {
       "id": "ares",
       "name": "Ares",
       "division": "Propulsion Engineering",
