@@ -1,19 +1,6 @@
 {
   "missions": [],
-  "careers": [
-    {
-      "id": "community-lead",
-      "title": "Community & Operations Lead",
-      "program": "ISA Ã¢ÂÂ Operations",
-      "type": "Volunteer",
-      "description": "Coordinate community events, manage Discord server health, and act as bridge between engineering teams and the broader ISA membership. Strong communication skills required.",
-      "skills": [
-        "Community Management",
-        "Discord",
-        "Communication"
-      ]
-    }
-  ],
+  "careers": [],
   "launches": [],
   "news": []
 }
