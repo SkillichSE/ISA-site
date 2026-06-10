@@ -24,12 +24,12 @@ if (burger && navLinks) {
 
 // ---- ACTIVE NAV LINK ----
 (function() {
-  const path = window.location.pathname.replace(/\/$/, '') || '/';
+  const page = window.location.pathname.split('/').pop() || 'index.html';
   document.querySelectorAll('.nav-links a').forEach(a => {
-    const href = a.getAttribute('href').replace(/\/$/, '') || '/';
-    if (href === path || (path !== '/' && path !== '/index.html' && href !== '/' && href !== '/index.html' && path.startsWith(href))) {
-      a.classList.add('active');
-    }
+    const href = a.getAttribute('href');
+    if (!href || href.startsWith('http') || href.startsWith('#')) return;
+    const target = href.split('/').pop().split('#')[0] || 'index.html';
+    if (target === page) a.classList.add('active');
   });
 })();
 
