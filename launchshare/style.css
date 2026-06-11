@@ -1005,6 +1005,35 @@ body {
   margin-bottom: 32px !important;
 }
 
+/* ---- ALLOWED MODS ---- */
+.allowed-mods {
+  margin-bottom: 32px;
+}
+
+.mods-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.mods-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.mod-chip {
+  display: inline-block;
+  background: var(--accent-glow);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: var(--accent-light);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
 /* ---- FOOTER ---- */
 .site-footer {
   border-top: 1px solid var(--line);

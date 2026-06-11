@@ -399,8 +399,9 @@ function pageLaunches() {
         <div class="item-top">
           <span class="item-title">${l.name}</span>
           <span class="badge badge-${l.status}">${statusMap[l.status]||l.status}</span>
+          ${l.published ? '<span class="badge badge-active">Published</span>' : '<span class="badge badge-inactive">Draft</span>'}
         </div>
-        <div class="item-meta">${l.orbit} · ${l.date}</div>
+        <div class="item-meta">${l.orbit} · ${l.launch_date || '—'}${l.mission_id ? ' · Mission: ' + l.mission_id : ''}</div>
         <div class="item-desc">${l.description}</div>
         <div class="slots-bar"><div class="slots-fill" style="width:${pct}%"></div></div>
       </div>
@@ -524,9 +525,10 @@ function buildForm(type, item) {
     ${ta('description','Description',v('description'))}
     ${field('skills','Skills',Array.isArray(v('skills'))?v('skills',[]).join(', '):v('skills'),'Comma-separated')}`;
   if (type==='launches') return `
-    <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. launch-003')}${sel('status','Status',v('status','open'),['open','upcoming','closed','full'])}</div>
+    <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. launch-003')}${sel('published','Published',v('published')?'true':'false',['true','false'])}</div>
     ${field('name','Mission Name',v('name'))}
-    <div class="form-row-2">${sel('orbit','Orbit',v('orbit','LEO'),['LEO','MEO','GEO','SSO','HEO'])}${field('date','Date',v('date'),'YYYY-MM-DD')}</div>
+    <div class="form-row-2">${field('mission_id','Mission ID',v('mission_id'),'Optional - which mission this belongs to')}${sel('status','Status',v('status','open'),['open','upcoming','closed','full'])}</div>
+    <div class="form-row-2">${sel('orbit','Orbit',v('orbit','LEO'),['LEO','MEO','GEO','SSO','HEO'])}${field('launch_date','Launch Date',v('launch_date'),'YYYY-MM-DD')}</div>
     ${ta('description','Description',v('description'))}
     <div class="form-row-2">${field('slots_total','Total Slots',v('slots_total',4),'','number')}${field('slots_taken','Slots Taken',v('slots_taken',0),'','number')}</div>`;
   if (type==='news') return `
@@ -541,7 +543,7 @@ function buildForm(type, item) {
 function getForm(type) {
   if (type==='missions') return { id:g('id'),name:g('name'),division:g('division'),status:g('status'),description:g('description'),tags:arr('tags'),image:g('image') };
   if (type==='careers') return { id:g('id'),title:g('title'),program:g('program'),type:g('type'),description:g('description'),skills:arr('skills') };
-  if (type==='launches') return { id:g('id'),name:g('name'),orbit:g('orbit'),status:g('status'),date:g('date'),description:g('description'),slots_total:parseInt(g('slots_total'))||0,slots_taken:parseInt(g('slots_taken'))||0 };
+  if (type==='launches') return { id:g('id'),name:g('name'),mission_id:g('mission_id'),orbit:g('orbit'),status:g('status'),launch_date:g('launch_date'),description:g('description'),slots_total:parseInt(g('slots_total'))||0,slots_taken:parseInt(g('slots_taken'))||0,published:g('published')==='true' };
   if (type==='news') return { id:g('id'),tag:g('tag'),title:g('title'),date:g('date'),body:g('body'),image:g('image'),link:g('link') };
 }
 

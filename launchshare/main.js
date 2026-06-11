@@ -189,10 +189,10 @@ fileInput.addEventListener('change', () => {
 });
 
 function handleFile(file) {
-  const allowed = ['.nbt', '.snbt', '.json', '.png', '.jpg', '.jpeg'];
+  const allowed = ['.nbt'];
   const ext = '.' + file.name.split('.').pop().toLowerCase();
   if (!allowed.includes(ext)) {
-    alert('File type not allowed. Accepted: .nbt, .snbt, .json, .png, .jpg');
+    alert('File type not allowed. Only .nbt files are accepted.');
     return;
   }
   if (file.size > 3 * 1024 * 1024) {

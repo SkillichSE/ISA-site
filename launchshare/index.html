@@ -58,99 +58,6 @@
     </div>
   </header>
 
-  <!-- HOW IT WORKS -->
-  <section id="how-it-works" class="section-steps">
-    <div class="container">
-      <div class="section-eyebrow">HOW IT WORKS</div>
-      <h2 class="section-title">Three steps to orbit.</h2>
-      <div class="steps-grid">
-        <div class="step-card">
-          <div class="step-num">01</div>
-          <h3>Log in with Discord</h3>
-          <p>Enter your Discord username so the team can contact you.</p>
-        </div>
-        <div class="step-card">
-          <div class="step-num">02</div>
-          <h3>Upload your contraption</h3>
-          <p>Send the NBT file or the Contraption Diagram exported from the Create: Aeronautics axis. Only approved mods are allowed.</p>
-        </div>
-        <div class="step-card">
-          <div class="step-num">03</div>
-          <h3>Wait for approval</h3>
-          <p>ISA engineers review your satellite within 48h. If approved, your launch is scheduled and you get the date via Discord.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ORBITS INFO -->
-  <section id="orbits" class="section-orbits">
-    <div class="container">
-      <div class="section-eyebrow">ORBIT TYPES</div>
-      <h2 class="section-title">Choose your trajectory.</h2>
-      <div class="orbits-grid">
-        <div class="orbit-info-card" data-orbit="LEO">
-          <div class="orbit-tag">LEO</div>
-          <h3>Low Earth Orbit</h3>
-          <p>160–2000 km altitude. Fastest deployment, lowest cost, ideal for Earth observation and communication constellations.</p>
-          <div class="orbit-data"><span>Altitude</span><b>160–2000 km</b></div>
-          <div class="orbit-data"><span>Period</span><b>~90 min</b></div>
-        </div>
-        <div class="orbit-info-card" data-orbit="SSO">
-          <div class="orbit-tag">SSO</div>
-          <h3>Sun-Synchronous Orbit</h3>
-          <p>Near-polar orbit that passes over the same spot at the same local time each day. Perfect for imaging missions.</p>
-          <div class="orbit-data"><span>Altitude</span><b>~600 km</b></div>
-          <div class="orbit-data"><span>Inclination</span><b>~97.8°</b></div>
-        </div>
-        <div class="orbit-info-card" data-orbit="POLAR">
-          <div class="orbit-tag">POLAR</div>
-          <h3>Polar Orbit</h3>
-          <p>90° inclination. Covers the entire Earth surface as the planet rotates beneath the satellite.</p>
-          <div class="orbit-data"><span>Inclination</span><b>90°</b></div>
-          <div class="orbit-data"><span>Coverage</span><b>Global</b></div>
-        </div>
-        <div class="orbit-info-card" data-orbit="MEO">
-          <div class="orbit-tag">MEO</div>
-          <h3>Medium Earth Orbit</h3>
-          <p>2000–35 786 km. Used for navigation (GPS) and relay satellites with wider coverage areas.</p>
-          <div class="orbit-data"><span>Altitude</span><b>2000–35786 km</b></div>
-          <div class="orbit-data"><span>Period</span><b>2–24 h</b></div>
-        </div>
-        <div class="orbit-info-card" data-orbit="GTO">
-          <div class="orbit-tag">GTO</div>
-          <h3>Geostationary Transfer</h3>
-          <p>Highly elliptical transfer orbit used to reach GEO. Apogee at 35 786 km, perigee in LEO range.</p>
-          <div class="orbit-data"><span>Perigee</span><b>~200 km</b></div>
-          <div class="orbit-data"><span>Apogee</span><b>35 786 km</b></div>
-        </div>
-        <div class="orbit-info-card" data-orbit="GEO">
-          <div class="orbit-tag">GEO</div>
-          <h3>Geostationary Orbit</h3>
-          <p>Fixed position above the equator at 35 786 km. Ideal for broadcast and weather satellites covering large regions.</p>
-          <div class="orbit-data"><span>Altitude</span><b>35 786 km</b></div>
-          <div class="orbit-data"><span>Period</span><b>24 h</b></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ALLOWED MODS BANNER -->
-  <div class="mods-banner">
-    <div class="container mods-inner">
-      <span class="mods-label">ALLOWED MODS</span>
-      <div class="mods-list">
-        <span class="mod-chip">Create</span>
-        <span class="mod-chip">Create: Aeronautics</span>
-        <span class="mod-chip">CC:Tweaked</span>
-        <span class="mod-chip">Framed Blocks</span>
-        <span class="mod-chip">Deco Props</span>
-        <span class="mod-chip">Copycat+</span>
-        <span class="mod-chip">TFMG</span>
-      </div>
-    </div>
-  </div>
-
   <!-- BOOKING FORM -->
   <section id="book" class="section-book">
     <div class="container">
@@ -277,13 +184,13 @@
               <div class="form-group">
                 <label>NBT FILE OR CONTRAPTION DIAGRAM</label>
                 <div class="upload-zone" id="upload-zone">
-                  <input type="file" id="file-input" name="file" accept=".nbt,.snbt,.json,.png,.jpg,.jpeg" hidden>
+                  <input type="file" id="file-input" name="file" accept=".nbt" hidden>
                   <div class="upload-inner" id="upload-inner">
                     <div class="upload-icon">
                       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                     </div>
                     <p class="upload-title">Drop your file here</p>
-                    <p class="upload-sub">or <button type="button" class="upload-browse">browse</button> — .nbt, .snbt, .json, .png, .jpg</p>
+                    <p class="upload-sub">or <button type="button" class="upload-browse">browse</button> — .nbt files only</p>
                   </div>
                   <div class="upload-selected" id="upload-selected" style="display:none">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
@@ -291,9 +198,17 @@
                     <button type="button" class="upload-remove" onclick="removeFile()">✕</button>
                   </div>
                 </div>
-                <div class="mods-note">
-                  <span class="mods-note-label">Allowed mods only:</span>
-                  Create · Create: Aeronautics · CC:Tweaked · Framed Blocks · Deco Props · Copycat+ · TFMG
+                <div class="allowed-mods">
+                  <span class="mods-label">Allowed mods:</span>
+                  <div class="mods-list">
+                    <span class="mod-chip">Create</span>
+                    <span class="mod-chip">Create: Aeronautics</span>
+                    <span class="mod-chip">CC:Tweaked</span>
+                    <span class="mod-chip">Framed Blocks</span>
+                    <span class="mod-chip">Deco Props</span>
+                    <span class="mod-chip">Copycat+</span>
+                    <span class="mod-chip">TFMG</span>
+                  </div>
                 </div>
               </div>
               <div class="form-group">
