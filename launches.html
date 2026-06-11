@@ -79,7 +79,7 @@
         }
 
         listEl.innerHTML = published.map(l => {
-          const date = l.launch_date ? new Date(l.launch_date) : null;
+          const date = l.date ? new Date(l.date) : null;
           const dateStr = date ? date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'TBD';
           
           return `
