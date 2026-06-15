@@ -22,6 +22,8 @@
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
 }
 body {
   font-family: var(--font);
@@ -50,6 +52,12 @@ body {
 
 /* ---- NAV ---- */
 #navbar {
+  --line: #222222;
+  --text: #ffffff;
+  --muted: #888888;
+  --muted2: #555555;
+  --accent: #2563eb;
+  --accent-light: #3b82f6;
   position: fixed;
   top: 0; left: 0;
   width: 100%;
@@ -94,12 +102,6 @@ body {
 }
 .nav-links a:hover { color: var(--text); background: rgba(255,255,255,0.06); }
 .nav-links a.active { color: var(--text); }
-.nav-links a.nav-launch {
-  color: var(--text);
-  background: var(--accent);
-  font-weight: 700;
-}
-.nav-links a.nav-launch:hover { background: var(--accent-light); }
 .burger {
   display: none;
   flex-direction: column;
@@ -185,6 +187,13 @@ body {
   transition: color 0.2s;
 }
 .footer-links a:hover { color: var(--text); }
+.footer-credit {
+  flex-basis: 100%;
+  padding-top: 2px;
+  font-size: 0.76rem;
+  color: var(--muted2);
+  text-align: right;
+}
 
 .isa-social-row {
   display: flex;
@@ -298,6 +307,7 @@ body {
     gap: 12px 20px;
     width: 100%;
   }
+  .footer-credit { text-align: left; }
   .page-hero {
     padding: 100px 0 56px;
   }

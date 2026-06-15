@@ -6,17 +6,19 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  max-width: 980px;
+  margin: 0 auto;
 }
 
 .launch-card {
   background: var(--panel, #0d1526);
   border: 1px solid var(--line, #1a2744);
   border-radius: 16px;
-  padding: 24px;
+  padding: 20px;
   display: grid;
-  grid-template-columns: 100px 1fr auto;
+  grid-template-columns: 72px 1fr auto;
   align-items: center;
-  gap: 24px;
+  gap: 18px;
   transition: border-color 0.2s, background 0.2s;
   cursor: default;
 }
@@ -34,8 +36,8 @@
   background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
   border: 1px solid rgba(37, 99, 235, 0.2);
   border-radius: 12px;
-  padding: 16px;
-  min-width: 90px;
+  padding: 12px;
+  min-width: 68px;
 }
 
 .launch-date-day {
@@ -117,6 +119,8 @@
   padding: 80px 20px;
   color: var(--muted, #8899bb);
   font-size: 1rem;
+  max-width: 980px;
+  margin: 0 auto;
 }
 
 /* ---- RESPONSIVE ---- */

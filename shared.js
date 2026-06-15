@@ -89,12 +89,12 @@ if (burger && navLinks) {
 
 // ---- ACTIVE NAV LINK ----
 (function() {
-  const page = window.location.pathname.split('/').pop() || 'index.html';
+  const currentPath = new URL(window.location.href).pathname.replace(/\/$/, '/index.html');
   document.querySelectorAll('.nav-links a').forEach(a => {
     const href = a.getAttribute('href');
     if (!href || href.startsWith('http') || href.startsWith('#')) return;
-    const target = href.split('/').pop().split('#')[0] || 'index.html';
-    if (target === page) a.classList.add('active');
+    const targetPath = new URL(href, window.location.href).pathname.replace(/\/$/, '/index.html');
+    if (targetPath === currentPath) a.classList.add('active');
   });
 })();
 
@@ -102,12 +102,19 @@ if (burger && navLinks) {
 const ISA_SOCIAL = {
   tiktok: 'https://www.tiktok.com/@isaspaceagency',
   youtube: 'https://www.youtube.com/@isa-space-agency',
+  source: 'https://github.com/SkillichSE/ISA-site',
 };
 
 (function injectSocialLinks() {
-  const items = [
+  const socialItems = [
     ['TikTok', ISA_SOCIAL.tiktok],
     ['YouTube', ISA_SOCIAL.youtube],
+  ];
+  const footerItems = [
+    ['Discord', `https://discord.gg/${INVITE_CODE}`],
+    ['YouTube', ISA_SOCIAL.youtube],
+    ['TikTok', ISA_SOCIAL.tiktok],
+    ['Source code', ISA_SOCIAL.source],
   ];
 
   function addLink(container, label, href, className) {
@@ -122,14 +129,25 @@ const ISA_SOCIAL = {
   }
 
   document.querySelectorAll('.footer-links').forEach((container) => {
-    items.forEach(([label, href]) => addLink(container, label, href));
+    container.replaceChildren();
+    footerItems.forEach(([label, href]) => addLink(container, label, href));
   });
 
   document.querySelectorAll('[data-isa-social]').forEach((container) => {
     const asButtons = container.dataset.isaSocial === 'buttons';
-    items.forEach(([label, href]) => {
+    socialItems.forEach(([label, href]) => {
       addLink(container, label, href, asButtons ? 'btn-outline' : '');
     });
+  });
+})();
+
+(function injectFooterCredit() {
+  document.querySelectorAll('.site-footer .footer-inner').forEach((footer) => {
+    if (footer.querySelector('.footer-credit')) return;
+    const credit = document.createElement('div');
+    credit.className = 'footer-credit';
+    credit.textContent = "Build by Ski's Team";
+    footer.appendChild(credit);
   });
 })();
 
