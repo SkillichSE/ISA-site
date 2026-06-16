@@ -3,24 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Launchshare — ISA Launch Booking</title>
+  <title>ISA — International Space Association</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/shared.css?v=3">
-  <link rel="stylesheet" href="/launchshare/style.css?v=2">
-  <link rel="icon" type="image/png" href="/ISSSSSSSAAAA.png">
+  <link rel="stylesheet" href="shared.css?v=3">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="ISSSSSSSAAAA.png">
 </head>
 <body>
 
-  <!-- NAV -->
   <nav id="navbar">
     <div class="container nav-inner">
-      <a href="/" class="nav-logo">ISA</a>
+      <a href="index.html" class="nav-logo-link"><img src="ISSSSSSSAAAA.png" alt="ISA" class="nav-logo-img"><span class="nav-logo">ISA</span></a>
       <div class="nav-links" id="nav-links">
-        <a href="/projects.html">Projects</a>
-        <a href="/launches.html">Launches</a>
-        <a href="/news.html">News</a>
-        <a href="/careers.html">Careers</a>
-        <a href="/launchshare/" class="nav-launch">Launchshare</a>
+        <a href="projects.html">Projects</a>
+        <a href="launches.html">Launches</a>
+        <a href="news.html">News</a>
+        <a href="careers.html">Careers</a>
+        <a href="launchshare/index.html" class="nav-launch">Launchshare</a>
       </div>
       <button class="burger" id="burger" aria-label="Open menu">
         <span></span><span></span><span></span>
@@ -30,232 +29,90 @@
 
   <!-- HERO -->
   <header class="hero">
-    <div class="hero-bg"></div>
+    <video class="hero-bg" autoplay muted loop playsinline poster="">
+      <source src="media/Space F.mp4" type="video/mp4">
+    </video>
     <div class="hero-overlay"></div>
     <div class="container hero-content">
-      <h1 class="hero-title">LAUNCH<br>YOUR SATELLITE.</h1>
-      <p class="hero-desc">Book a slot on an ISA mission. Choose your orbit, upload your contraption diagram or NBT file, and our team will review your request within 48 hours.</p>
-      <div class="hero-actions">
-        <a href="#book" class="btn btn-primary">Book a launch</a>
-        <a href="https://discord.gg/CMDSKwTBnm" target="_blank" class="btn btn-discord">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
-          Join Discord
-        </a>
-      </div>
-      <div class="hero-stats">
-        <div class="stat"><span class="stat-num discord-member-count">16</span><span class="stat-lbl">Members</span></div>
-        <div class="stat-div" aria-hidden="true"></div>
-        <div class="stat"><span class="stat-num discord-online-count">8</span><span class="stat-lbl">Online</span></div>
-        <div class="stat-div" aria-hidden="true"></div>
-        <div class="stat"><span class="stat-num">5</span><span class="stat-lbl">Projects</span></div>
-      </div>
-    </div>
-    <div class="hero-scroll-hint">
-      <span>SCROLL</span>
-      <div class="scroll-line"></div>
+      <h1 class="hero-title">THE FUTURE OF<br>SPACE STARTS<br>HERE.</h1>
+      <p class="hero-desc">Building a professional aerospace community focused on research, engineering, innovation and exploration.</p>
+      <a href="https://discord.gg/CMDSKwTBnm" target="_blank" class="btn-hero">JOIN DISCORD</a>
     </div>
   </header>
 
-  <!-- BOOKING FORM -->
-  <section id="book" class="section-book">
+  <!-- STATS -->
+  <section class="section-stats">
     <div class="container">
-      <div class="section-eyebrow">LAUNCH REQUEST</div>
-      <h2 class="section-title">Book your slot.</h2>
+      <div class="stats-grid" data-stagger>
+        <div class="stat-card reveal-target">
+          <div class="stat-num"><span class="discord-member-count">—</span></div>
+          <div class="stat-lbl">Members</div>
+        </div>
+        <div class="stat-card reveal-target">
+          <div class="stat-num" id="stat-projects">—</div>
+          <div class="stat-lbl">Projects</div>
+        </div>
+        <div class="stat-card reveal-target">
+          <div class="stat-num"><span class="discord-online-count">—</span></div>
+          <div class="stat-lbl">Online Now</div>
+        </div>
+        <div class="stat-card reveal-target">
+          <div class="stat-num" id="stat-launches">—</div>
+          <div class="stat-lbl">Open Launches</div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      <div class="book-layout">
-        <div class="book-form-wrap">
-          <!-- Progress -->
-          <div class="form-progress">
-            <div class="progress-step active" data-step="1"><span>1</span>Identity</div>
-            <div class="progress-line"></div>
-            <div class="progress-step" data-step="2"><span>2</span>Orbit & Date</div>
-            <div class="progress-line"></div>
-            <div class="progress-step" data-step="3"><span>3</span>Payload</div>
-          </div>
+  <!-- PROJECTS PREVIEW -->
+  <section class="section-projects">
+    <div class="container">
+      <p class="eyebrow">PROJECTS</p>
+      <h2 class="section-title">Research. Design. Exploration.</h2>
+      <div class="projects-grid" id="projects-grid">
+        <!-- rendered by JS -->
+      </div>
+      <div class="projects-cta">
+        <a href="projects.html" class="btn-outline">All projects →</a>
+      </div>
+    </div>
+  </section>
 
-          <form id="launch-form" novalidate>
+  <!-- LAUNCHSHARE CTA -->
+  <section class="section-launchshare">
+    <div class="container">
+      <div class="launch-cta-card">
+        <div class="launch-cta-bg"></div>
+        <div class="launch-cta-content">
+          <p class="eyebrow" style="color:rgba(255,255,255,0.5)">ISA SERVICES</p>
+          <h2>Launch your satellite<br>with Launchshare.</h2>
+          <p>Book a slot on an ISA mission. Choose your orbit, upload your NBT file or contraption diagram, and our team will review your request within 48 hours.</p>
+          <a href="launchshare/index.html" class="btn-white">Book a launch →</a>
+        </div>
+      </div>
+    </div>
+  </section>
 
-            <!-- STEP 1: Identity -->
-            <div class="form-step active" id="step-1">
-              <div class="form-group">
-                <label for="discord-name">DISCORD USERNAME</label>
-                <div class="discord-input-wrap">
-                  <svg class="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
-                  <input type="text" id="discord-name" name="discord" placeholder="username or user#1234" autocomplete="off">
-                </div>
-                <span class="field-hint">Must match your Discord handle exactly.</span>
-              </div>
-              <div class="form-group">
-                <label for="sat-name">SATELLITE NAME</label>
-                <input type="text" id="sat-name" name="satName" placeholder="e.g. EAGLE-1, STARLINK-ISA-04">
-              </div>
-              <div class="form-nav">
-                <button type="button" class="btn btn-next" onclick="nextStep(1)">Next — Orbit & Date →</button>
-              </div>
-            </div>
-
-            <!-- STEP 2: Orbit & Date -->
-            <div class="form-step" id="step-2">
-              <div class="form-group">
-                <label>DESIRED ORBIT</label>
-                <div class="orbit-selector" id="orbit-selector">
-                  <button type="button" class="orbit-btn active" data-orbit="LEO">
-                    <span class="ob-code">LEO</span>
-                    <span class="ob-name">Low Earth</span>
-                  </button>
-                  <button type="button" class="orbit-btn" data-orbit="SSO">
-                    <span class="ob-code">SSO</span>
-                    <span class="ob-name">Sun-Sync</span>
-                  </button>
-                  <button type="button" class="orbit-btn" data-orbit="POLAR">
-                    <span class="ob-code">POLAR</span>
-                    <span class="ob-name">Polar</span>
-                  </button>
-                  <button type="button" class="orbit-btn" data-orbit="MEO">
-                    <span class="ob-code">MEO</span>
-                    <span class="ob-name">Medium</span>
-                  </button>
-                  <button type="button" class="orbit-btn" data-orbit="GTO">
-                    <span class="ob-code">GTO</span>
-                    <span class="ob-name">Transfer</span>
-                  </button>
-                  <button type="button" class="orbit-btn" data-orbit="GEO">
-                    <span class="ob-code">GEO</span>
-                    <span class="ob-name">Geostationary</span>
-                  </button>
-                </div>
-                <input type="hidden" id="orbit-value" name="orbit" value="LEO">
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label>NO EARLIER THAN</label>
-                  <div class="date-picker" id="launch-date-picker">
-                    <select id="launch-month" aria-label="Earliest month">
-                      <option value="01">January</option>
-                      <option value="02">February</option>
-                      <option value="03">March</option>
-                      <option value="04">April</option>
-                      <option value="05">May</option>
-                      <option value="06">June</option>
-                      <option value="07">July</option>
-                      <option value="08">August</option>
-                      <option value="09">September</option>
-                      <option value="10" selected>October</option>
-                      <option value="11">November</option>
-                      <option value="12">December</option>
-                    </select>
-                    <select id="launch-year" aria-label="Earliest year"></select>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label>NO LATER THAN (OPTIONAL)</label>
-                  <div class="date-picker" id="launch-date-max-picker">
-                    <select id="launch-date-max-month" aria-label="Latest month">
-                      <option value="">—</option>
-                      <option value="01">January</option>
-                      <option value="02">February</option>
-                      <option value="03">March</option>
-                      <option value="04">April</option>
-                      <option value="05">May</option>
-                      <option value="06">June</option>
-                      <option value="07">July</option>
-                      <option value="08">August</option>
-                      <option value="09">September</option>
-                      <option value="10">October</option>
-                      <option value="11">November</option>
-                      <option value="12">December</option>
-                    </select>
-                    <select id="launch-date-max-year" aria-label="Latest year">
-                      <option value="">—</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div class="form-nav">
-                <button type="button" class="btn btn-back" onclick="prevStep(2)">← Back</button>
-                <button type="button" class="btn btn-next" onclick="nextStep(2)">Next — Payload →</button>
-              </div>
-            </div>
-
-            <!-- STEP 3: Payload -->
-            <div class="form-step" id="step-3">
-              <div class="form-group">
-                <label>NBT FILE OR CONTRAPTION DIAGRAM</label>
-                <div class="upload-zone" id="upload-zone">
-                  <input type="file" id="file-input" name="file" accept=".nbt" hidden>
-                  <div class="upload-inner" id="upload-inner">
-                    <div class="upload-icon">
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                    </div>
-                    <p class="upload-title">Drop your file here</p>
-                    <p class="upload-sub">or <button type="button" class="upload-browse">browse</button> — .nbt files only</p>
-                  </div>
-                  <div class="upload-selected" id="upload-selected" style="display:none">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                    <span id="file-display-name"></span>
-                    <button type="button" class="upload-remove" onclick="removeFile()">✕</button>
-                  </div>
-                </div>
-                <div class="allowed-mods">
-                  <span class="mods-label">Allowed mods:</span>
-                  <div class="mods-list">
-                    <span class="mod-chip">Create</span>
-                    <span class="mod-chip">Create: Aeronautics</span>
-                    <span class="mod-chip">CC:Tweaked</span>
-                    <span class="mod-chip">Framed Blocks</span>
-                    <span class="mod-chip">Deco Props</span>
-                    <span class="mod-chip">Copycat+</span>
-                    <span class="mod-chip">TFMG</span>
-                  </div>
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="mission-desc">MISSION DESCRIPTION</label>
-                <textarea id="mission-desc" name="description" rows="5" placeholder="Describe your satellite's purpose, objectives, and any special requirements..."></textarea>
-                <span class="field-hint char-counter"><span id="char-count">0</span> / 800 characters</span>
-              </div>
-              <div class="form-nav">
-                <button type="button" class="btn btn-back" onclick="prevStep(3)">← Back</button>
-                <button type="submit" class="btn btn-submit">Submit Launch Request</button>
-              </div>
-            </div>
-
-          </form>
-
-          <div class="form-error" id="form-error" style="display:none" role="alert"></div>
-
-          <!-- SUCCESS STATE -->
-          <div class="form-success" id="form-success" style="display:none">
-            <div class="success-icon">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>
-            </div>
-            <h3>Request submitted!</h3>
-            <p>Our team will review your satellite and get back to you within <strong>48 hours</strong> on Discord.</p>
-            <p class="success-sub" id="form-success-sub">Make sure you're in the <a href="https://discord.gg/CMDSKwTBnm" target="_blank">ISA Discord</a> so the bot can reach you.</p>
-            <button class="btn btn-primary" onclick="resetForm()">Submit another</button>
+  <!-- JOIN -->
+  <section class="section-join">
+    <div class="container">
+      <div class="join-inner">
+        <div>
+          <p class="eyebrow">JOIN ISA</p>
+          <h2 class="section-title" style="margin-bottom:16px">Be part of something<br>bigger.</h2>
+          <p class="join-desc">ISA is an open community of aerospace enthusiasts, engineers and researchers. Join <span class="discord-guild-name">ISA Discord</span> — <span class="discord-member-count">—</span> members and counting.</p>
+          <div class="join-discord-live">
+            <span class="live-dot"></span>
+            <span class="discord-online-count">—</span> members online now
           </div>
         </div>
-
-        <!-- SIDEBAR -->
-        <div class="book-sidebar">
-          <div class="sidebar-card">
-            <div class="sidebar-title">LAUNCH INFO</div>
-            <div class="sidebar-row"><span>Review time</span><b>48 hours</b></div>
-            <div class="sidebar-row"><span>Approval</span><b>Discord DM</b></div>
-            <div class="sidebar-row"><span>Cost</span><b>Free</b></div>
-            <div class="sidebar-row"><span>Server</span><b class="discord-guild-name">ISA Discord</b></div>
-          </div>
-          <div class="sidebar-card">
-            <div class="sidebar-title">CURRENT SLOT</div>
-            <div class="slot-orbit" id="sidebar-orbit">LEO</div>
-            <div class="slot-date" id="sidebar-date">Oct 2026</div>
-            <div class="slot-sat" id="sidebar-sat">—</div>
-          </div>
-          <a href="https://discord.gg/CMDSKwTBnm" target="_blank" class="discord-join-card">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
-            Join ISA Discord
-            <span>discord.gg/CMDSKwTBnm →</span>
+        <div class="join-actions">
+          <a href="https://discord.gg/CMDSKwTBnm" target="_blank" class="btn-discord">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+            Join Discord
           </a>
+
+          <div class="join-social" data-isa-social="buttons"></div>
         </div>
       </div>
     </div>
@@ -264,16 +121,45 @@
   <!-- FOOTER -->
   <footer class="site-footer">
     <div class="container footer-inner">
-      <div class="footer-logo"><span class="logo-isa">ISA</span><span class="logo-sep">/</span><span class="logo-sub">LAUNCHSHARE</span></div>
-      <div class="footer-copy">© 2026 ISA — International Space Association. All rights reserved.</div>
+      <div class="footer-left">
+        <span class="footer-logo">ISA</span>
+        <span class="footer-copy">© 2026 International Space Association. All rights reserved.</span>
+      </div>
       <div class="footer-links">
+        <a href="projects.html">Projects</a>
+        <a href="launches.html">Launches</a>
+        <a href="news.html">News</a>
+        <a href="careers.html">Careers</a>
+        <a href="launchshare/index.html">Launchshare</a>
         <a href="https://discord.gg/CMDSKwTBnm" target="_blank">Discord</a>
       </div>
     </div>
   </footer>
 
-  <script src="../shared.js"></script>
-  <script src="config.js"></script>
-  <script src="main.js"></script>
+  <script src="shared.js"></script>
+  <script>
+    const SB_URL = 'https://fqvghuvmgswegirgitom.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxdmdodXZtZ3N3ZWdpcmdpdG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTI4MTAsImV4cCI6MjA5NjY4ODgxMH0.7tKrak3ANnnhp4pISK2ythPdCt557vMACUhpQsqWn0s';
+    const sbHeaders = { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` };
+
+    Promise.all([
+      fetch(`${SB_URL}/rest/v1/missions?order=id`, { headers: sbHeaders }).then(r => r.json()),
+      fetch(`${SB_URL}/rest/v1/launches?order=id`, { headers: sbHeaders }).then(r => r.json()),
+    ]).then(([missions, launches]) => {
+      document.getElementById('stat-projects').textContent = missions.length;
+      const openLaunches = launches.filter(l => l.status === 'open' || l.status === 'upcoming').length;
+      document.getElementById('stat-launches').textContent = openLaunches;
+
+      const sizeClass = (i) => i < 2 ? 'project-large' : 'project-small';
+      document.getElementById('projects-grid').innerHTML = missions.map((m, i) => `
+        <a class="project-card ${sizeClass(i)} reveal-target" href="projects.html" style="background-image:url('${m.image||''}')">
+          <div class="project-overlay"></div>
+          <div class="project-info">
+            <span class="project-name">${m.name}</span>
+            <span class="project-sub">${m.division}</span>
+          </div>
+        </a>`).join('');
+    }).catch(() => {});
+  </script>
 </body>
 </html>

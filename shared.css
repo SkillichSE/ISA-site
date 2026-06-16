@@ -78,6 +78,17 @@ body {
   align-items: center;
   justify-content: space-between;
 }
+.nav-logo-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.nav-logo-img {
+  height: 34px;
+  width: auto;
+  display: block;
+}
 .nav-logo {
   font-size: 1rem;
   font-weight: 900;
@@ -274,6 +285,8 @@ body {
 @media (max-width: 768px) {
   .container { padding: 0 20px; }
   .nav-inner { min-width: 0; }
+  .nav-logo-link { min-width: 0; }
+  .nav-logo-img { height: 28px; flex-shrink: 0; }
   .nav-logo {
     min-width: 0;
     overflow: hidden;

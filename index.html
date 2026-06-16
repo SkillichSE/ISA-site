@@ -13,7 +13,7 @@
 
   <nav id="navbar">
     <div class="container nav-inner">
-      <a href="index.html" class="nav-logo">ISA</a>
+      <a href="index.html" class="nav-logo-link"><img src="ISSSSSSSAAAA.png" alt="ISA" class="nav-logo-img"><span class="nav-logo">ISA</span></a>
       <div class="nav-links" id="nav-links">
         <a href="projects.html">Projects</a>
         <a href="launches.html">Launches</a>
@@ -29,7 +29,7 @@
 
   <!-- HERO -->
   <header class="hero">
-    <div class="hero-bg"></div>
+    <video class="hero-bg" id="hero-video" autoplay muted loop playsinline></video>
     <div class="hero-overlay"></div>
     <div class="container hero-content">
       <h1 class="hero-title">THE FUTURE OF<br>SPACE STARTS<br>HERE.</h1>
@@ -135,6 +135,29 @@
   </footer>
 
   <script src="shared.js"></script>
+  <script>
+    (function() {
+      const videos = [
+        'https://fqvghuvmgswegirgitom.supabase.co/storage/v1/object/public/media/Space%20A.mp4',
+        'https://fqvghuvmgswegirgitom.supabase.co/storage/v1/object/public/media/Space%20B.mp4',
+      ];
+      const vid = document.getElementById('hero-video');
+
+      // Shuffle and try each until one loads
+      const shuffled = videos.sort(() => Math.random() - 0.5);
+      let idx = 0;
+
+      function tryNext() {
+        if (idx >= shuffled.length) return;
+        vid.src = shuffled[idx++];
+        vid.load();
+      }
+
+      vid.addEventListener('error', tryNext);
+      vid.addEventListener('canplay', () => vid.play().catch(() => {}));
+      tryNext();
+    })();
+  </script>
   <script>
     const SB_URL = 'https://fqvghuvmgswegirgitom.supabase.co';
     const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxdmdodXZtZ3N3ZWdpcmdpdG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTI4MTAsImV4cCI6MjA5NjY4ODgxMH0.7tKrak3ANnnhp4pISK2ythPdCt557vMACUhpQsqWn0s';
