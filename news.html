@@ -35,11 +35,24 @@
 
   <section class="section-news">
     <div class="container">
-
       <div id="news-featured-wrap"></div>
-      <div class="news-grid" data-stagger id="news-grid"></div>
+      <div class="news-masonry" id="news-grid"></div>
     </div>
   </section>
+
+  <!-- Modal -->
+  <div class="news-modal-backdrop" id="news-modal-backdrop">
+    <div class="news-modal" id="news-modal">
+      <button class="news-modal-close" id="news-modal-close" aria-label="Close">×</button>
+      <div class="news-modal-img" id="news-modal-img"></div>
+      <div class="news-modal-body">
+        <div class="news-meta" id="news-modal-meta"></div>
+        <h2 id="news-modal-title"></h2>
+        <p class="news-body-text" id="news-modal-body"></p>
+
+      </div>
+    </div>
+  </div>
 
   <footer class="site-footer">
     <div class="container footer-inner">
@@ -54,9 +67,17 @@
       </div>
     </div>
   </footer>
+
   <script>
     const SB_URL = 'https://fqvghuvmgswegirgitom.supabase.co';
     const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxdmdodXZtZ3N3ZWdpcmdpdG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTI4MTAsImV4cCI6MjA5NjY4ODgxMH0.7tKrak3ANnnhp4pISK2ythPdCt557vMACUhpQsqWn0s';
+
+    // image height alternation for masonry variety
+    const IMG_SIZES = ['tall', 'short', 'tall', 'none', 'short', 'tall', 'none', 'short'];
+
+    function escHtml(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
 
     async function loadNews() {
       const featuredWrap = document.getElementById('news-featured-wrap');
@@ -66,37 +87,98 @@
           headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
         });
         const posts = await r.json();
-        if (!posts.length) {
+
+        if (!Array.isArray(posts) || !posts.length) {
           featuredWrap.innerHTML = '';
           grid.innerHTML = '<p style="color:var(--muted,#aaa);padding:40px 0">No news yet.</p>';
           return;
         }
+
         const [featured, ...rest] = posts;
+        window._newsPosts = posts;
+
+        // featured card
         featuredWrap.innerHTML = `
-          <article class="news-featured reveal-target">
-            <div class="news-featured-img" style="background-image:url('${featured.image||''}')"></div>
+          <article class="news-featured reveal-target" data-post="0">
+            <div class="news-featured-img" style="${featured.image ? `background-image:url('${escHtml(featured.image)}')` : ''}"></div>
             <div class="news-featured-body">
-              <div class="news-meta"><span class="news-tag">${featured.tag||''}</span><span class="news-date">${featured.date||''}</span></div>
-              <h2>${featured.title||''}</h2>
-              <p>${featured.body||''}</p>
-              <a href="${featured.link||'#'}" class="news-read">Read more →</a>
+              <div class="news-meta">
+                <span class="news-tag">${escHtml(featured.tag)}</span>
+                <span class="news-date">${escHtml(featured.date)}</span>
+              </div>
+              <h2>${escHtml(featured.title)}</h2>
+              <p>${escHtml(featured.body)}</p>
+              <button class="news-read" data-post="0">Read full story →</button>
             </div>
           </article>`;
-        grid.innerHTML = rest.map(n => `
-          <article class="news-card reveal-target">
-            <div class="news-card-img" style="background-image:url('${n.image||''}')"></div>
+
+        // masonry cards
+        grid.innerHTML = rest.map((n, i) => {
+          const sizeClass = n.image ? (IMG_SIZES[i % IMG_SIZES.length] || 'short') : 'none';
+          return `
+          <article class="news-card reveal-target" data-post="${i + 1}">
+            <div class="news-card-img ${sizeClass}" style="${n.image ? `background-image:url('${escHtml(n.image)}')` : ''}"></div>
             <div class="news-card-body">
-              <div class="news-meta"><span class="news-tag">${n.tag||''}</span><span class="news-date">${n.date||''}</span></div>
-              <h3>${n.title||''}</h3>
-              <p>${n.body||''}</p>
-              <a href="${n.link||'#'}" class="news-read">Read more →</a>
+              <div class="news-meta">
+                <span class="news-tag">${escHtml(n.tag)}</span>
+                <span class="news-date">${escHtml(n.date)}</span>
+              </div>
+              <h3>${escHtml(n.title)}</h3>
+              <p>${escHtml(n.body)}</p>
+              <button class="news-read" data-post="${i + 1}">Read more →</button>
             </div>
-          </article>`).join('');
+          </article>`;
+        }).join('');
+
+        // single delegated listener — find nearest [data-post] from click target
+        ['news-featured-wrap', 'news-grid'].forEach(id => {
+          document.getElementById(id).addEventListener('click', e => {
+            // ignore clicks on the external modal link inside a card (shouldn't be any, but safety)
+            if (e.target.tagName === 'A') return;
+            const card = e.target.closest('[data-post]');
+            if (!card) return;
+            const post = window._newsPosts[+card.dataset.post];
+            if (post) openNewsModal(post);
+          });
+        });
+
       } catch(e) {
         featuredWrap.innerHTML = '';
         grid.innerHTML = '<p style="color:#e05555;padding:40px 0">Failed to load news.</p>';
+        console.error('loadNews error:', e);
       }
     }
+
+    // --- Modal ---
+    function openNewsModal(post) {
+      const imgEl = document.getElementById('news-modal-img');
+      if (post.image) {
+        imgEl.style.backgroundImage = `url('${escHtml(post.image)}')`;
+        imgEl.classList.remove('hidden');
+      } else {
+        imgEl.style.backgroundImage = '';
+        imgEl.classList.add('hidden');
+      }
+      document.getElementById('news-modal-meta').innerHTML =
+        `<span class="news-tag">${escHtml(post.tag)}</span><span class="news-date">${escHtml(post.date)}</span>`;
+      document.getElementById('news-modal-title').textContent = post.title || '';
+      document.getElementById('news-modal-body').textContent = post.body || '';
+
+      document.getElementById('news-modal-backdrop').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeNewsModal() {
+      document.getElementById('news-modal-backdrop').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('news-modal-backdrop').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeNewsModal();
+    });
+
+    document.getElementById('news-modal-close').addEventListener('click', closeNewsModal);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeNewsModal(); });
 
     loadNews();
   </script>
