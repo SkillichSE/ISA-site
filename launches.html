@@ -6,8 +6,11 @@
   <title>Launches — ISA</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="shared.css?v=3">
-  <link rel="stylesheet" href="launches.css?v=2">
+  <link rel="stylesheet" href="launches.css">
   <link rel="icon" type="image/png" href="ISSSSSSSAAAA.png">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+  <script src="markdown.js"></script>
 </head>
 <body>
   <nav id="navbar">
@@ -18,7 +21,6 @@
         <a href="launches.html">Launches</a>
         <a href="news.html">News</a>
         <a href="careers.html">Careers</a>
-        <a href="https://discord.gg/CMDSKwTBnm" target="_blank">Discord</a>
         <a href="launchshare/index.html" class="nav-launch">Launchshare</a>
       </div>
       <button class="burger" id="burger"><span></span><span></span><span></span></button>
@@ -35,14 +37,24 @@
 
   <section class="section-launches">
     <div class="container">
-      <div class="launches-list" id="launches-list">
-        <!-- rendered by JS -->
-      </div>
-      <div class="launches-empty" id="launches-empty" style="display:none">
-        <p>No launches scheduled yet.</p>
-      </div>
+      <div class="launches-grid" id="launches-list"></div>
+      <div class="launches-empty" id="launches-empty" style="display:none">No launches scheduled yet.</div>
     </div>
   </section>
+
+  <!-- Modal -->
+  <div class="launch-modal-backdrop" id="launch-modal-backdrop">
+    <div class="launch-modal">
+      <button class="launch-modal-close" id="launch-modal-close" aria-label="Close">×</button>
+      <div class="launch-modal-body">
+        <div class="launch-meta" id="launch-modal-meta"></div>
+        <div class="launch-modal-date-big" id="launch-modal-date-big"></div>
+        <div class="launch-modal-date-sub" id="launch-modal-date-sub"></div>
+        <h2 id="launch-modal-title"></h2>
+        <div class="launch-body-text" id="launch-modal-body"></div>
+      </div>
+    </div>
+  </div>
 
   <footer class="site-footer">
     <div class="container footer-inner">
@@ -63,47 +75,95 @@
     const SB_URL = 'https://fqvghuvmgswegirgitom.supabase.co';
     const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxdmdodXZtZ3N3ZWdpcmdpdG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTI4MTAsImV4cCI6MjA5NjY4ODgxMH0.7tKrak3ANnnhp4pISK2ythPdCt557vMACUhpQsqWn0s';
 
+    function escHtml(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function statusClass(s) {
+      const map = { scheduled:'launch-status-scheduled', upcoming:'launch-status-upcoming',
+                    delayed:'launch-status-delayed', completed:'launch-status-completed', scrubbed:'launch-status-scrubbed' };
+      return map[s] || 'launch-status-scheduled';
+    }
+
+    let _launches = [];
+
     fetch(`${SB_URL}/rest/v1/launches?order=launch_date`, {
       headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
     })
       .then(r => r.json())
       .then(launches => {
-        const listEl = document.getElementById('launches-list');
+        const listEl  = document.getElementById('launches-list');
         const emptyEl = document.getElementById('launches-empty');
-        
-        const published = launches.filter(l => l.published);
-        
-        if (published.length === 0) {
-          emptyEl.style.display = 'block';
-          return;
-        }
+        const published = (Array.isArray(launches) ? launches : []).filter(l => l.published);
 
-        listEl.innerHTML = published.map(l => {
-          const date = l.date ? new Date(l.date) : null;
-          const dateStr = date ? date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'TBD';
-          
+        if (!published.length) { emptyEl.style.display = 'block'; return; }
+        _launches = published;
+
+        listEl.innerHTML = published.map((l, i) => {
+          const date    = l.date ? new Date(l.date) : null;
+          const day     = date ? date.getDate() : '—';
+          const month   = date ? date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase() : '—';
+          const year    = date ? date.getFullYear() : '';
+          const dateStr = date ? date.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) : 'TBD';
+
           return `
-            <div class="launch-card reveal-target">
-              <div class="launch-date">
-                <div class="launch-date-day">${date ? date.getDate() : '—'}</div>
-                <div class="launch-date-month">${date ? date.toLocaleDateString('en-US', { month: 'short' }) : '—'}</div>
+          <div class="launch-card reveal-target" data-launch="${i}">
+            <div class="launch-card-date">
+              <div class="launch-day">${day}</div>
+              <div class="launch-month-year">
+                <span class="launch-month">${month}</span>
+                <span class="launch-year">${year}</span>
               </div>
-              <div class="launch-body">
-                <div class="launch-meta">
-                  ${l.mission_id ? `<span class="launch-mission" title="Mission">Mission ID: ${l.mission_id}</span>` : ''}
-                  <span class="launch-status">${l.status || 'scheduled'}</span>
-                </div>
-                <h3 class="launch-title">${l.name || 'Unnamed Launch'}</h3>
-                ${l.description ? `<p class="launch-desc">${l.description}</p>` : ''}
+            </div>
+            <div class="launch-card-body">
+              <div class="launch-meta">
+                <span class="launch-status ${statusClass(l.status)}">${escHtml(l.status || 'scheduled')}</span>
+                ${l.mission_id ? `<span class="launch-mission-badge">${escHtml(String(l.mission_id))}</span>` : ''}
               </div>
-              <div class="launch-date-full">${dateStr}</div>
-            </div>`;
+              <h3 class="launch-title">${escHtml(l.name || 'Unnamed Launch')}</h3>
+              ${l.description ? `<p class="launch-desc">${escHtml(mdToPlain(l.description))}</p>` : ''}
+              <button class="launch-read" data-launch="${i}">Details →</button>
+            </div>
+          </div>`;
         }).join('');
+
+        listEl.addEventListener('click', e => {
+          const card = e.target.closest('[data-launch]');
+          if (!card) return;
+          openModal(_launches[+card.dataset.launch]);
+        });
       })
       .catch(err => {
-        console.error('Error loading launches:', err);
+        console.error('launches error:', err);
         document.getElementById('launches-empty').style.display = 'block';
       });
+
+    function openModal(l) {
+      const date    = l.date ? new Date(l.date) : null;
+      const dateStr = date ? date.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) : 'TBD';
+
+      document.getElementById('launch-modal-meta').innerHTML =
+        `<span class="launch-status ${statusClass(l.status)}">${escHtml(l.status || 'scheduled')}</span>
+         ${l.mission_id ? `<span class="launch-mission-badge" style="margin-left:8px">${escHtml(String(l.mission_id))}</span>` : ''}`;
+      document.getElementById('launch-modal-date-big').textContent = date ? date.getDate() : '—';
+      document.getElementById('launch-modal-date-sub').textContent = dateStr;
+      document.getElementById('launch-modal-title').textContent = l.name || 'Unnamed Launch';
+      document.getElementById('launch-modal-body').innerHTML = mdToHtml(l.description);
+
+      document.getElementById('launch-modal-backdrop').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      document.getElementById('launch-modal-backdrop').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('launch-modal-backdrop').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeModal();
+    });
+    document.getElementById('launch-modal-close').addEventListener('click', closeModal);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
   </script>
 </body>
 </html>

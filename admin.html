@@ -6,6 +6,9 @@
   <title>ISA Admin</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="ISSSSSSSAAAA.png">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+  <script src="markdown.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -82,6 +85,10 @@
 
     .page-head { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:28px; gap:16px; }
     .page-head-left {}
+    .page-head-right { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+    .page-search input { background:var(--surface2); border:1px solid var(--border); border-radius:var(--r-sm); padding:9px 13px; font-family:inherit; font-size:13px; color:var(--text); width:190px; outline:none; transition:border-color .2s,box-shadow .2s,width .2s; }
+    .page-search input:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); width:230px; }
+    .page-search input::placeholder { color:var(--text-3); }
     .page-title { font-size:22px; font-weight:800; letter-spacing:-.4px; }
     .page-desc { font-size:13px; color:var(--text-2); margin-top:4px; }
     .btn-add { display:flex; align-items:center; gap:7px; background:var(--accent); color:#fff; border:none; border-radius:var(--r-sm); padding:9px 16px; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; transition:opacity .2s,box-shadow .2s; white-space:nowrap; flex-shrink:0; }
@@ -174,6 +181,35 @@
     .img-preview { width:100%; height:120px; border-radius:var(--r-sm); background:var(--surface3); border:1px solid var(--border); background-size:cover; background-position:center; display:none; }
     .img-preview.visible { display:block; }
     #img-file-input { display:none; }
+
+    /* ── MARKDOWN EDITOR ── */
+    .md-field-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:7px; }
+    .md-field-head label { margin-bottom:0; }
+    .md-tabs { display:flex; gap:2px; background:var(--surface2); border:1px solid var(--border); border-radius:7px; padding:2px; }
+    .md-tab { background:none; border:none; color:var(--text-3); font-family:inherit; font-size:11px; font-weight:600; padding:4px 10px; border-radius:5px; cursor:pointer; transition:all .15s; }
+    .md-tab.active { background:var(--surface3); color:var(--text); }
+    .md-toolbar { display:flex; gap:3px; background:var(--surface2); border:1px solid var(--border); border-bottom:none; border-radius:7px 7px 0 0; padding:5px 6px; flex-wrap:wrap; }
+    .md-toolbar button { background:none; border:none; color:var(--text-2); font-family:inherit; font-size:12px; width:26px; height:24px; border-radius:5px; cursor:pointer; transition:all .15s; display:flex; align-items:center; justify-content:center; }
+    .md-toolbar button:hover { background:var(--surface3); color:var(--text); }
+    .md-field textarea { border-radius:0 0 var(--r-sm) var(--r-sm); border-top:none; font-family:'SF Mono',Consolas,Menlo,monospace; font-size:12.5px; }
+    .md-field textarea:focus { border-color:var(--border); box-shadow:none; }
+    .md-field-head + .md-toolbar { margin-top:0; }
+    .md-preview { display:none; min-height:88px; max-height:280px; overflow-y:auto; background:var(--surface2); border:1px solid var(--border); border-radius:0 0 var(--r-sm) var(--r-sm); border-top:none; padding:12px 14px; font-size:13px; line-height:1.65; color:var(--text-2); }
+    .md-preview.visible { display:block; }
+    .md-field textarea.hidden { display:none; }
+    .md-preview:empty::after { content:'Nothing to preview yet.'; color:var(--text-3); }
+    .md-preview p { margin:0 0 10px; }
+    .md-preview p:last-child { margin-bottom:0; }
+    .md-preview h1,.md-preview h2,.md-preview h3 { color:var(--text); margin:14px 0 8px; font-weight:700; }
+    .md-preview h1 { font-size:16px; } .md-preview h2 { font-size:14.5px; } .md-preview h3 { font-size:13.5px; }
+    .md-preview ul,.md-preview ol { margin:0 0 10px; padding-left:20px; }
+    .md-preview li { margin-bottom:4px; }
+    .md-preview a { color:var(--accent); }
+    .md-preview blockquote { border-left:2px solid var(--border2); padding-left:10px; color:var(--text-3); margin:0 0 10px; }
+    .md-preview code { background:var(--surface3); border-radius:4px; padding:1px 5px; font-size:0.9em; }
+    .md-preview pre { background:var(--surface3); border-radius:6px; padding:10px 12px; overflow-x:auto; margin:0 0 10px; }
+    .md-preview pre code { background:none; padding:0; }
+    .md-preview img { max-width:100%; border-radius:6px; }
   </style>
 </head>
 <body>
@@ -337,6 +373,13 @@ function nav(p, el) {
   page = p; render();
 }
 
+function filterItems(q) {
+  q = q.trim().toLowerCase();
+  document.querySelectorAll('.item-list .item-card').forEach(card => {
+    card.style.display = (!q || card.textContent.toLowerCase().includes(q)) ? '' : 'none';
+  });
+}
+
 function render() {
   const m = document.getElementById('main');
   if (page==='missions') m.innerHTML = pageMissions();
@@ -357,14 +400,14 @@ function pageMissions() {
           <span class="badge badge-${m.status}">${statusMap[m.status]||m.status}</span>
         </div>
         <div class="item-meta">${m.division}</div>
-        <div class="item-desc">${m.description}</div>
+        <div class="item-desc">${esc(mdToPlain(m.description))}</div>
       </div>
       <div class="item-actions">
         <button class="btn-edit" onclick="openEdit('missions','${m.id}')">Edit</button>
         <button class="btn-del" onclick="del('missions','${m.id}')" title="Delete">✕</button>
       </div>
     </div>`).join('') : `<div class="empty"><div class="empty-icon">🚀</div>No missions yet.</div>`;
-  return `<div class="page-head"><div class="page-head-left"><div class="page-title">Missions</div><div class="page-desc">Programs shown on the Projects page.</div></div><button class="btn-add" onclick="openNew('missions')">+ Add Mission</button></div><div class="item-list">${items}</div>`;
+  return `<div class="page-head"><div class="page-head-left"><div class="page-title">Missions</div><div class="page-desc">Programs shown on the Projects page.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search missions…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('missions')">+ Add Mission</button></div></div><div class="item-list">${items}</div>`;
 }
 
 // ── CAREERS
@@ -378,14 +421,14 @@ function pageCareers() {
           <span class="badge badge-volunteer">${c.type}</span>
         </div>
         <div class="item-meta">${c.program}</div>
-        <div class="item-desc">${c.description}</div>
+        <div class="item-desc">${esc(mdToPlain(c.description))}</div>
       </div>
       <div class="item-actions">
         <button class="btn-edit" onclick="openEdit('careers','${c.id}')">Edit</button>
         <button class="btn-del" onclick="del('careers','${c.id}')" title="Delete">✕</button>
       </div>
     </div>`).join('') : `<div class="empty"><div class="empty-icon">💼</div>No positions yet.</div>`;
-  return `<div class="page-head"><div class="page-head-left"><div class="page-title">Careers</div><div class="page-desc">Open volunteer positions.</div></div><button class="btn-add" onclick="openNew('careers')">+ Add Position</button></div><div class="item-list">${items}</div>`;
+  return `<div class="page-head"><div class="page-head-left"><div class="page-title">Careers</div><div class="page-desc">Open volunteer positions.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search positions…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('careers')">+ Add Position</button></div></div><div class="item-list">${items}</div>`;
 }
 
 // ── LAUNCHES
@@ -402,7 +445,7 @@ function pageLaunches() {
           ${l.published ? '<span class="badge badge-active">Published</span>' : '<span class="badge badge-inactive">Draft</span>'}
         </div>
         <div class="item-meta">${l.orbit} · ${l.date || '—'}${l.mission_id ? ' · Mission: ' + l.mission_id : ''}</div>
-        <div class="item-desc">${l.description}</div>
+        <div class="item-desc">${esc(mdToPlain(l.description))}</div>
         <div class="slots-bar"><div class="slots-fill" style="width:${pct}%"></div></div>
       </div>
       <div class="item-actions">
@@ -411,7 +454,7 @@ function pageLaunches() {
       </div>
     </div>`;
   }).join('') : `<div class="empty"><div class="empty-icon">🛰️</div>No launches yet.</div>`;
-  return `<div class="page-head"><div class="page-head-left"><div class="page-title">Launches</div><div class="page-desc">Launchshare mission slots.</div></div><button class="btn-add" onclick="openNew('launches')">+ Add Launch</button></div><div class="item-list">${items}</div>`;
+  return `<div class="page-head"><div class="page-head-left"><div class="page-title">Launches</div><div class="page-desc">Launchshare mission slots.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search launches…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('launches')">+ Add Launch</button></div></div><div class="item-list">${items}</div>`;
 }
 
 // ── NEWS
@@ -426,14 +469,14 @@ function pageNews() {
           <span class="badge ${tagColors[n.tag]||'badge-inactive'}">${n.tag||'—'}</span>
         </div>
         <div class="item-meta">${n.date}</div>
-        <div class="item-desc">${n.body}</div>
+        <div class="item-desc">${esc(mdToPlain(n.body))}</div>
       </div>
       <div class="item-actions">
         <button class="btn-edit" onclick="openEdit('news','${n.id}')">Edit</button>
         <button class="btn-del" onclick="del('news','${n.id}')" title="Delete">✕</button>
       </div>
     </div>`).join('') : `<div class="empty"><div class="empty-icon">📰</div>No news posts yet.</div>`;
-  return `<div class="page-head"><div class="page-head-left"><div class="page-title">News</div><div class="page-desc">Updates shown on the News page.</div></div><button class="btn-add" onclick="openNew('news')">+ Add Post</button></div><div class="item-list">${items}</div>`;
+  return `<div class="page-head"><div class="page-head-left"><div class="page-title">News</div><div class="page-desc">Updates shown on the News page.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search posts…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('news')">+ Add Post</button></div></div><div class="item-list">${items}</div>`;
 }
 
 // ── MODAL
@@ -500,7 +543,84 @@ async function uploadImage(input, fieldId) {
   input.value = '';
 }
 function ta(id, lbl, val='') {
-  return `<div class="form-row"><label>${lbl}</label><textarea id="f-${id}">${esc(String(val))}</textarea></div>`;
+  return `<div class="form-row md-field">
+    <div class="md-field-head">
+      <label>${lbl}</label>
+      <div class="md-tabs">
+        <button type="button" class="md-tab active" id="mdtab-write-${id}" onclick="mdSwitch('${id}','write')">Write</button>
+        <button type="button" class="md-tab" id="mdtab-preview-${id}" onclick="mdSwitch('${id}','preview')">Preview</button>
+      </div>
+    </div>
+    <div class="md-toolbar">
+      <button type="button" title="Bold" onclick="mdWrap('${id}','**','**')"><b>B</b></button>
+      <button type="button" title="Italic" onclick="mdWrap('${id}','_','_')"><i>I</i></button>
+      <button type="button" title="Heading" onclick="mdPrefix('${id}','## ')">H</button>
+      <button type="button" title="Quote" onclick="mdPrefix('${id}','&gt; ')">&rdquo;</button>
+      <button type="button" title="Bulleted list" onclick="mdPrefix('${id}','- ')">&bull;</button>
+      <button type="button" title="Numbered list" onclick="mdPrefix('${id}','1. ')">1.</button>
+      <button type="button" title="Link" onclick="mdLink('${id}')">&#128279;</button>
+      <button type="button" title="Code" onclick="mdWrap('${id}','\`','\`')">&lt;/&gt;</button>
+    </div>
+    <textarea id="f-${id}">${esc(String(val))}</textarea>
+    <div class="md-preview" id="mdprev-${id}"></div>
+    <div class="form-hint">Поддерживается Markdown — **жирный**, _курсив_, # заголовки, - списки, [текст](ссылка), &gt; цитата, \`код\`.</div>
+  </div>`;
+}
+
+// ── MARKDOWN EDITOR HELPERS
+function mdSwitch(id, mode) {
+  const textarea = document.getElementById('f-'+id);
+  const preview = document.getElementById('mdprev-'+id);
+  const tabWrite = document.getElementById('mdtab-write-'+id);
+  const tabPreview = document.getElementById('mdtab-preview-'+id);
+  if (!textarea || !preview) return;
+  if (mode === 'preview') {
+    preview.innerHTML = mdToHtml(textarea.value);
+    textarea.classList.add('hidden');
+    preview.classList.add('visible');
+    tabWrite.classList.remove('active');
+    tabPreview.classList.add('active');
+  } else {
+    textarea.classList.remove('hidden');
+    preview.classList.remove('visible');
+    tabWrite.classList.add('active');
+    tabPreview.classList.remove('active');
+  }
+}
+function mdWrap(id, before, after) {
+  const t = document.getElementById('f-'+id);
+  if (!t) return;
+  const start = t.selectionStart, end = t.selectionEnd;
+  const selected = t.value.slice(start, end) || 'текст';
+  t.value = t.value.slice(0, start) + before + selected + after + t.value.slice(end);
+  t.focus();
+  t.selectionStart = start + before.length;
+  t.selectionEnd = start + before.length + selected.length;
+}
+function mdPrefix(id, prefix) {
+  const t = document.getElementById('f-'+id);
+  if (!t) return;
+  const start = t.selectionStart, end = t.selectionEnd;
+  const lineStart = t.value.lastIndexOf('\n', start - 1) + 1;
+  let lineEnd = t.value.indexOf('\n', end);
+  if (lineEnd === -1) lineEnd = t.value.length;
+  const block = t.value.slice(lineStart, lineEnd);
+  const prefixed = block.split('\n').map(line => prefix + line).join('\n');
+  t.value = t.value.slice(0, lineStart) + prefixed + t.value.slice(lineEnd);
+  t.focus();
+  t.selectionStart = lineStart;
+  t.selectionEnd = lineStart + prefixed.length;
+}
+function mdLink(id) {
+  const t = document.getElementById('f-'+id);
+  if (!t) return;
+  const start = t.selectionStart, end = t.selectionEnd;
+  const selected = t.value.slice(start, end) || 'текст ссылки';
+  const url = prompt('Адрес ссылки (URL):', 'https://');
+  if (url === null) return;
+  const md = `[${selected}](${url})`;
+  t.value = t.value.slice(0, start) + md + t.value.slice(end);
+  t.focus();
 }
 function sel(id, lbl, val, opts) {
   return `<div class="form-row"><label>${lbl}</label><select id="f-${id}">${opts.map(o=>`<option value="${o}"${o===val?' selected':''}>${o}</option>`).join('')}</select></div>`;

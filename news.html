@@ -8,6 +8,9 @@
   <link rel="stylesheet" href="shared.css?v=3">
   <link rel="stylesheet" href="news.css">
   <link rel="icon" type="image/png" href="ISSSSSSSAAAA.png">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+  <script src="markdown.js"></script>
 </head>
 <body>
   <nav id="navbar">
@@ -18,7 +21,6 @@
         <a href="launches.html">Launches</a>
         <a href="news.html">News</a>
         <a href="careers.html">Careers</a>
-        <a href="https://discord.gg/CMDSKwTBnm" target="_blank">Discord</a>
         <a href="launchshare/index.html" class="nav-launch">Launchshare</a>
       </div>
       <button class="burger" id="burger"><span></span><span></span><span></span></button>
@@ -48,7 +50,7 @@
       <div class="news-modal-body">
         <div class="news-meta" id="news-modal-meta"></div>
         <h2 id="news-modal-title"></h2>
-        <p class="news-body-text" id="news-modal-body"></p>
+        <div class="news-body-text" id="news-modal-body"></div>
 
       </div>
     </div>
@@ -107,7 +109,7 @@
                 <span class="news-date">${escHtml(featured.date)}</span>
               </div>
               <h2>${escHtml(featured.title)}</h2>
-              <p>${escHtml(featured.body)}</p>
+              <p>${escHtml(mdToPlain(featured.body))}</p>
               <button class="news-read" data-post="0">Read full story →</button>
             </div>
           </article>`;
@@ -124,7 +126,7 @@
                 <span class="news-date">${escHtml(n.date)}</span>
               </div>
               <h3>${escHtml(n.title)}</h3>
-              <p>${escHtml(n.body)}</p>
+              <p>${escHtml(mdToPlain(n.body))}</p>
               <button class="news-read" data-post="${i + 1}">Read more →</button>
             </div>
           </article>`;
@@ -162,7 +164,7 @@
       document.getElementById('news-modal-meta').innerHTML =
         `<span class="news-tag">${escHtml(post.tag)}</span><span class="news-date">${escHtml(post.date)}</span>`;
       document.getElementById('news-modal-title').textContent = post.title || '';
-      document.getElementById('news-modal-body').textContent = post.body || '';
+      document.getElementById('news-modal-body').innerHTML = mdToHtml(post.body);
 
       document.getElementById('news-modal-backdrop').classList.add('open');
       document.body.style.overflow = 'hidden';

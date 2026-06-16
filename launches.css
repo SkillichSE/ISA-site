@@ -1,145 +1,238 @@
-/* =============================================
-   LAUNCHES — ISA Launches Calendar CSS
-   ============================================= */
-
-.launches-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 980px;
-  margin: 0 auto;
+.section-launches { padding: 80px 0 120px; }
+.section-launches .container,
+.page-hero .container {
+  max-width: 1600px;
 }
 
-.launch-card {
-  background: var(--panel, #0d1526);
-  border: 1px solid var(--line, #1a2744);
-  border-radius: 16px;
-  padding: 20px;
+/* --- GRID --- */
+.launches-grid {
   display: grid;
-  grid-template-columns: 72px 1fr auto;
-  align-items: center;
-  gap: 18px;
-  transition: border-color 0.2s, background 0.2s;
-  cursor: default;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
 }
-
-.launch-card:hover {
-  border-color: var(--line2, #243354);
-  background: var(--panel2, #111c30);
-}
-
-.launch-date {
+.launch-card {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--panel);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
-  border: 1px solid rgba(37, 99, 235, 0.2);
-  border-radius: 12px;
-  padding: 12px;
-  min-width: 68px;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.22s;
 }
+.launch-card:hover { border-color: var(--line2); transform: translateY(-3px); }
 
-.launch-date-day {
-  font-size: 2rem;
+/* date banner top of card */
+.launch-card-date {
+  padding: 20px 24px 0;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.launch-day {
+  font-size: 2.6rem;
   font-weight: 900;
-  color: #fff;
   line-height: 1;
+  letter-spacing: -1px;
 }
-
-.launch-date-month {
+.launch-month-year {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.launch-month {
   font-size: 0.75rem;
-  color: var(--muted, #8899bb);
   font-weight: 700;
-  letter-spacing: 1px;
-  margin-top: 4px;
+  letter-spacing: 1.5px;
+  color: var(--accent-light);
+  text-transform: uppercase;
 }
+.launch-year { font-size: 0.72rem; color: var(--muted2); }
 
-.launch-body {
+.launch-card-body {
+  padding: 16px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
   flex: 1;
-  min-width: 0;
 }
-
 .launch-meta {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
+  gap: 8px;
   flex-wrap: wrap;
 }
-
-.launch-mission {
-  font-size: 0.8rem;
-  background: rgba(226, 107, 245, 0.15);
-  border: 1px solid rgba(226, 107, 245, 0.25);
-  color: #e26bf5;
-  padding: 3px 9px;
-  border-radius: 6px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
 .launch-status {
-  font-size: 0.75rem;
-  background: rgba(34, 197, 94, 0.15);
-  border: 1px solid rgba(34, 197, 94, 0.25);
-  color: #22c55e;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
   padding: 3px 9px;
-  border-radius: 6px;
-  font-weight: 700;
-  text-transform: capitalize;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
+  border-radius: 20px;
+  text-transform: uppercase;
 }
-
-.launch-title {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 4px;
-}
-
-.launch-desc {
-  font-size: 0.9rem;
-  color: var(--muted, #8899bb);
-  line-height: 1.5;
-  margin: 0;
-}
-
-.launch-date-full {
-  font-size: 0.85rem;
-  color: var(--muted, #8899bb);
+.launch-status-scheduled  { background: rgba(34,197,94,0.12);  color: #22c55e; }
+.launch-status-upcoming   { background: rgba(59,130,246,0.12); color: var(--accent-light); }
+.launch-status-delayed    { background: rgba(251,191,36,0.12); color: #fbbf24; }
+.launch-status-completed  { background: rgba(136,136,136,0.12); color: var(--muted); }
+.launch-status-scrubbed   { background: rgba(224,85,85,0.12);  color: #e05555; }
+.launch-mission-badge {
+  font-size: 0.68rem;
   font-weight: 600;
-  white-space: nowrap;
-  text-align: right;
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: rgba(226,107,245,0.12);
+  color: #e26bf5;
 }
+.launch-title {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  line-height: 1.3;
+}
+.launch-desc {
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.65;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
+}
+.launch-read {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent-light);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  margin-top: 4px;
+  font-family: var(--font, inherit);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: gap 0.15s;
+}
+.launch-read:hover { gap: 9px; }
 
 .launches-empty {
   text-align: center;
   padding: 80px 20px;
-  color: var(--muted, #8899bb);
+  color: var(--muted);
   font-size: 1rem;
-  max-width: 980px;
-  margin: 0 auto;
 }
 
-/* ---- RESPONSIVE ---- */
-@media (max-width: 768px) {
-  .launch-card {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .launch-date {
-    grid-column: 1;
-    min-width: unset;
-  }
-
-  .launch-date-full {
-    text-align: left;
-  }
-
-  .launch-body {
-    grid-column: 1;
-  }
+/* --- MODAL --- */
+.launch-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.88);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
 }
+.launch-modal-backdrop.open { opacity: 1; pointer-events: all; }
+.launch-modal {
+  background: var(--panel);
+  border: 1px solid var(--line2);
+  border-radius: 20px;
+  max-width: 560px;
+  width: 100%;
+  max-height: 88vh;
+  overflow-y: auto;
+  transform: translateY(28px);
+  transition: transform 0.3s;
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line2) transparent;
+}
+.launch-modal-backdrop.open .launch-modal { transform: translateY(0); }
+.launch-modal-body { padding: 36px; }
+.launch-modal-date-big {
+  font-size: 3.5rem;
+  font-weight: 900;
+  letter-spacing: -2px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.launch-modal-date-sub { font-size: 0.85rem; color: var(--muted2); margin-bottom: 20px; }
+.launch-modal-body h2 {
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+  margin: 14px 0 16px;
+}
+.launch-modal-body .launch-body-text {
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.85;
+}
+.launch-body-text p { margin: 0 0 14px; }
+.launch-body-text p:last-child { margin-bottom: 0; }
+.launch-body-text h1, .launch-body-text h2, .launch-body-text h3 {
+  color: var(--text);
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  margin: 22px 0 10px;
+  line-height: 1.3;
+}
+.launch-body-text h1 { font-size: 1.25rem; }
+.launch-body-text h2 { font-size: 1.12rem; }
+.launch-body-text h3 { font-size: 1.02rem; }
+.launch-body-text ul, .launch-body-text ol { margin: 0 0 14px; padding-left: 22px; }
+.launch-body-text li { margin-bottom: 6px; }
+.launch-body-text a { color: var(--accent-light); text-decoration: underline; }
+.launch-body-text blockquote {
+  border-left: 2px solid var(--line2);
+  padding-left: 14px;
+  margin: 0 0 14px;
+  color: var(--muted2);
+}
+.launch-body-text code {
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 1px 6px;
+  font-size: 0.85em;
+}
+.launch-body-text pre {
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 14px;
+  overflow-x: auto;
+  margin: 0 0 14px;
+}
+.launch-body-text pre code { background: none; border: none; padding: 0; }
+.launch-body-text img { max-width: 100%; border-radius: 8px; margin: 8px 0; }
+.launch-body-text hr { border: none; border-top: 1px solid var(--line); margin: 18px 0; }
+.launch-modal-close {
+  position: absolute;
+  top: 16px; right: 16px;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--line2);
+  background: var(--panel);
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, border-color 0.2s;
+  z-index: 10;
+}
+.launch-modal-close:hover { color: var(--text); border-color: var(--muted2); }
+
+/* --- RESPONSIVE --- */
+@media (max-width: 1000px) { .launches-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px)  { .launches-grid { grid-template-columns: 1fr; } }
+@media (max-width: 768px)  { .launch-modal-body { padding: 24px 20px 32px; } }
