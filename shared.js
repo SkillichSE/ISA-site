@@ -1,23 +1,14 @@
-// Shared JS, included on every page.
-
 const GUILD_ID = '1507774799194099903';
 const INVITE_CODE = 'CMDSKwTBnm';
 
 const DISCORD_STATS_FALLBACK = {
   guild_id: GUILD_ID,
   guild_name: 'ISA- community server',
-  invite_url: `https://discord.gg/${INVITE_CODE}`,
+  invite_url: `https:
   member_count: 16,
   online_count: 8,
   icon: '08113c0188539b6cadaf1245b896bc25',
 };
-
-function discordStatsPath() {
-  const segments = window.location.pathname.split('/').filter(Boolean);
-  const last = segments[segments.length - 1] || '';
-  const dirDepth = last.includes('.') ? segments.length - 1 : segments.length;
-  return (dirDepth > 0 ? '../'.repeat(dirDepth) : '') + 'discord-stats.json';
-}
 
 function formatCount(value) {
   return value != null ? value.toLocaleString() : '—';
@@ -25,7 +16,7 @@ function formatCount(value) {
 
 function guildIconUrl(stats) {
   if (!stats.icon) return null;
-  return `https://cdn.discordapp.com/icons/${stats.guild_id}/${stats.icon}.png?size=128`;
+  return `https:
 }
 
 function applyDiscordStats(stats) {
@@ -52,22 +43,20 @@ function applyDiscordStats(stats) {
   });
 
   document.querySelectorAll('a[data-discord-invite]').forEach(el => {
-    el.href = stats.invite_url || `https://discord.gg/${INVITE_CODE}`;
+    el.href = stats.invite_url || `https:
   });
 }
 
 async function fetchDiscordStats() {
   try {
-    const res = await fetch(discordStatsPath(), { cache: 'no-store' });
-    if (!res.ok) throw new Error('stats file missing');
+    const res = await fetch('/api/discord-stats');
+    if (!res.ok) throw new Error(`API ${res.status}`);
     applyDiscordStats(await res.json());
-    return;
   } catch {
     applyDiscordStats(DISCORD_STATS_FALLBACK);
   }
 }
 
-// Add a shadow to the nav bar once the page is scrolled
 const navbar = document.getElementById('navbar');
 if (navbar) {
   window.addEventListener('scroll', () => {
@@ -75,7 +64,6 @@ if (navbar) {
   }, { passive: true });
 }
 
-// Mobile menu toggle
 const burger = document.getElementById('burger');
 const navLinks = document.getElementById('nav-links');
 if (burger && navLinks) {
@@ -85,7 +73,6 @@ if (burger && navLinks) {
   });
 }
 
-// Highlight the nav link for the current page
 (function() {
   const currentPath = new URL(window.location.href).pathname.replace(/\/$/, '/index.html');
   document.querySelectorAll('.nav-links a').forEach(a => {
@@ -96,11 +83,10 @@ if (burger && navLinks) {
   });
 })();
 
-// Social link buttons in the footer
 const ISA_SOCIAL = {
-  tiktok: 'https://www.tiktok.com/@isaspaceagency',
-  youtube: 'https://www.youtube.com/@isa-space-agency',
-  source: 'https://github.com/SkillichSE/ISA-site',
+  tiktok: 'https:
+  youtube: 'https:
+  source: 'https:
 };
 
 (function injectSocialLinks() {
@@ -109,7 +95,7 @@ const ISA_SOCIAL = {
     ['YouTube', ISA_SOCIAL.youtube],
   ];
   const footerItems = [
-    ['Discord', `https://discord.gg/${INVITE_CODE}`],
+    ['Discord', `https:
     ['YouTube', ISA_SOCIAL.youtube],
     ['TikTok', ISA_SOCIAL.tiktok],
     ['Source code', ISA_SOCIAL.source],
@@ -149,11 +135,9 @@ const ISA_SOCIAL = {
   });
 })();
 
-// Fetch live member/online counts for the Discord widget
 fetchDiscordStats();
 setInterval(fetchDiscordStats, 300000);
 
-// Fade elements in as they scroll into view
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
@@ -168,7 +152,6 @@ document.querySelectorAll('.reveal-target').forEach(el => {
   observer.observe(el);
 });
 
-// stagger grids
 document.querySelectorAll('[data-stagger]').forEach(grid => {
   grid.querySelectorAll('.reveal').forEach((el, i) => {
     el.style.transitionDelay = `${i * 70}ms`;
