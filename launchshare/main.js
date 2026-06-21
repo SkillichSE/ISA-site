@@ -1,8 +1,4 @@
-/* =============================================
-   LAUNCHSHARE — ISA Platform JS
-   ============================================= */
-
-// Nav scroll + burger menu are handled by ../shared.js
+// Launchshare request form logic. Nav scroll + burger menu are handled by ../shared.js
 
 const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -51,7 +47,7 @@ function initDatePickers() {
   });
 }
 
-// ---- FORM STATE ----
+// Current step + validation state
 let currentStep = 1;
 
 function updateProgress(step) {
@@ -129,7 +125,7 @@ function shakeInput(id) {
   el.focus();
 }
 
-// ---- ORBIT SELECTOR ----
+// Orbit dropdown
 document.getElementById('orbit-selector').addEventListener('click', (e) => {
   const btn = e.target.closest('.orbit-btn');
   if (!btn) return;
@@ -139,7 +135,7 @@ document.getElementById('orbit-selector').addEventListener('click', (e) => {
   updateSidebar();
 });
 
-// ---- SIDEBAR LIVE UPDATE ----
+// Keep the summary sidebar in sync as the user types
 function updateSidebar() {
   const orbit = document.getElementById('orbit-value').value || 'LEO';
   const date = getLaunchDateValue();
@@ -159,7 +155,7 @@ function updateSidebar() {
 document.getElementById('discord-name').addEventListener('input', updateSidebar);
 document.getElementById('sat-name').addEventListener('input', updateSidebar);
 
-// ---- FILE UPLOAD ----
+// Attachment picker
 const uploadZone = document.getElementById('upload-zone');
 const fileInput = document.getElementById('file-input');
 
@@ -210,7 +206,7 @@ function removeFile() {
   document.getElementById('upload-selected').style.display = 'none';
 }
 
-// ---- CHAR COUNTER ----
+// Character counter for the description field
 const textarea = document.getElementById('mission-desc');
 const charCount = document.getElementById('char-count');
 textarea.addEventListener('input', () => {
@@ -288,7 +284,7 @@ async function buildSubmitPayload() {
   return payload;
 }
 
-// ---- FORM SUBMIT ----
+// Submit handler
 document.getElementById('launch-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   hideFormError();
@@ -352,7 +348,7 @@ function resetForm() {
   updateSidebar();
 }
 
-// ---- INIT ----
+// Run on page load
 initDatePickers();
 updateProgress(1);
 updateSidebar();

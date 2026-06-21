@@ -1,7 +1,5 @@
-/* =============================================
-   ISA — Markdown helpers (shared by admin + public pages)
-   Requires marked.js + DOMPurify to be loaded first.
-   ============================================= */
+// Markdown helpers shared by admin.html and the public pages.
+// Needs marked.js and DOMPurify loaded first.
 
 function escHtmlMd(str) {
   return String(str || '')
@@ -17,15 +15,20 @@ function mdToHtml(text) {
   try {
     if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
       const raw = marked.parse(String(text), { breaks: true, gfm: true });
-      return DOMPurify.sanitize(raw, {
+      const clean = DOMPurify.sanitize(raw, {
         ALLOWED_TAGS: ['p','br','strong','em','b','i','a','ul','ol','li','blockquote','code','pre','h1','h2','h3','h4','hr','img','del','table','thead','tbody','tr','th','td'],
         ALLOWED_ATTR: ['href','target','rel','src','alt','title']
       });
+      // force noopener on target=_blank links, tabnabbing otherwise
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = clean;
+      wrapper.querySelectorAll('a[target="_blank"]').forEach(a => a.setAttribute('rel', 'noopener noreferrer'));
+      return wrapper.innerHTML;
     }
   } catch (e) {
     console.error('Markdown render failed:', e);
   }
-  // Fallback if libs failed to load: escape + preserve line breaks
+  // libs didn't load, just escape and bail
   return escHtmlMd(text).replace(/\n/g, '<br>');
 }
 

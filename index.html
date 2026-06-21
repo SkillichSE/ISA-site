@@ -171,13 +171,17 @@
       const openLaunches = launches.filter(l => l.status === 'open' || l.status === 'upcoming').length;
       document.getElementById('stat-launches').textContent = openLaunches;
 
+      function escHtml(str) {
+        return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      }
+
       const sizeClass = (i) => i < 2 ? 'project-large' : 'project-small';
       document.getElementById('projects-grid').innerHTML = missions.map((m, i) => `
-        <a class="project-card ${sizeClass(i)} reveal-target" href="projects.html" style="background-image:url('${m.image||''}')">
+        <a class="project-card ${sizeClass(i)} reveal-target" href="projects.html" style="background-image:url('${escHtml(m.image || '')}')">
           <div class="project-overlay"></div>
           <div class="project-info">
-            <span class="project-name">${m.name}</span>
-            <span class="project-sub">${m.division}</span>
+            <span class="project-name">${escHtml(m.name)}</span>
+            <span class="project-sub">${escHtml(m.division)}</span>
           </div>
         </a>`).join('');
     }).catch(() => {});

@@ -1,6 +1,4 @@
-/* =============================================
-   ISA — Shared JS (all pages include this)
-   ============================================= */
+// Shared JS, included on every page.
 
 const GUILD_ID = '1507774799194099903';
 const INVITE_CODE = 'CMDSKwTBnm';
@@ -69,7 +67,7 @@ async function fetchDiscordStats() {
   }
 }
 
-// ---- NAV SCROLL ----
+// Add a shadow to the nav bar once the page is scrolled
 const navbar = document.getElementById('navbar');
 if (navbar) {
   window.addEventListener('scroll', () => {
@@ -77,7 +75,7 @@ if (navbar) {
   }, { passive: true });
 }
 
-// ---- BURGER ----
+// Mobile menu toggle
 const burger = document.getElementById('burger');
 const navLinks = document.getElementById('nav-links');
 if (burger && navLinks) {
@@ -87,7 +85,7 @@ if (burger && navLinks) {
   });
 }
 
-// ---- ACTIVE NAV LINK ----
+// Highlight the nav link for the current page
 (function() {
   const currentPath = new URL(window.location.href).pathname.replace(/\/$/, '/index.html');
   document.querySelectorAll('.nav-links a').forEach(a => {
@@ -98,7 +96,7 @@ if (burger && navLinks) {
   });
 })();
 
-// ---- SOCIAL LINKS ----
+// Social link buttons in the footer
 const ISA_SOCIAL = {
   tiktok: 'https://www.tiktok.com/@isaspaceagency',
   youtube: 'https://www.youtube.com/@isa-space-agency',
@@ -151,11 +149,11 @@ const ISA_SOCIAL = {
   });
 })();
 
-// ---- DISCORD STATS ----
+// Fetch live member/online counts for the Discord widget
 fetchDiscordStats();
 setInterval(fetchDiscordStats, 300000);
 
-// ---- SCROLL REVEAL ----
+// Fade elements in as they scroll into view
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {

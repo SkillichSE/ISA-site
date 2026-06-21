@@ -9,6 +9,15 @@
     },
     "api/discord-health.js": {
       "maxDuration": 10
+    },
+    "api/auth.js": {
+      "maxDuration": 10
+    },
+    "api/admin/data.js": {
+      "maxDuration": 10
+    },
+    "api/admin/upload.js": {
+      "maxDuration": 15
     }
   }
 }
