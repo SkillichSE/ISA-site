@@ -10,27 +10,22 @@
   <link rel="icon" type="image/png" href="ISSSSSSSAAAA.png">
 </head>
 <body>
+  <div id="nav-placeholder"></div>
 
-  <nav id="navbar">
-    <div class="container nav-inner">
-      <a href="index.html" class="nav-logo-link"><img src="ISSSSSSSAAAA.png" alt="ISA" class="nav-logo-img"><span class="nav-logo">ISA</span></a>
-      <div class="nav-links" id="nav-links">
-        <a href="projects.html">Projects</a>
-        <a href="launches.html">Launches</a>
-        <a href="news.html">News</a>
-        <a href="careers.html">Careers</a>
-        <a href="launchshare/index.html" class="nav-launch">Launchshare</a>
-      </div>
-      <button class="burger" id="burger" aria-label="Open menu">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </nav>
-
-  <!-- HERO -->
+  
   <header class="hero">
     <video class="hero-bg" id="hero-video" autoplay muted loop playsinline></video>
     <div class="hero-overlay"></div>
+    <div class="video-controls" id="video-controls">
+      <button class="video-btn" id="video-mute-btn" aria-label="Toggle mute" onclick="toggleMute()">
+        <svg class="icon-muted" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+        <svg class="icon-sound" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+      </button>
+      <button class="video-btn" id="video-play-btn" aria-label="Toggle play/pause" onclick="togglePlay()">
+        <svg class="icon-pause" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+        <svg class="icon-play" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </button>
+    </div>
     <div class="container hero-content">
       <h1 class="hero-title">THE FUTURE OF<br>SPACE STARTS<br>HERE.</h1>
       <p class="hero-desc">Building a professional aerospace community focused on research, engineering, innovation and exploration.</p>
@@ -38,7 +33,7 @@
     </div>
   </header>
 
-  <!-- STATS -->
+  
   <section class="section-stats">
     <div class="container">
       <div class="stats-grid" data-stagger>
@@ -62,13 +57,13 @@
     </div>
   </section>
 
-  <!-- PROJECTS PREVIEW -->
+  
   <section class="section-projects">
     <div class="container">
       <p class="eyebrow">PROJECTS</p>
       <h2 class="section-title">Research. Design. Exploration.</h2>
       <div class="projects-grid" id="projects-grid">
-        <!-- rendered by JS -->
+        
       </div>
       <div class="projects-cta">
         <a href="projects.html" class="btn-outline">All projects →</a>
@@ -76,7 +71,7 @@
     </div>
   </section>
 
-  <!-- LAUNCHSHARE CTA -->
+  
   <section class="section-launchshare">
     <div class="container">
       <div class="launch-cta-card">
@@ -91,7 +86,7 @@
     </div>
   </section>
 
-  <!-- JOIN -->
+  
   <section class="section-join">
     <div class="container">
       <div class="join-inner">
@@ -116,7 +111,7 @@
     </div>
   </section>
 
-  <!-- FOOTER -->
+  
   <footer class="site-footer">
     <div class="container footer-inner">
       <div class="footer-left">
@@ -157,6 +152,28 @@
       vid.addEventListener('canplay', () => vid.play().catch(() => {}));
       tryNext();
     })();
+
+    function toggleMute() {
+      const vid = document.getElementById('hero-video');
+      vid.muted = !vid.muted;
+      const btn = document.getElementById('video-mute-btn');
+      btn.querySelector('.icon-muted').style.display = vid.muted ? '' : 'none';
+      btn.querySelector('.icon-sound').style.display = vid.muted ? 'none' : '';
+    }
+
+    function togglePlay() {
+      const vid = document.getElementById('hero-video');
+      const btn = document.getElementById('video-play-btn');
+      if (vid.paused) {
+        vid.play();
+        btn.querySelector('.icon-pause').style.display = '';
+        btn.querySelector('.icon-play').style.display = 'none';
+      } else {
+        vid.pause();
+        btn.querySelector('.icon-pause').style.display = 'none';
+        btn.querySelector('.icon-play').style.display = '';
+      }
+    }
   </script>
   <script>
     const SB_URL = 'https://fqvghuvmgswegirgitom.supabase.co';

@@ -1,8 +1,3 @@
-/* =============================================
-   ISA — Homepage specific CSS
-   ============================================= */
-
-/* HERO */
 .hero {
   position: relative;
   min-height: 100vh;
@@ -66,8 +61,6 @@
   transition: background 0.2s, border-color 0.2s;
 }
 .btn-hero:hover { background: rgba(255,255,255,0.12); border-color: #fff; }
-
-/* STATS */
 .section-stats {
   background: var(--bg);
   padding: 80px 0;
@@ -96,8 +89,6 @@
   font-variant-numeric: tabular-nums;
 }
 .stat-lbl { font-size: 0.85rem; color: var(--muted); }
-
-/* PROJECTS */
 .section-projects {
   padding: 120px 0;
   border-bottom: 1px solid var(--line);
@@ -145,8 +136,6 @@
 .project-name { font-size: 1.15rem; font-weight: 800; color: #fff; letter-spacing: -0.3px; }
 .project-sub { font-size: 0.82rem; color: rgba(255,255,255,0.65); }
 .projects-cta { text-align: center; }
-
-/* LAUNCHSHARE CTA */
 .section-launchshare {
   padding: 80px 0;
   border-bottom: 1px solid var(--line);
@@ -186,8 +175,6 @@
   margin-bottom: 32px;
   max-width: 480px;
 }
-
-/* JOIN */
 .section-join {
   padding: 120px 0;
   border-bottom: 1px solid var(--line);
@@ -230,8 +217,6 @@
   gap: 12px;
   min-width: 200px;
 }
-
-/* RESPONSIVE */
 @media (max-width: 1024px) {
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
 }
@@ -259,4 +244,34 @@
   .hero-title { font-size: 3rem; letter-spacing: -1px; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .stat-num { font-size: 1.9rem; min-height: 1.9rem; }
+}
+.video-controls {
+  position: absolute;
+  bottom: 28px;
+  left: 48px;
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+.video-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.video-btn:hover {
+  background: rgba(255,255,255,0.16);
+  border-color: rgba(255,255,255,0.3);
+}
+@media (max-width: 768px) {
+  .video-controls { left: 20px; bottom: 20px; }
 }

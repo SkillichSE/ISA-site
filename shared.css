@@ -321,4 +321,34 @@ body {
 }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
+}.nav-flags {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  margin-left: 16px;
+  height: 60px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+  overflow: hidden;
+}
+#navbar.scrolled .nav-flags {
+  opacity: 1;
+  pointer-events: auto;
+}
+.nav-flag {
+  display: flex;
+  align-items: stretch;
+  cursor: default;
+  overflow: hidden;
+  line-height: 0;
+}
+.nav-flag img {
+  display: block;
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+}
+@media (max-width: 768px) {
+  .nav-flags { display: none; }
 }

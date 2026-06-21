@@ -1,9 +1,5 @@
 .section-careers { padding: 80px 0 120px; border-bottom: 1px solid var(--line); }
-.section-careers .container,
-.section-culture .container,
-.page-hero .container {
-  max-width: 1600px;
-}
+
 
 /* --- GRID --- */
 .careers-grid {

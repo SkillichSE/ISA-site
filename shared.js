@@ -1,10 +1,22 @@
 const GUILD_ID = '1507774799194099903';
 const INVITE_CODE = 'CMDSKwTBnm';
 
+(async function injectNav() {
+  const placeholder = document.getElementById('nav-placeholder');
+  if (!placeholder) return;
+  try {
+    const res = await fetch('/nav.html');
+    const html = await res.text();
+    placeholder.outerHTML = html;
+  } catch (e) {
+    console.warn('nav.html failed to load', e);
+  }
+})();
+
 const DISCORD_STATS_FALLBACK = {
   guild_id: GUILD_ID,
   guild_name: 'ISA- community server',
-  invite_url: `https:
+  invite_url: `https://discord.gg/${INVITE_CODE}`,
   member_count: 16,
   online_count: 8,
   icon: '08113c0188539b6cadaf1245b896bc25',
@@ -16,7 +28,7 @@ function formatCount(value) {
 
 function guildIconUrl(stats) {
   if (!stats.icon) return null;
-  return `https:
+  return `https://cdn.discordapp.com/icons/${GUILD_ID}/${stats.icon}.png?size=64`;
 }
 
 function applyDiscordStats(stats) {
@@ -43,7 +55,7 @@ function applyDiscordStats(stats) {
   });
 
   document.querySelectorAll('a[data-discord-invite]').forEach(el => {
-    el.href = stats.invite_url || `https:
+    el.href = stats.invite_url || `https://discord.gg/${INVITE_CODE}`;
   });
 }
 
@@ -59,9 +71,11 @@ async function fetchDiscordStats() {
 
 const navbar = document.getElementById('navbar');
 if (navbar) {
-  window.addEventListener('scroll', () => {
+  function updateNavbar() {
     navbar.classList.toggle('scrolled', window.scrollY > 30);
-  }, { passive: true });
+  }
+  window.addEventListener('scroll', updateNavbar, { passive: true });
+  updateNavbar();
 }
 
 const burger = document.getElementById('burger');
@@ -84,9 +98,9 @@ if (burger && navLinks) {
 })();
 
 const ISA_SOCIAL = {
-  tiktok: 'https:
-  youtube: 'https:
-  source: 'https:
+  tiktok: 'https://www.tiktok.com/@isa.space',
+  youtube: 'https://www.youtube.com/@ISA-space',
+  source: 'https://github.com/SkillichSE/ISA-site',
 };
 
 (function injectSocialLinks() {
@@ -95,7 +109,7 @@ const ISA_SOCIAL = {
     ['YouTube', ISA_SOCIAL.youtube],
   ];
   const footerItems = [
-    ['Discord', `https:
+    ['Discord', `https://discord.gg/${INVITE_CODE}`],
     ['YouTube', ISA_SOCIAL.youtube],
     ['TikTok', ISA_SOCIAL.tiktok],
     ['Source code', ISA_SOCIAL.source],

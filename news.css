@@ -1,8 +1,5 @@
 .section-news { padding: 80px 0 120px; }
-.section-news .container,
-.page-hero .container {
-  max-width: 1600px;
-}
+
 
 /* --- FEATURED --- */
 .news-featured {
