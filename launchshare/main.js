@@ -1,5 +1,3 @@
-// Launchshare request form logic. Nav scroll + burger menu are handled by ../shared.js
-
 const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 function fillYearSelect(selectEl, includeEmpty) {
@@ -47,7 +45,6 @@ function initDatePickers() {
   });
 }
 
-// Current step + validation state
 let currentStep = 1;
 
 function updateProgress(step) {
@@ -58,7 +55,7 @@ function updateProgress(step) {
     if (n === step) el.classList.add('active');
   });
 
-  // update done check icon for done steps
+  
   document.querySelectorAll('.progress-step.done span').forEach(s => {
     s.innerHTML = '✓';
   });
@@ -125,7 +122,6 @@ function shakeInput(id) {
   el.focus();
 }
 
-// Orbit dropdown
 document.getElementById('orbit-selector').addEventListener('click', (e) => {
   const btn = e.target.closest('.orbit-btn');
   if (!btn) return;
@@ -135,7 +131,6 @@ document.getElementById('orbit-selector').addEventListener('click', (e) => {
   updateSidebar();
 });
 
-// Keep the summary sidebar in sync as the user types
 function updateSidebar() {
   const orbit = document.getElementById('orbit-value').value || 'LEO';
   const date = getLaunchDateValue();
@@ -151,11 +146,9 @@ function updateSidebar() {
   document.getElementById('sidebar-sat').textContent = satName || '—';
 }
 
-// listen for live inputs
 document.getElementById('discord-name').addEventListener('input', updateSidebar);
 document.getElementById('sat-name').addEventListener('input', updateSidebar);
 
-// Attachment picker
 const uploadZone = document.getElementById('upload-zone');
 const fileInput = document.getElementById('file-input');
 
@@ -206,7 +199,6 @@ function removeFile() {
   document.getElementById('upload-selected').style.display = 'none';
 }
 
-// Character counter for the description field
 const textarea = document.getElementById('mission-desc');
 const charCount = document.getElementById('char-count');
 textarea.addEventListener('input', () => {
@@ -244,7 +236,7 @@ function showFormSuccess() {
   document.getElementById('form-success').style.display = 'block';
 
   document.getElementById('form-success-sub').innerHTML =
-    'Your request was sent to the ISA team. We will review it within <strong>48 hours</strong>. Make sure you\'re in the <a href="https://discord.gg/CMDSKwTBnm" target="_blank">ISA Discord</a>.';
+    'Your request was sent to the ISA team. We will review it within <strong>48 hours</strong>. Make sure you\'re in the <a href="https:
 }
 
 function getLaunchApiUrl() {
@@ -284,7 +276,6 @@ async function buildSubmitPayload() {
   return payload;
 }
 
-// Submit handler
 document.getElementById('launch-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   hideFormError();
@@ -337,7 +328,7 @@ function resetForm() {
   document.querySelectorAll('.orbit-btn').forEach(b => b.classList.remove('active'));
   document.querySelector('.orbit-btn[data-orbit="LEO"]').classList.add('active');
 
-  // re-enable submit
+  
   const submitBtn = document.querySelector('.btn-submit');
   if (submitBtn) {
     submitBtn.textContent = 'Submit Launch Request';
@@ -348,7 +339,6 @@ function resetForm() {
   updateSidebar();
 }
 
-// Run on page load
 initDatePickers();
 updateProgress(1);
 updateSidebar();

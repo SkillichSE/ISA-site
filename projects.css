@@ -3,8 +3,7 @@
   border-bottom: 1px solid var(--line);
 }
 .section-missions .container,
-.section-join-cta .container,
-.page-hero .container {
+.section-join-cta .container {
   max-width: 1600px;
 }
 
@@ -106,139 +105,13 @@
 }
 .mission-read:hover { gap: 9px; }
 
-/* --- MODAL --- */
-.mission-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.88);
-  z-index: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  opacity: 0;
-  transition: opacity 0.25s;
-  pointer-events: none;
-}
+.mission-modal-backdrop { }
 .mission-modal-backdrop.open { opacity: 1; pointer-events: all; }
-.mission-modal {
-  background: var(--panel);
-  border: 1px solid var(--line2);
-  border-radius: 20px;
-  max-width: 660px;
-  width: 100%;
-  max-height: 88vh;
-  overflow-y: auto;
-  transform: translateY(28px);
-  transition: transform 0.3s;
-  position: relative;
-  scrollbar-width: thin;
-  scrollbar-color: var(--line2) transparent;
-}
+.mission-modal { }
 .mission-modal-backdrop.open .mission-modal { transform: translateY(0); }
-.mission-modal-img {
-  width: 100%;
-  height: 230px;
-  background-size: cover;
-  background-position: center;
-  background-color: var(--panel2);
-}
+.mission-modal-img { }
 .mission-modal-img.hidden { display: none; }
-.mission-modal-body { padding: 32px 36px 40px; }
-.mission-modal-body h2 {
-  font-size: 1.55rem;
-  font-weight: 900;
-  letter-spacing: -0.6px;
-  line-height: 1.18;
-  margin: 14px 0 18px;
-}
-.mission-modal-body .mission-body-text {
-  font-size: 0.9rem;
-  color: var(--muted);
-  line-height: 1.85;
-}
-.mission-body-text p { margin: 0 0 14px; }
-.mission-body-text p:last-child { margin-bottom: 0; }
-.mission-body-text h1, .mission-body-text h2, .mission-body-text h3 {
-  color: var(--text);
-  font-weight: 800;
-  letter-spacing: -0.3px;
-  margin: 22px 0 10px;
-  line-height: 1.3;
-}
-.mission-body-text h1 { font-size: 1.25rem; }
-.mission-body-text h2 { font-size: 1.12rem; }
-.mission-body-text h3 { font-size: 1.02rem; }
-.mission-body-text ul, .mission-body-text ol { margin: 0 0 14px; padding-left: 22px; }
-.mission-body-text li { margin-bottom: 6px; }
-.mission-body-text a { color: var(--accent-light); text-decoration: underline; }
-.mission-body-text blockquote {
-  border-left: 2px solid var(--line2);
-  padding-left: 14px;
-  margin: 0 0 14px;
-  color: var(--muted2);
-}
-.mission-body-text code {
-  background: var(--panel2);
-  border: 1px solid var(--line);
-  border-radius: 5px;
-  padding: 1px 6px;
-  font-size: 0.85em;
-}
-.mission-body-text pre {
-  background: var(--panel2);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 12px 14px;
-  overflow-x: auto;
-  margin: 0 0 14px;
-}
-.mission-body-text pre code { background: none; border: none; padding: 0; }
-.mission-body-text img { max-width: 100%; border-radius: 8px; margin: 8px 0; }
-.mission-body-text hr { border: none; border-top: 1px solid var(--line); margin: 18px 0; }
-.mission-modal-body .mission-tags { margin-top: 20px; }
-.mission-modal-close {
-  position: absolute;
-  top: 16px; right: 16px;
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  border: 1px solid var(--line2);
-  background: var(--panel);
-  color: var(--muted);
-  cursor: pointer;
-  font-size: 20px;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.2s, border-color 0.2s;
-  z-index: 10;
-}
-.mission-modal-close:hover { color: var(--text); border-color: var(--muted2); }
-
-/* --- JOIN CTA --- */
-.section-join-cta { padding: 100px 0; }
-.join-cta-inner {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 64px;
-  align-items: center;
-}
-.join-cta-inner h2 {
-  font-size: clamp(2rem, 3.5vw, 2.8rem);
-  font-weight: 900;
-  letter-spacing: -1.5px;
-  line-height: 1.02;
-  margin-bottom: 12px;
-  margin-top: 12px;
-}
-.join-cta-inner p { color: var(--muted); font-size: 0.95rem; max-width: 420px; }
-.join-cta-actions { display: flex; flex-direction: column; gap: 12px; min-width: 200px; }
-
-/* --- RESPONSIVE --- */
-@media (max-width: 1000px) { .missions-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 600px)  { .missions-grid { grid-template-columns: 1fr; } }
-@media (max-width: 768px) {
-  .join-cta-inner { grid-template-columns: 1fr; gap: 32px; }
-  .mission-modal-body { padding: 24px 20px 32px; }
-}
+.mission-modal-body { }
+.mission-modal-body h2 { }
+.mission-body-text { }
+.mission-modal-close { }
