@@ -43,7 +43,7 @@ body {
 .container {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 48px;
+  padding: 0 24px;
 }
 
 #navbar {
@@ -141,11 +141,8 @@ body {
   margin-bottom: 48px;
 }
 .page-hero {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
   border-bottom: 1px solid var(--line);
-  padding: 60px 0 40px;
+  padding: 160px 0 80px;
 }
 .page-hero .eyebrow { margin-bottom: 16px; }
 .page-hero h1 {
@@ -315,7 +312,7 @@ body {
   }
   .footer-credit { text-align: left; }
   .page-hero {
-    padding: 50px 0 28px;
+    padding: 120px 0 56px;
     min-height: 100svh;
   }
   .page-hero h1 {
