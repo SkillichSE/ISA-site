@@ -1,4 +1,3 @@
-// Launchshare request form logic. Nav scroll + burger menu are handled by ../shared.js
 
 const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
