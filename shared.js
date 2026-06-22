@@ -11,6 +11,34 @@ const INVITE_CODE = 'CMDSKwTBnm';
   } catch (e) {
     console.warn('nav.html failed to load', e);
   }
+
+  // Everything below depends on the navbar markup just injected above,
+  // so it must run after the injection completes, not before.
+  const navbar = document.getElementById('navbar');
+  if (navbar) {
+    function updateNavbar() {
+      navbar.classList.toggle('scrolled', window.scrollY > 30);
+    }
+    window.addEventListener('scroll', updateNavbar, { passive: true });
+    updateNavbar();
+  }
+
+  const burger = document.getElementById('burger');
+  const navLinks = document.getElementById('nav-links');
+  if (burger && navLinks) {
+    burger.addEventListener('click', () => navLinks.classList.toggle('open'));
+    navLinks.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => navLinks.classList.remove('open'));
+    });
+  }
+
+  const currentPath = new URL(window.location.href).pathname.replace(/\/$/, '/index.html');
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    const href = a.getAttribute('href');
+    if (!href || href.startsWith('http') || href.startsWith('#')) return;
+    const targetPath = new URL(href, window.location.href).pathname.replace(/\/$/, '/index.html');
+    if (targetPath === currentPath) a.classList.add('active');
+  });
 })();
 
 const DISCORD_STATS_FALLBACK = {
@@ -68,34 +96,6 @@ async function fetchDiscordStats() {
     applyDiscordStats(DISCORD_STATS_FALLBACK);
   }
 }
-
-const navbar = document.getElementById('navbar');
-if (navbar) {
-  function updateNavbar() {
-    navbar.classList.toggle('scrolled', window.scrollY > 30);
-  }
-  window.addEventListener('scroll', updateNavbar, { passive: true });
-  updateNavbar();
-}
-
-const burger = document.getElementById('burger');
-const navLinks = document.getElementById('nav-links');
-if (burger && navLinks) {
-  burger.addEventListener('click', () => navLinks.classList.toggle('open'));
-  navLinks.querySelectorAll('a').forEach(a => {
-    a.addEventListener('click', () => navLinks.classList.remove('open'));
-  });
-}
-
-(function() {
-  const currentPath = new URL(window.location.href).pathname.replace(/\/$/, '/index.html');
-  document.querySelectorAll('.nav-links a').forEach(a => {
-    const href = a.getAttribute('href');
-    if (!href || href.startsWith('http') || href.startsWith('#')) return;
-    const targetPath = new URL(href, window.location.href).pathname.replace(/\/$/, '/index.html');
-    if (targetPath === currentPath) a.classList.add('active');
-  });
-})();
 
 const ISA_SOCIAL = {
   tiktok: 'https://www.tiktok.com/@isa.space',
