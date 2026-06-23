@@ -199,7 +199,7 @@
         const age = document.getElementById('field-age').value;
         const country = document.getElementById('field-country').value.trim();
         if (!discord || !age || !country) { flashError('Please fill in all required fields.'); return; }
-        if (parseInt(age) < 16) { flashError('You must be at least 16 to apply.'); return; }
+        if (parseInt(age) < 14) { flashError('You must be at least 14 to apply.'); return; }
       }
       if (from === 2) {
         const motivation = document.getElementById('field-motivation').value.trim();
