@@ -82,7 +82,7 @@
               </div>
               <div class="form-group">
                 <label for="sat-name">SATELLITE NAME</label>
-                <input type="text" id="sat-name" name="satName" placeholder="e.g. EAGLE-1, STARLINK-ISA-04">
+                <input type="text" id="sat-name" name="satName" placeholder="e.g. EAGLE-1, STARLINK-ISA-04" autocomplete="off">
               </div>
               <div class="form-nav">
                 <button type="button" class="btn btn-next" onclick="nextStep(1)">Next — Orbit & Date →</button>
@@ -176,6 +176,33 @@
             <div class="form-step" id="step-3">
               <div class="form-group">
                 <label>NBT FILE OR CONTRAPTION DIAGRAM</label>
+
+                <div class="requirements-box">
+                  <div class="req-row">
+                    <svg class="req-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <div class="req-text">
+                      <strong>Strict size limit:</strong> your satellite must fit within
+                      <span class="size-limit-dims">5 × 5 × 15</span> blocks (W × D × H). Schematics exceeding this footprint will be <strong>rejected automatically</strong> — double-check your build before exporting the .nbt.
+                    </div>
+                  </div>
+                  <div class="req-divider"></div>
+                  <div class="req-row">
+                    <svg class="req-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <div class="req-text">
+                      <strong>Mods:</strong> builds using mods outside this list will be <strong>rejected</strong>.
+                      <div class="mods-list">
+                        <span class="mod-chip">Create</span>
+                        <span class="mod-chip">Create: Aeronautics</span>
+                        <span class="mod-chip">CC:Tweaked</span>
+                        <span class="mod-chip">Framed Blocks</span>
+                        <span class="mod-chip">Deco Props</span>
+                        <span class="mod-chip">Copycat+</span>
+                        <span class="mod-chip">TFMG</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <div class="upload-zone" id="upload-zone">
                   <input type="file" id="file-input" name="file" accept=".nbt" hidden>
                   <div class="upload-inner" id="upload-inner">
@@ -189,18 +216,6 @@
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
                     <span id="file-display-name"></span>
                     <button type="button" class="upload-remove" onclick="removeFile()">✕</button>
-                  </div>
-                </div>
-                <div class="allowed-mods">
-                  <span class="mods-label">Allowed mods:</span>
-                  <div class="mods-list">
-                    <span class="mod-chip">Create</span>
-                    <span class="mod-chip">Create: Aeronautics</span>
-                    <span class="mod-chip">CC:Tweaked</span>
-                    <span class="mod-chip">Framed Blocks</span>
-                    <span class="mod-chip">Deco Props</span>
-                    <span class="mod-chip">Copycat+</span>
-                    <span class="mod-chip">TFMG</span>
                   </div>
                 </div>
               </div>

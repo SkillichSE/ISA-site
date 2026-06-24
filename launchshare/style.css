@@ -861,14 +861,58 @@ body {
 .success-sub {
   margin-bottom: 32px !important;
 }
-.allowed-mods {
-  margin-bottom: 32px;
+/* Unified requirements box (size limit + allowed mods) */
+.requirements-box {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
 }
 
-.mods-label {
-  font-size: 0.85rem;
-  color: var(--muted);
-  font-weight: 500;
+.req-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.req-row + .req-row {
+  margin-top: 14px;
+}
+
+.req-divider {
+  height: 1px;
+  background: rgba(245, 158, 11, 0.2);
+  margin: 14px 0;
+}
+
+.req-icon {
+  flex-shrink: 0;
+  color: #f59e0b;
+  margin-top: 1px;
+}
+
+.req-text {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: #fcd9a8;
+}
+
+.req-text strong {
+  color: #f59e0b;
+  font-weight: 800;
+}
+
+.size-limit-dims {
+  display: inline-block;
+  background: rgba(245, 158, 11, 0.18);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  color: #fbbf24;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  padding: 1px 8px;
+  border-radius: 6px;
+  margin: 0 2px;
 }
 
 .mods-list {
@@ -880,9 +924,9 @@ body {
 
 .mod-chip {
   display: inline-block;
-  background: var(--accent-glow);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  color: var(--accent-light);
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fbbf24;
   font-size: 0.82rem;
   font-weight: 600;
   padding: 6px 12px;
