@@ -1,19 +1,26 @@
 const GUILD_ID = '1507774799194099903';
 const INVITE_CODE = 'CMDSKwTBnm';
 
-(async function injectNav() {
-  const placeholder = document.getElementById('nav-placeholder');
+async function injectInclude(placeholderId, url) {
+  const placeholder = document.getElementById(placeholderId);
   if (!placeholder) return;
   try {
-    const res = await fetch('/nav.html');
-    const html = await res.text();
-    placeholder.outerHTML = html;
+    const res = await fetch(url);
+    placeholder.outerHTML = await res.text();
   } catch (e) {
-    console.warn('nav.html failed to load', e);
+    console.warn(`${url} failed to load`, e);
   }
+}
 
-  // Everything below depends on the navbar markup just injected above,
-  // so it must run after the injection completes, not before.
+(async function injectLayout() {
+  // nav.html and footer.html are shared across every page, so both are
+  // fetched and injected here before any code that depends on their
+  // markup (navbar scroll state, footer links, etc.) runs.
+  await Promise.all([
+    injectInclude('nav-placeholder', '/nav.html'),
+    injectInclude('footer-placeholder', '/footer.html'),
+  ]);
+
   const navbar = document.getElementById('navbar');
   if (navbar) {
     function updateNavbar() {
@@ -39,6 +46,11 @@ const INVITE_CODE = 'CMDSKwTBnm';
     const targetPath = new URL(href, window.location.href).pathname.replace(/\/$/, '/index.html');
     if (targetPath === currentPath) a.classList.add('active');
   });
+
+  // footer.html has just been injected above, so footer-link population
+  // and the credit line must run here, not at top-level script scope.
+  injectSocialLinks();
+  injectFooterCredit();
 })();
 
 const DISCORD_STATS_FALLBACK = {
@@ -99,11 +111,22 @@ async function fetchDiscordStats() {
 
 const ISA_SOCIAL = {
   tiktok: 'https://www.tiktok.com/@isa.space',
-  youtube: 'https://www.youtube.com/@ISA-space',
+  youtube: 'https://www.youtube.com/@isa-space-agency',
   source: 'https://github.com/SkillichSE/ISA-site',
 };
 
-(function injectSocialLinks() {
+function addLink(container, label, href, className) {
+  if (container.querySelector(`a[href="${href}"]`)) return;
+  const link = document.createElement('a');
+  link.href = href;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.textContent = label;
+  if (className) link.className = className;
+  container.appendChild(link);
+}
+
+function injectSocialLinks() {
   const socialItems = [
     ['TikTok', ISA_SOCIAL.tiktok],
     ['YouTube', ISA_SOCIAL.youtube],
@@ -114,17 +137,6 @@ const ISA_SOCIAL = {
     ['TikTok', ISA_SOCIAL.tiktok],
     ['Source code', ISA_SOCIAL.source],
   ];
-
-  function addLink(container, label, href, className) {
-    if (container.querySelector(`a[href="${href}"]`)) return;
-    const link = document.createElement('a');
-    link.href = href;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    link.textContent = label;
-    if (className) link.className = className;
-    container.appendChild(link);
-  }
 
   document.querySelectorAll('.footer-links').forEach((container) => {
     container.replaceChildren();
@@ -137,9 +149,9 @@ const ISA_SOCIAL = {
       addLink(container, label, href, asButtons ? 'btn-outline' : '');
     });
   });
-})();
+}
 
-(function injectFooterCredit() {
+function injectFooterCredit() {
   document.querySelectorAll('.site-footer .footer-inner').forEach((footer) => {
     if (footer.querySelector('.footer-credit')) return;
     const credit = document.createElement('div');
@@ -147,7 +159,7 @@ const ISA_SOCIAL = {
     credit.textContent = "Build by Ski's Team";
     footer.appendChild(credit);
   });
-})();
+}
 
 fetchDiscordStats();
 setInterval(fetchDiscordStats, 300000);
