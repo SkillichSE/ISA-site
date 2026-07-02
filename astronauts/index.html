@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Astronaut Corps — ISA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../shared.css?v=3">
+  <link rel="stylesheet" href="astronauts.css">
+  <link rel="icon" type="image/png" href="../ISSSSSSSAAAA.png">
+</head>
+<body>
+  <div id="nav-placeholder"></div>
+
+  <div class="page-hero">
+    <div class="container">
+      <p class="eyebrow">ASTRONAUT CORPS</p>
+      <h1 style="line-height:1;padding-bottom:6px">Apply to fly<br>with ISA.</h1>
+      <p>We're looking for new crew members for future ISA crewed missions. No experience needed — just curiosity, reliability, and a few hours to train.</p>
+      <div class="hero-meta">
+        <div class="meta-pill">
+          <span class="meta-label">Minimum age</span>
+          <span class="meta-val">14+</span>
+        </div>
+        <div class="meta-pill">
+          <span class="meta-label">Training</span>
+          <span class="meta-val">A few hours</span>
+        </div>
+        <div class="meta-pill">
+          <span class="meta-label">Format</span>
+          <span class="meta-val">Remote · Discord</span>
+        </div>
+        <div class="meta-pill">
+          <span class="meta-label">Cost</span>
+          <span class="meta-val">Free</span>
+        </div>
+      </div>
+      <div class="hero-actions">
+        <a href="#apply" class="btn-hero-asc">Start application</a>
+      </div>
+    </div>
+  </div>
+
+  <section class="section-apply" id="apply">
+    <div class="container">
+      <div class="apply-layout">
+
+        <div class="apply-sidebar">
+          <div class="sidebar-block">
+            <p class="eyebrow" style="margin-bottom:16px">WHO WE'RE LOOKING FOR</p>
+            <ul class="req-list">
+              <li class="req-list-item req-required">
+                <span class="req-dot"></span>
+                <span>14 or older</span>
+              </li>
+              <li class="req-list-item req-required">
+                <span class="req-dot"></span>
+                <span>Active Discord account</span>
+              </li>
+              <li class="req-list-item req-required">
+                <span class="req-dot"></span>
+                <span>Can communicate in English</span>
+              </li>
+              <li class="req-list-item">
+                <span class="req-dot"></span>
+                <span>A few hours to spare for training</span>
+              </li>
+              <li class="req-list-item">
+                <span class="req-dot"></span>
+                <span>Reliable and team-oriented</span>
+              </li>
+              <li class="req-list-item">
+                <span class="req-dot"></span>
+                <span>Interest in spaceflight</span>
+              </li>
+            </ul>
+            <p class="req-note">First three are required. The rest — good to have.</p>
+          </div>
+
+          <div class="sidebar-block" id="process">
+            <p class="eyebrow" style="margin-bottom:16px">HOW IT WORKS</p>
+            <ol class="process-inline">
+              <li>Submit this form</li>
+              <li>We review within a few days</li>
+              <li>Short interview on Discord</li>
+              <li>Training (a few hours)</li>
+              <li>Assigned to crew & missions</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="form-col">
+          <div class="apply-card" id="apply-card">
+            <div class="form-step active" id="step-1">
+              <div class="form-step-header">
+                <span class="form-step-label">Step 1 of 3 — About you</span>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Discord username <span class="field-req">*</span></label>
+                <input type="text" class="field-input" id="field-discord" placeholder="username" autocomplete="off">
+              </div>
+              <div class="field-group">
+                <label class="field-label">Age <span class="field-req">*</span></label>
+                <input type="number" class="field-input" id="field-age" placeholder="14+" min="14" max="99">
+              </div>
+              <div class="field-group">
+                <label class="field-label">Country <span class="field-req">*</span></label>
+                <input type="text" class="field-input" id="field-country" placeholder="Where are you based?">
+              </div>
+              <button class="btn-next" onclick="nextStep(1)">Continue →</button>
+            </div>
+
+            <div class="form-step" id="step-2">
+              <div class="form-step-header">
+                <span class="form-step-label">Step 2 of 3 — Background</span>
+              </div>
+              <div class="field-group">
+                <label class="field-label">What draws you to ISA's astronaut program? <span class="field-req">*</span></label>
+                <textarea class="field-input field-textarea" id="field-motivation" placeholder="Tell us what excites you about this..." rows="4"></textarea>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Any relevant experience? <span class="field-muted">(optional)</span></label>
+                <textarea class="field-input field-textarea" id="field-experience" placeholder="Simulation, rocketry, engineering, science — anything you think is relevant..." rows="3"></textarea>
+              </div>
+              <div class="form-btns">
+                <button class="btn-back" onclick="prevStep(2)">← Back</button>
+                <button class="btn-next" onclick="nextStep(2)">Continue →</button>
+              </div>
+            </div>
+
+            <div class="form-step" id="step-3">
+              <div class="form-step-header">
+                <span class="form-step-label">Step 3 of 3 — Review & submit</span>
+              </div>
+              <div class="review-block" id="review-block"></div>
+              <div class="field-group" style="margin-top: 20px;">
+                <label class="check-item" style="border:none;padding:0;gap:12px">
+                  <input type="checkbox" id="field-terms">
+                  <div class="check-box"></div>
+                  <div class="check-text" style="font-size:0.82rem;color:var(--muted)">
+                    I confirm everything I've written is accurate and I meet the required criteria.
+                  </div>
+                </label>
+              </div>
+              <div class="form-btns">
+                <button class="btn-back" onclick="prevStep(3)">← Back</button>
+                <button class="btn-submit" id="btn-submit" onclick="submitForm()">Submit application</button>
+              </div>
+            </div>
+
+            <div class="form-step" id="step-success">
+              <div class="success-state">
+                <div class="success-icon">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <h3>Application received.</h3>
+                <p>We'll review your file and be in touch via Discord. Keep an eye on your messages.</p>
+                <a href="../index.html" class="btn-outline" style="margin-top:8px;display:inline-flex">Back to home</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div id="footer-placeholder"></div>
+
+  <script src="../shared.js"></script>
+  <script>
+    let currentStep = 1;
+
+    function showStep(n) {
+      document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+      const el = document.getElementById('step-' + n) || document.getElementById('step-success');
+      if (el) el.classList.add('active');
+    }
+
+    function nextStep(from) {
+      if (from === 1) {
+        const discord = document.getElementById('field-discord').value.trim();
+        const age = document.getElementById('field-age').value;
+        const country = document.getElementById('field-country').value.trim();
+        if (!discord || !age || !country) { flashError('Please fill in all required fields.'); return; }
+        if (parseInt(age) < 14) { flashError('You must be at least 14 to apply.'); return; }
+      }
+      if (from === 2) {
+        const motivation = document.getElementById('field-motivation').value.trim();
+        if (!motivation) { flashError('Please tell us what draws you to ISA.'); return; }
+        buildReview();
+      }
+      currentStep = from + 1;
+      showStep(currentStep);
+      document.getElementById('apply-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function prevStep(from) {
+      currentStep = from - 1;
+      showStep(currentStep);
+    }
+
+    function buildReview() {
+      const data = {
+        'Discord': document.getElementById('field-discord').value,
+        'Age': document.getElementById('field-age').value,
+        'Country': document.getElementById('field-country').value,
+        'Motivation': document.getElementById('field-motivation').value,
+        'Experience': document.getElementById('field-experience').value || '—',
+      };
+      document.getElementById('review-block').innerHTML = Object.entries(data).map(([k, v]) => `
+        <div class="review-row">
+          <span class="review-key">${k}</span>
+          <span class="review-val">${escHtml(v)}</span>
+        </div>`).join('');
+    }
+
+    async function submitForm() {
+      if (!document.getElementById('field-terms').checked) {
+        flashError('Please confirm your details are accurate.'); return;
+      }
+      const btn = document.getElementById('btn-submit');
+      btn.textContent = 'Submitting…';
+      btn.disabled = true;
+
+      const payload = {
+        discord:    document.getElementById('field-discord').value.trim(),
+        age:        document.getElementById('field-age').value.trim(),
+        country:    document.getElementById('field-country').value.trim(),
+        motivation: document.getElementById('field-motivation').value.trim(),
+        experience: document.getElementById('field-experience').value.trim(),
+      };
+
+      try {
+        const res = await fetch('/api/submit-astronaut', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || 'Submission failed. Try again.');
+        showStep('success');
+        document.getElementById('apply-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (err) {
+        flashError(err.message || 'Something went wrong. Please try again.');
+        btn.textContent = 'Submit application';
+        btn.disabled = false;
+      }
+    }
+
+    function flashError(msg) {
+      let el = document.querySelector('.form-error');
+      if (!el) {
+        el = document.createElement('div');
+        el.className = 'form-error';
+        document.querySelector('.form-step.active').appendChild(el);
+      }
+      el.textContent = msg;
+      el.style.opacity = '1';
+      clearTimeout(el._t);
+      el._t = setTimeout(() => { el.style.opacity = '0'; }, 3000);
+    }
+
+    function escHtml(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+  </script>
+</body>
+</html>

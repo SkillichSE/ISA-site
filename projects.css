@@ -2,13 +2,6 @@
   padding: 80px 0 120px;
   border-bottom: 1px solid var(--line);
 }
-.section-missions .container,
-.section-join-cta .container,
-.page-hero .container {
-  max-width: 1600px;
-}
-
-/* --- GRID --- */
 .missions-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -105,8 +98,6 @@
   gap: 5px;
 }
 .mission-read:hover { gap: 9px; }
-
-/* --- MODAL --- */
 .mission-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -215,8 +206,6 @@
   z-index: 10;
 }
 .mission-modal-close:hover { color: var(--text); border-color: var(--muted2); }
-
-/* --- JOIN CTA --- */
 .section-join-cta { padding: 100px 0; }
 .join-cta-inner {
   display: grid;
@@ -234,8 +223,6 @@
 }
 .join-cta-inner p { color: var(--muted); font-size: 0.95rem; max-width: 420px; }
 .join-cta-actions { display: flex; flex-direction: column; gap: 12px; min-width: 200px; }
-
-/* --- RESPONSIVE --- */
 @media (max-width: 1000px) { .missions-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 600px)  { .missions-grid { grid-template-columns: 1fr; } }
 @media (max-width: 768px) {

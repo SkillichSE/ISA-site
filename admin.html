@@ -32,7 +32,7 @@
     }
     body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; font-size:14px; line-height:1.5; }
 
-    /* ── LOGIN ── */
+    /* Login screen */
     #login-screen { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; background:radial-gradient(ellipse at 50% 0%, rgba(91,110,245,0.08) 0%, transparent 60%); }
     .login-wrap { width:100%; max-width:380px; }
     .login-logo { display:flex; align-items:center; gap:10px; margin-bottom:40px; }
@@ -53,7 +53,7 @@
     .btn-login:disabled { opacity:.45; cursor:not-allowed; }
     .login-err { color:var(--danger); font-size:12px; margin-top:12px; display:none; padding:10px 12px; background:var(--danger-bg); border-radius:var(--r-sm); border:1px solid rgba(224,85,85,0.2); }
 
-    /* ── APP SHELL ── */
+    /* Overall app layout */
     #app { display:none; }
     .topbar { height:52px; background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 20px; position:sticky; top:0; z-index:100; }
     .topbar-left { display:flex; align-items:center; gap:14px; }
@@ -66,7 +66,7 @@
     .btn-logout { background:transparent; border:1px solid var(--border); color:var(--text-2); border-radius:var(--r-sm); padding:5px 13px; font-family:inherit; font-size:12px; cursor:pointer; transition:all .2s; }
     .btn-logout:hover { border-color:var(--danger); color:var(--danger); }
 
-    /* ── LAYOUT ── */
+    /* Sidebar + content layout */
     .layout { display:flex; height:calc(100vh - 52px); }
     .sidebar { width:216px; flex-shrink:0; background:var(--surface); border-right:1px solid var(--border); padding:16px 10px; display:flex; flex-direction:column; overflow-y:auto; }
     .sidebar-label { font-size:10px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:.1em; padding:0 8px; margin:18px 0 6px; }
@@ -79,7 +79,7 @@
     .sidebar-bottom { margin-top:auto; padding-top:16px; border-top:1px solid var(--border); }
     .sidebar-info { font-size:11px; color:var(--text-3); padding:0 10px; line-height:1.6; }
 
-    /* ── MAIN ── */
+    /* Main content area */
     .main { flex:1; overflow-y:auto; padding:32px 36px; }
     @media(max-width:900px) { .main { padding:20px 18px; } }
 
@@ -94,7 +94,7 @@
     .btn-add { display:flex; align-items:center; gap:7px; background:var(--accent); color:#fff; border:none; border-radius:var(--r-sm); padding:9px 16px; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; transition:opacity .2s,box-shadow .2s; white-space:nowrap; flex-shrink:0; }
     .btn-add:hover { opacity:.88; box-shadow:0 4px 20px var(--accent-glow); }
 
-    /* ── ITEM CARDS ── */
+    /* Item cards in each tab */
     .item-list { display:flex; flex-direction:column; gap:8px; }
     .item-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:16px 18px; display:flex; align-items:center; gap:14px; transition:border-color .2s,background .2s; cursor:default; }
     .item-card:hover { border-color:var(--border2); background:var(--surface2); }
@@ -121,7 +121,7 @@
     .btn-del { background:transparent; border:1px solid transparent; color:var(--text-3); border-radius:var(--r-sm); padding:6px 10px; font-family:inherit; font-size:12px; cursor:pointer; transition:all .15s; }
     .btn-del:hover { background:var(--danger-bg); border-color:rgba(224,85,85,0.25); color:var(--danger); }
 
-    /* ── MODAL ── */
+    /* Edit modal */
     .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:200; padding:20px; backdrop-filter:blur(6px); }
     .overlay.hidden { display:none; }
     .modal { background:var(--surface); border:1px solid var(--border2); border-radius:16px; width:100%; max-width:540px; max-height:90vh; overflow-y:auto; display:flex; flex-direction:column; }
@@ -147,7 +147,7 @@
     .btn-cancel { background:transparent; border:1px solid var(--border); color:var(--text-2); border-radius:var(--r-sm); padding:10px 18px; font-family:inherit; font-size:13px; cursor:pointer; transition:all .2s; }
     .btn-cancel:hover { border-color:var(--border2); color:var(--text); }
 
-    /* ── SAVING ── */
+    /* "Saving..." overlay */
     .saving-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.55); display:flex; align-items:center; justify-content:center; z-index:300; backdrop-filter:blur(8px); }
     .saving-overlay.hidden { display:none; }
     .saving-box { background:var(--surface); border:1px solid var(--border2); border-radius:16px; padding:28px 36px; text-align:center; }
@@ -155,7 +155,7 @@
     @keyframes spin { to { transform:rotate(360deg); } }
     .saving-text { font-size:13px; color:var(--text-2); }
 
-    /* ── TOAST ── */
+    /* Toast notifications */
     #toast { position:fixed; bottom:24px; right:24px; z-index:999; background:var(--surface2); border:1px solid var(--border2); border-radius:var(--r); padding:12px 18px; font-size:13px; font-weight:500; pointer-events:none; transform:translateY(60px); opacity:0; transition:all .28s cubic-bezier(.34,1.56,.64,1); max-width:300px; display:flex; align-items:center; gap:10px; }
     #toast.show { transform:translateY(0); opacity:1; }
     #toast.success { border-color:rgba(62,207,142,0.3); }
@@ -167,11 +167,11 @@
     .empty { padding:48px 24px; text-align:center; color:var(--text-3); font-size:13px; border:1px dashed var(--border); border-radius:var(--r); }
     .empty-icon { font-size:32px; margin-bottom:12px; }
 
-    /* ── LAUNCH SLOTS ── */
+    /* Launch date slots */
     .slots-bar { height:4px; background:var(--surface3); border-radius:2px; margin-top:6px; overflow:hidden; width:120px; }
     .slots-fill { height:100%; background:var(--accent); border-radius:2px; transition:width .4s; }
 
-    /* ── IMAGE UPLOAD ── */
+    /* Image upload field */
     .img-field-wrap { display:flex; flex-direction:column; gap:8px; }
     .img-input-row { display:flex; gap:8px; align-items:center; }
     .img-input-row input { flex:1; }
@@ -182,7 +182,7 @@
     .img-preview.visible { display:block; }
     #img-file-input { display:none; }
 
-    /* ── MARKDOWN EDITOR ── */
+    /* Markdown editor */
     .md-field-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:7px; }
     .md-field-head label { margin-bottom:0; }
     .md-tabs { display:flex; gap:2px; background:var(--surface2); border:1px solid var(--border); border-radius:7px; padding:2px; }
@@ -296,30 +296,25 @@
 <input type="file" id="img-file-input" accept="image/*">
 
 <script>
-const SB_URL  = 'https://fqvghuvmgswegirgitom.supabase.co';
-const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxdmdodXZtZ3N3ZWdpcmdpdG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTI4MTAsImV4cCI6MjA5NjY4ODgxMH0.7tKrak3ANnnhp4pISK2ythPdCt557vMACUhpQsqWn0s';
-const ADMIN_PASSWORD = 'isa-admin-2026'; // ← поменяй на свой пароль
-
 let data = { missions:[], careers:[], launches:[], news:[] };
 let page = 'missions', editId = null, editType = null;
 
-// ── SUPABASE HELPERS
+// goes through /api/admin/data now instead of hitting supabase directly from the browser
 async function sbFetch(table, method='GET', body=null, filters='') {
-  const r = await fetch(`${SB_URL}/rest/v1/${table}${filters}`, {
-    method,
-    headers: {
-      'apikey': SB_KEY,
-      'Authorization': `Bearer ${SB_KEY}`,
-      'Content-Type': 'application/json',
-      'Prefer': method === 'POST' ? 'return=representation' : 'return=minimal'
-    },
-    body: body ? JSON.stringify(body) : null
+  const r = await fetch('/api/admin/data', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ table, method, body, filters }),
   });
-  if (!r.ok) {
-    const e = await r.json().catch(()=>({}));
-    throw new Error(e.message || `HTTP ${r.status}`);
+  if (r.status === 401) {
+    logout();
+    throw new Error('Session expired. Please sign in again.');
   }
-  if (method === 'GET') return r.json();
+  const payload = await r.json().catch(() => ({}));
+  if (!r.ok || !payload.ok) {
+    throw new Error(payload.error || `HTTP ${r.status}`);
+  }
+  if (method === 'GET' || method === 'POST') return payload.data;
   return true;
 }
 
@@ -333,7 +328,7 @@ async function loadAll() {
   data = { missions, careers, launches, news };
 }
 
-// ── AUTH
+// Login / logout
 async function doLogin() {
   const btn = document.getElementById('login-btn');
   const err = document.getElementById('login-err');
@@ -359,14 +354,27 @@ async function doLogin() {
 }
 document.getElementById('token-input').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
 
-function logout() {
+async function logout() {
+  try { await fetch('/api/auth', { method: 'DELETE' }); } catch {}
   data = { missions:[], careers:[], launches:[], news:[] };
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('app').style.display='none';
   document.getElementById('token-input').value='';
 }
 
-// ── NAV
+// can't read the cookie from JS (httpOnly), so just try loading data and see if it 401s
+(async function checkExistingSession() {
+  try {
+    await loadAll();
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    render();
+  } catch {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+  }
+})();
+// Sidebar navigation
 function nav(p, el) {
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
@@ -388,7 +396,7 @@ function render() {
   else if (page==='news') m.innerHTML = pageNews();
 }
 
-// ── MISSIONS
+// Missions tab
 function pageMissions() {
   const statusMap = { active:'Active', development:'In Development', inactive:'Inactive' };
   const items = data.missions.length ? data.missions.map(m=>`
@@ -410,7 +418,7 @@ function pageMissions() {
   return `<div class="page-head"><div class="page-head-left"><div class="page-title">Missions</div><div class="page-desc">Programs shown on the Projects page.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search missions…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('missions')">+ Add Mission</button></div></div><div class="item-list">${items}</div>`;
 }
 
-// ── CAREERS
+// Careers tab
 function pageCareers() {
   const items = data.careers.length ? data.careers.map(c=>`
     <div class="item-card">
@@ -431,7 +439,7 @@ function pageCareers() {
   return `<div class="page-head"><div class="page-head-left"><div class="page-title">Careers</div><div class="page-desc">Open volunteer positions.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search positions…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('careers')">+ Add Position</button></div></div><div class="item-list">${items}</div>`;
 }
 
-// ── LAUNCHES
+// Launches tab
 function pageLaunches() {
   const statusMap = { open:'Open', upcoming:'Upcoming', closed:'Closed', full:'Full' };
   const items = data.launches.length ? data.launches.map(l=>{
@@ -457,7 +465,7 @@ function pageLaunches() {
   return `<div class="page-head"><div class="page-head-left"><div class="page-title">Launches</div><div class="page-desc">Launchshare mission slots.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search launches…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('launches')">+ Add Launch</button></div></div><div class="item-list">${items}</div>`;
 }
 
-// ── NEWS
+// News tab
 function pageNews() {
   const tagColors = { 'Mission Update':'badge-active','Community':'badge-upcoming','Research':'badge-development','Engineering':'badge-volunteer','Launchshare':'badge-inactive' };
   const items = data.news.length ? data.news.map(n=>`
@@ -479,7 +487,7 @@ function pageNews() {
   return `<div class="page-head"><div class="page-head-left"><div class="page-title">News</div><div class="page-desc">Updates shown on the News page.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search posts…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('news')">+ Add Post</button></div></div><div class="item-list">${items}</div>`;
 }
 
-// ── MODAL
+// Edit modal
 function openNew(type) { editId=null; editType=type; openModal(`New ${label(type)}`, buildForm(type, null)); }
 function openEdit(type, id) { editId=id; editType=type; openModal(`Edit ${label(type)}`, buildForm(type, data[type].find(x=>x.id===id))); }
 function label(t) { return {missions:'Mission',careers:'Position',launches:'Launch',news:'News Post'}[t]; }
@@ -524,16 +532,15 @@ async function uploadImage(input, fieldId) {
   const btn = document.getElementById('upload-btn-'+fieldId);
   btn.disabled = true; btn.textContent = 'Uploading…';
   try {
-    const ext = file.name.split('.').pop();
-    const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const r = await fetch(`${SB_URL}/storage/v1/object/images/${filename}`, {
+    const r = await fetch('/api/admin/upload', {
       method: 'POST',
-      headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': file.type, 'x-upsert': 'true' },
+      headers: { 'Content-Type': file.type },
       body: file
     });
-    if (!r.ok) throw new Error((await r.json()).message || 'Upload failed');
-    const publicUrl = `${SB_URL}/storage/v1/object/public/images/${filename}`;
-    document.getElementById('f-'+fieldId).value = publicUrl;
+    if (r.status === 401) { logout(); throw new Error('Session expired. Please sign in again.'); }
+    const payload = await r.json().catch(() => ({}));
+    if (!r.ok || !payload.ok) throw new Error(payload.error || 'Upload failed');
+    document.getElementById('f-'+fieldId).value = payload.url;
     updateImgPreview(fieldId);
     toast('Image uploaded ✓', 'success');
   } catch(e) {
@@ -567,7 +574,7 @@ function ta(id, lbl, val='') {
   </div>`;
 }
 
-// ── MARKDOWN EDITOR HELPERS
+// Markdown editor (write/preview toggle, toolbar buttons)
 function mdSwitch(id, mode) {
   const textarea = document.getElementById('f-'+id);
   const preview = document.getElementById('mdprev-'+id);
@@ -710,7 +717,7 @@ async function del(type, id) {
   document.getElementById('saving-overlay').classList.add('hidden');
 }
 
-// ── TOAST
+// Toast notifications
 let toastT;
 function toast(msg, type='success') {
   const el = document.getElementById('toast');

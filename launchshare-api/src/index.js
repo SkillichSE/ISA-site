@@ -17,12 +17,14 @@ function getCorsHeaders(request, env) {
     .filter(Boolean);
 
   const match = allowed.find((entry) => origin === entry || origin.startsWith(`${entry}/`));
-  return {
-    'Access-Control-Allow-Origin': match || allowed[0] || '*',
+  const headers = {
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Max-Age': '86400',
   };
+  // only set ACAO if origin is actually allowed, don't leak to randoms
+  if (match) headers['Access-Control-Allow-Origin'] = match;
+  return headers;
 }
 
 async function discordFetch(path, token, init = {}) {

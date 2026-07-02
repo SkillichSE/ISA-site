@@ -1,9 +1,57 @@
-/* =============================================
-   ISA — Shared JS (all pages include this)
-   ============================================= */
-
 const GUILD_ID = '1507774799194099903';
 const INVITE_CODE = 'CMDSKwTBnm';
+
+async function injectInclude(placeholderId, url) {
+  const placeholder = document.getElementById(placeholderId);
+  if (!placeholder) return;
+  try {
+    const res = await fetch(url);
+    placeholder.outerHTML = await res.text();
+  } catch (e) {
+    console.warn(`${url} failed to load`, e);
+  }
+}
+
+(async function injectLayout() {
+  // nav.html and footer.html are shared across every page, so both are
+  // fetched and injected here before any code that depends on their
+  // markup (navbar scroll state, footer links, etc.) runs.
+  await Promise.all([
+    injectInclude('nav-placeholder', '/nav.html'),
+    injectInclude('footer-placeholder', '/footer.html'),
+  ]);
+
+  const navbar = document.getElementById('navbar');
+  if (navbar) {
+    function updateNavbar() {
+      navbar.classList.toggle('scrolled', window.scrollY > 30);
+    }
+    window.addEventListener('scroll', updateNavbar, { passive: true });
+    updateNavbar();
+  }
+
+  const burger = document.getElementById('burger');
+  const navLinks = document.getElementById('nav-links');
+  if (burger && navLinks) {
+    burger.addEventListener('click', () => navLinks.classList.toggle('open'));
+    navLinks.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => navLinks.classList.remove('open'));
+    });
+  }
+
+  const currentPath = new URL(window.location.href).pathname.replace(/\/$/, '/index.html');
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    const href = a.getAttribute('href');
+    if (!href || href.startsWith('http') || href.startsWith('#')) return;
+    const targetPath = new URL(href, window.location.href).pathname.replace(/\/$/, '/index.html');
+    if (targetPath === currentPath) a.classList.add('active');
+  });
+
+  // footer.html has just been injected above, so footer-link population
+  // and the credit line must run here, not at top-level script scope.
+  injectSocialLinks();
+  injectFooterCredit();
+})();
 
 const DISCORD_STATS_FALLBACK = {
   guild_id: GUILD_ID,
@@ -14,20 +62,13 @@ const DISCORD_STATS_FALLBACK = {
   icon: '08113c0188539b6cadaf1245b896bc25',
 };
 
-function discordStatsPath() {
-  const segments = window.location.pathname.split('/').filter(Boolean);
-  const last = segments[segments.length - 1] || '';
-  const dirDepth = last.includes('.') ? segments.length - 1 : segments.length;
-  return (dirDepth > 0 ? '../'.repeat(dirDepth) : '') + 'discord-stats.json';
-}
-
 function formatCount(value) {
   return value != null ? value.toLocaleString() : '—';
 }
 
 function guildIconUrl(stats) {
   if (!stats.icon) return null;
-  return `https://cdn.discordapp.com/icons/${stats.guild_id}/${stats.icon}.png?size=128`;
+  return `https://cdn.discordapp.com/icons/${GUILD_ID}/${stats.icon}.png?size=64`;
 }
 
 function applyDiscordStats(stats) {
@@ -60,52 +101,32 @@ function applyDiscordStats(stats) {
 
 async function fetchDiscordStats() {
   try {
-    const res = await fetch(discordStatsPath(), { cache: 'no-store' });
-    if (!res.ok) throw new Error('stats file missing');
+    const res = await fetch('/api/discord-stats');
+    if (!res.ok) throw new Error(`API ${res.status}`);
     applyDiscordStats(await res.json());
-    return;
   } catch {
     applyDiscordStats(DISCORD_STATS_FALLBACK);
   }
 }
 
-// ---- NAV SCROLL ----
-const navbar = document.getElementById('navbar');
-if (navbar) {
-  window.addEventListener('scroll', () => {
-    navbar.classList.toggle('scrolled', window.scrollY > 30);
-  }, { passive: true });
-}
-
-// ---- BURGER ----
-const burger = document.getElementById('burger');
-const navLinks = document.getElementById('nav-links');
-if (burger && navLinks) {
-  burger.addEventListener('click', () => navLinks.classList.toggle('open'));
-  navLinks.querySelectorAll('a').forEach(a => {
-    a.addEventListener('click', () => navLinks.classList.remove('open'));
-  });
-}
-
-// ---- ACTIVE NAV LINK ----
-(function() {
-  const currentPath = new URL(window.location.href).pathname.replace(/\/$/, '/index.html');
-  document.querySelectorAll('.nav-links a').forEach(a => {
-    const href = a.getAttribute('href');
-    if (!href || href.startsWith('http') || href.startsWith('#')) return;
-    const targetPath = new URL(href, window.location.href).pathname.replace(/\/$/, '/index.html');
-    if (targetPath === currentPath) a.classList.add('active');
-  });
-})();
-
-// ---- SOCIAL LINKS ----
 const ISA_SOCIAL = {
-  tiktok: 'https://www.tiktok.com/@isaspaceagency',
+  tiktok: 'https://www.tiktok.com/@isa.space',
   youtube: 'https://www.youtube.com/@isa-space-agency',
   source: 'https://github.com/SkillichSE/ISA-site',
 };
 
-(function injectSocialLinks() {
+function addLink(container, label, href, className) {
+  if (container.querySelector(`a[href="${href}"]`)) return;
+  const link = document.createElement('a');
+  link.href = href;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.textContent = label;
+  if (className) link.className = className;
+  container.appendChild(link);
+}
+
+function injectSocialLinks() {
   const socialItems = [
     ['TikTok', ISA_SOCIAL.tiktok],
     ['YouTube', ISA_SOCIAL.youtube],
@@ -116,17 +137,6 @@ const ISA_SOCIAL = {
     ['TikTok', ISA_SOCIAL.tiktok],
     ['Source code', ISA_SOCIAL.source],
   ];
-
-  function addLink(container, label, href, className) {
-    if (container.querySelector(`a[href="${href}"]`)) return;
-    const link = document.createElement('a');
-    link.href = href;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    link.textContent = label;
-    if (className) link.className = className;
-    container.appendChild(link);
-  }
 
   document.querySelectorAll('.footer-links').forEach((container) => {
     container.replaceChildren();
@@ -139,9 +149,9 @@ const ISA_SOCIAL = {
       addLink(container, label, href, asButtons ? 'btn-outline' : '');
     });
   });
-})();
+}
 
-(function injectFooterCredit() {
+function injectFooterCredit() {
   document.querySelectorAll('.site-footer .footer-inner').forEach((footer) => {
     if (footer.querySelector('.footer-credit')) return;
     const credit = document.createElement('div');
@@ -149,13 +159,11 @@ const ISA_SOCIAL = {
     credit.textContent = "Build by Ski's Team";
     footer.appendChild(credit);
   });
-})();
+}
 
-// ---- DISCORD STATS ----
 fetchDiscordStats();
 setInterval(fetchDiscordStats, 300000);
 
-// ---- SCROLL REVEAL ----
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
@@ -170,7 +178,6 @@ document.querySelectorAll('.reveal-target').forEach(el => {
   observer.observe(el);
 });
 
-// stagger grids
 document.querySelectorAll('[data-stagger]').forEach(grid => {
   grid.querySelectorAll('.reveal').forEach((el, i) => {
     el.style.transitionDelay = `${i * 70}ms`;

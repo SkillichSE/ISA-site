@@ -1,8 +1,5 @@
 .section-launches { padding: 80px 0 120px; }
-.section-launches .container,
-.page-hero .container {
-  max-width: 1600px;
-}
+
 
 /* --- GRID --- */
 .launches-grid {
