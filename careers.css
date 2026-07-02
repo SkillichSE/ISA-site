@@ -1,9 +1,5 @@
 .section-careers { padding: 80px 0 120px; border-bottom: 1px solid var(--line); }
-.section-careers .container,
-.section-culture .container,
-.page-hero .container {
-  max-width: 1600px;
-}
+
 
 /* --- GRID --- */
 .careers-grid {
@@ -37,6 +33,9 @@
 }
 .career-program { font-size: 0.76rem; color: var(--muted2); margin-top: 3px; }
 .career-type {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.8px;
