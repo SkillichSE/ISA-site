@@ -57,6 +57,26 @@
       return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
+    // Dates in the DB can be typed inconsistently (ISO, "13 june 2026", "05/07/2026", "Jun 2, 2026"...).
+    // parseFlexDate tries to make sense of whatever format was entered so posts can be sorted correctly.
+    function parseFlexDate(str) {
+      if (!str) return null;
+      const s = String(str).trim();
+      let m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/); // ISO: YYYY-MM-DD
+      if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
+      m = s.match(/^(\d{1,2})[.\/](\d{1,2})[.\/](\d{4})$/); // DD/MM/YYYY or DD.MM.YYYY
+      if (m) return new Date(+m[3], +m[2] - 1, +m[1]);
+      const d = new Date(s); // fallback: "13 June 2026", "Jun 2, 2026", etc.
+      return isNaN(d.getTime()) ? null : d;
+    }
+
+    // Always display dates the same way, regardless of how they were originally typed.
+    function formatNiceDate(str) {
+      const d = parseFlexDate(str);
+      if (!d) return escHtml(str);
+      return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
     async function loadNews() {
       const featuredWrap = document.getElementById('news-featured-wrap');
       const grid = document.getElementById('news-grid');
@@ -65,6 +85,17 @@
           headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
         });
         const posts = await r.json();
+
+        if (Array.isArray(posts)) {
+          // Sort newest → oldest by the actual date, no matter what format it was typed in.
+          posts.sort((a, b) => {
+            const da = parseFlexDate(a.date);
+            const db = parseFlexDate(b.date);
+            const ta_ = da ? da.getTime() : -Infinity;
+            const tb_ = db ? db.getTime() : -Infinity;
+            return tb_ - ta_;
+          });
+        }
 
         if (!Array.isArray(posts) || !posts.length) {
           featuredWrap.innerHTML = '';
@@ -82,7 +113,7 @@
             <div class="news-featured-body">
               <div class="news-meta">
                 <span class="news-tag">${escHtml(featured.tag)}</span>
-                <span class="news-date">${escHtml(featured.date)}</span>
+                <span class="news-date">${formatNiceDate(featured.date)}</span>
               </div>
               <h2>${escHtml(featured.title)}</h2>
               <p>${escHtml(mdToPlain(featured.body))}</p>
@@ -99,7 +130,7 @@
             <div class="news-card-body">
               <div class="news-meta">
                 <span class="news-tag">${escHtml(n.tag)}</span>
-                <span class="news-date">${escHtml(n.date)}</span>
+                <span class="news-date">${formatNiceDate(n.date)}</span>
               </div>
               <h3>${escHtml(n.title)}</h3>
               <p>${escHtml(mdToPlain(n.body))}</p>
@@ -138,7 +169,7 @@
         imgEl.classList.add('hidden');
       }
       document.getElementById('news-modal-meta').innerHTML =
-        `<span class="news-tag">${escHtml(post.tag)}</span><span class="news-date">${escHtml(post.date)}</span>`;
+        `<span class="news-tag">${escHtml(post.tag)}</span><span class="news-date">${formatNiceDate(post.date)}</span>`;
       document.getElementById('news-modal-title').textContent = post.title || '';
       document.getElementById('news-modal-body').innerHTML = mdToHtml(post.body);
 
