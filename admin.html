@@ -571,7 +571,7 @@ function ta(id, lbl, val='') {
     </div>
     <textarea id="f-${id}">${esc(String(val))}</textarea>
     <div class="md-preview" id="mdprev-${id}"></div>
-    <div class="form-hint">Поддерживается Markdown — **жирный**, _курсив_, # заголовки, - списки, [текст](ссылка), &gt; цитата, \`код\`.</div>
+    <div class="form-hint">Markdown supported — **bold**, _italic_, # headings, - lists, [text](link), &gt; quote, \`code\`.</div>
   </div>`;
 }
 
@@ -599,7 +599,7 @@ function mdWrap(id, before, after) {
   const t = document.getElementById('f-'+id);
   if (!t) return;
   const start = t.selectionStart, end = t.selectionEnd;
-  const selected = t.value.slice(start, end) || 'текст';
+  const selected = t.value.slice(start, end) || 'text';
   t.value = t.value.slice(0, start) + before + selected + after + t.value.slice(end);
   t.focus();
   t.selectionStart = start + before.length;
@@ -623,8 +623,8 @@ function mdLink(id) {
   const t = document.getElementById('f-'+id);
   if (!t) return;
   const start = t.selectionStart, end = t.selectionEnd;
-  const selected = t.value.slice(start, end) || 'текст ссылки';
-  const url = prompt('Адрес ссылки (URL):', 'https://');
+  const selected = t.value.slice(start, end) || 'link text';
+  const url = prompt('Link URL:', 'https://');
   if (url === null) return;
   const md = `[${selected}](${url})`;
   t.value = t.value.slice(0, start) + md + t.value.slice(end);
