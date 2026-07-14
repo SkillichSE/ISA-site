@@ -8,7 +8,21 @@
       <a href="/careers.html">Careers</a>
       <a href="/astronauts/" class="nav-launch">Astronauts</a>
       <a href="/launchshare/" class="nav-launch">Launchshare</a>
+      <div class="nav-launches" id="nav-launches">
+        <button class="nav-launches-toggle" id="nav-launches-toggle" type="button" aria-haspopup="true" aria-expanded="false">
+          <span class="nav-launches-dot"></span>
+          <span>Upcoming Launches</span>
+          <svg class="nav-launches-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div class="nav-launches-panel" id="nav-launches-panel">
+          <div class="nav-launches-list" id="nav-launches-list">
+            <div class="nav-launches-empty">Loading…</div>
+          </div>
+          <a href="/launches.html" class="nav-launches-all">All Upcoming Launches</a>
+        </div>
+      </div>
     </div>
+
     <button class="burger" id="burger" aria-label="Open menu">
       <span></span><span></span><span></span>
     </button>

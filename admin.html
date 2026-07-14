@@ -444,6 +444,7 @@ function pageLaunches() {
   const statusMap = { open:'Open', upcoming:'Upcoming', closed:'Closed', full:'Full' };
   const items = data.launches.length ? data.launches.map(l=>{
     const pct = l.slots_total > 0 ? Math.round(l.slots_taken/l.slots_total*100) : 0;
+    const dateLabel = formatLaunchListDate(l.date, l.window_end);
     return `<div class="item-card">
       <div class="item-thumb-icon">🛰️</div>
       <div class="item-body">
@@ -452,7 +453,7 @@ function pageLaunches() {
           <span class="badge badge-${l.status}">${statusMap[l.status]||l.status}</span>
           ${l.published ? '<span class="badge badge-active">Published</span>' : '<span class="badge badge-inactive">Draft</span>'}
         </div>
-        <div class="item-meta">${l.orbit} · ${l.date || '—'}${l.mission_id ? ' · Mission: ' + l.mission_id : ''}</div>
+        <div class="item-meta">${l.orbit} · ${dateLabel}${l.mission_id ? ' · Mission: ' + l.mission_id : ''}</div>
         <div class="item-desc">${esc(mdToPlain(l.description))}</div>
         <div class="slots-bar"><div class="slots-fill" style="width:${pct}%"></div></div>
       </div>
@@ -636,6 +637,34 @@ function esc(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(
 function g(id) { return (document.getElementById('f-'+id)||{}).value?.trim()||''; }
 function arr(id) { return g(id).split(',').map(s=>s.trim()).filter(Boolean); }
 
+// datetime-local inputs work in the browser's local wall-clock time and have
+// no timezone info of their own, while launches are stored in Supabase as
+// UTC timestamptz. These convert between the two so the admin always enters
+// times in their own local clock and visitors see it converted to theirs.
+function toLocalDatetimeInput(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function fromLocalDatetimeInput(value) {
+  if (!value) return null;
+  const d = new Date(value);
+  return isNaN(d.getTime()) ? null : d.toISOString();
+}
+function formatLaunchListDate(dateIso, windowEndIso) {
+  if (!dateIso) return '—';
+  const start = new Date(dateIso);
+  if (isNaN(start.getTime())) return '—';
+  const startStr = start.toLocaleString(undefined, { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+  if (!windowEndIso) return startStr;
+  const end = new Date(windowEndIso);
+  if (isNaN(end.getTime())) return startStr;
+  const endStr = end.toLocaleTimeString(undefined, { hour:'2-digit', minute:'2-digit' });
+  return `${startStr} – ${endStr}`;
+}
+
 function buildForm(type, item) {
   const v = (k,d='') => item ? (item[k]??d) : d;
   if (type==='missions') return `
@@ -655,7 +684,8 @@ function buildForm(type, item) {
     <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. launch-003')}${sel('published','Published',v('published')?'true':'false',['true','false'])}</div>
     ${field('name','Mission Name',v('name'))}
     <div class="form-row-2">${field('mission_id','Mission ID',v('mission_id'),'Optional - which mission this belongs to')}${sel('status','Status',v('status','open'),['open','upcoming','closed','full'])}</div>
-    <div class="form-row-2">${sel('orbit','Orbit',v('orbit','LEO'),['LEO','MEO','GEO','SSO','HEO'])}${field('date','Launch Date',v('date'),'YYYY-MM-DD')}</div>
+    <div class="form-row-2">${sel('orbit','Orbit',v('orbit','LEO'),['LEO','MEO','GEO','SSO','HEO'])}${field('date','Launch Window Start',toLocalDatetimeInput(v('date')),'Your local time','datetime-local')}</div>
+    ${field('window_end','Launch Window End',toLocalDatetimeInput(v('window_end')),'Optional — leave empty for a single point-in-time launch','datetime-local')}
     ${ta('description','Description',v('description'))}
     <div class="form-row-2">${field('slots_total','Total Slots',v('slots_total',4),'','number')}${field('slots_taken','Slots Taken',v('slots_taken',0),'','number')}</div>`;
   if (type==='news') return `
@@ -670,7 +700,7 @@ function buildForm(type, item) {
 function getForm(type) {
   if (type==='missions') return { id:g('id'),name:g('name'),division:g('division'),status:g('status'),description:g('description'),tags:arr('tags'),image:g('image') };
   if (type==='careers') return { id:g('id'),title:g('title'),program:g('program'),type:g('type'),description:g('description'),skills:arr('skills') };
-  if (type==='launches') return { id:g('id'),name:g('name'),mission_id:g('mission_id'),orbit:g('orbit'),status:g('status'),date:g('date'),description:g('description'),slots_total:parseInt(g('slots_total'))||0,slots_taken:parseInt(g('slots_taken'))||0,published:g('published')==='true' };
+  if (type==='launches') return { id:g('id'),name:g('name'),mission_id:g('mission_id'),orbit:g('orbit'),status:g('status'),date:fromLocalDatetimeInput(g('date')),window_end:fromLocalDatetimeInput(g('window_end')),description:g('description'),slots_total:parseInt(g('slots_total'))||0,slots_taken:parseInt(g('slots_taken'))||0,published:g('published')==='true' };
   if (type==='news') return { id:g('id'),tag:g('tag'),title:g('title'),date:g('date'),body:g('body'),image:g('image'),link:g('link') };
 }
 

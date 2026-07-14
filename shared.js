@@ -39,6 +39,8 @@ async function injectInclude(placeholderId, url) {
     });
   }
 
+  initNavLaunches();
+
   const currentPath = new URL(window.location.href).pathname.replace(/\/$/, '/index.html');
   document.querySelectorAll('.nav-links a').forEach(a => {
     const href = a.getAttribute('href');
@@ -52,6 +54,94 @@ async function injectInclude(placeholderId, url) {
   injectSocialLinks();
   injectFooterCredit();
 })();
+
+const LAUNCH_SB_URL = 'https://fqvghuvmgswegirgitom.supabase.co';
+const LAUNCH_SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxdmdodXZtZ3N3ZWdpcmdpdG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTI4MTAsImV4cCI6MjA5NjY4ODgxMH0.7tKrak3ANnnhp4pISK2ythPdCt557vMACUhpQsqWn0s';
+const NAV_LAUNCHES_LIMIT = 3;
+
+function navEscHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function navLaunchStatusClass(s) {
+  const map = { scheduled:'nav-launch-status-scheduled', upcoming:'nav-launch-status-upcoming',
+                delayed:'nav-launch-status-delayed', completed:'nav-launch-status-completed', scrubbed:'nav-launch-status-scrubbed' };
+  return map[s] || 'nav-launch-status-scheduled';
+}
+
+function renderNavLaunches(listEl, launches) {
+  if (!launches.length) {
+    listEl.innerHTML = '<div class="nav-launches-empty">No upcoming launches.</div>';
+    return;
+  }
+  listEl.innerHTML = launches.map(l => {
+    const date = l.date ? new Date(l.date) : null;
+    const windowEnd = l.window_end ? new Date(l.window_end) : null;
+    const dateStr = date ? date.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : 'TBD';
+    let timeStr = date ? date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : '';
+    if (timeStr && windowEnd && !isNaN(windowEnd.getTime())) {
+      timeStr += ` – ${windowEnd.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`;
+    }
+    let tzStr = '';
+    if (date) {
+      try {
+        tzStr = Intl.DateTimeFormat(undefined, { timeZoneName: 'long' }).formatToParts(date)
+          .find(p => p.type === 'timeZoneName')?.value || '';
+      } catch { tzStr = ''; }
+    }
+    return `
+      <a class="nav-launch-item" href="/launches.html">
+        <span class="nav-launch-glyph">🚀</span>
+        <span class="nav-launch-info">
+          <span class="nav-launch-name">${navEscHtml(l.name || 'Unnamed Launch')}</span>
+          <span class="nav-launch-date">${dateStr}${timeStr ? ` · ${timeStr}` : ''}</span>
+          ${tzStr ? `<span class="nav-launch-tz">${navEscHtml(tzStr)}</span>` : ''}
+        </span>
+        <span class="nav-launch-status ${navLaunchStatusClass(l.status)}">${navEscHtml(l.status || 'scheduled')}</span>
+      </a>`;
+  }).join('');
+}
+
+async function loadNavLaunches(listEl) {
+  try {
+    const nowIso = new Date().toISOString();
+    const url = `${LAUNCH_SB_URL}/rest/v1/launches?select=name,status,date,window_end&published=eq.true&date=gte.${encodeURIComponent(nowIso)}&order=date.asc&limit=${NAV_LAUNCHES_LIMIT}`;
+    const res = await fetch(url, { headers: { apikey: LAUNCH_SB_KEY, Authorization: `Bearer ${LAUNCH_SB_KEY}` } });
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    const launches = await res.json();
+    renderNavLaunches(listEl, Array.isArray(launches) ? launches : []);
+  } catch (e) {
+    console.warn('nav launches failed to load', e);
+    listEl.innerHTML = '<div class="nav-launches-empty">Unable to load launches.</div>';
+  }
+}
+
+function initNavLaunches() {
+  const widget  = document.getElementById('nav-launches');
+  const toggle  = document.getElementById('nav-launches-toggle');
+  const listEl  = document.getElementById('nav-launches-list');
+  if (!widget || !toggle || !listEl) return;
+
+  function closePanel() {
+    widget.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+
+  toggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = widget.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', String(isOpen));
+  });
+  document.addEventListener('click', (e) => {
+    if (!widget.contains(e.target)) closePanel();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closePanel();
+  });
+
+  loadNavLaunches(listEl);
+  setInterval(() => loadNavLaunches(listEl), 300000);
+}
 
 const DISCORD_STATS_FALLBACK = {
   guild_id: GUILD_ID,

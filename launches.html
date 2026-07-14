@@ -61,6 +61,21 @@
       return map[s] || 'launch-status-scheduled';
     }
 
+    function timeRangeStr(dateIso, windowEndIso) {
+      if (!dateIso) return '';
+      const start = new Date(dateIso);
+      if (isNaN(start.getTime())) return '';
+      const startTime = start.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+      const tz = Intl.DateTimeFormat(undefined, { timeZoneName: 'short' }).formatToParts(start)
+        .find(p => p.type === 'timeZoneName')?.value || '';
+      const end = windowEndIso ? new Date(windowEndIso) : null;
+      if (end && !isNaN(end.getTime())) {
+        const endTime = end.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+        return `${startTime} – ${endTime}${tz ? ' ' + tz : ''}`;
+      }
+      return `${startTime}${tz ? ' ' + tz : ''}`;
+    }
+
     let _launches = [];
 
     fetch(`${SB_URL}/rest/v1/launches?order=launch_date`, {
@@ -80,7 +95,7 @@
           const day     = date ? date.getDate() : '—';
           const month   = date ? date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase() : '—';
           const year    = date ? date.getFullYear() : '';
-          const dateStr = date ? date.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) : 'TBD';
+          const timeStr = timeRangeStr(l.date, l.window_end);
 
           return `
           <div class="launch-card reveal-target" data-launch="${i}">
@@ -97,6 +112,7 @@
                 ${l.mission_id ? `<span class="launch-mission-badge">${escHtml(String(l.mission_id))}</span>` : ''}
               </div>
               <h3 class="launch-title">${escHtml(l.name || 'Unnamed Launch')}</h3>
+              ${timeStr ? `<p class="launch-time">${escHtml(timeStr)}</p>` : ''}
               ${l.description ? `<p class="launch-desc">${escHtml(mdToPlain(l.description))}</p>` : ''}
               <button class="launch-read" data-launch="${i}">Details →</button>
             </div>
@@ -117,12 +133,13 @@
     function openModal(l) {
       const date    = l.date ? new Date(l.date) : null;
       const dateStr = date ? date.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) : 'TBD';
+      const timeStr = timeRangeStr(l.date, l.window_end);
 
       document.getElementById('launch-modal-meta').innerHTML =
         `<span class="launch-status ${statusClass(l.status)}">${escHtml(l.status || 'scheduled')}</span>
          ${l.mission_id ? `<span class="launch-mission-badge" style="margin-left:8px">${escHtml(String(l.mission_id))}</span>` : ''}`;
       document.getElementById('launch-modal-date-big').textContent = date ? date.getDate() : '—';
-      document.getElementById('launch-modal-date-sub').textContent = dateStr;
+      document.getElementById('launch-modal-date-sub').textContent = timeStr ? `${dateStr} · ${timeStr}` : dateStr;
       document.getElementById('launch-modal-title').textContent = l.name || 'Unnamed Launch';
       document.getElementById('launch-modal-body').innerHTML = mdToHtml(l.description);
 
