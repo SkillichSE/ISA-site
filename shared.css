@@ -290,6 +290,7 @@ body {
 .nav-launch-status-delayed    { background: rgba(251,191,36,0.12); color: #fbbf24; }
 .nav-launch-status-completed  { background: rgba(136,136,136,0.12); color: var(--muted); }
 .nav-launch-status-scrubbed   { background: rgba(224,85,85,0.12);  color: #e05555; }
+.nav-launch-status[data-nav-countdown] { color: #ffffff; }
 .nav-launches-empty { padding: 18px 10px; text-align: center; font-size: 0.82rem; color: var(--muted); }
 .nav-launches-all {
   display: flex;
