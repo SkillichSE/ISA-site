@@ -34,7 +34,8 @@
   <div class="launch-modal-backdrop" id="launch-modal-backdrop">
     <div class="launch-modal">
       <button class="launch-modal-close" id="launch-modal-close" aria-label="Close">×</button>
-      <div class="launch-modal-body">
+      <div class="launch-modal-image" id="launch-modal-image" style="display:none"></div>
+      <div class="launch-modal-body" id="launch-modal-body-wrap">
         <div class="launch-meta" id="launch-modal-meta"></div>
         <div class="launch-modal-date-big" id="launch-modal-date-big"></div>
         <div class="launch-modal-date-sub" id="launch-modal-date-sub"></div>
@@ -65,15 +66,15 @@
       if (!dateIso) return '';
       const start = new Date(dateIso);
       if (isNaN(start.getTime())) return '';
-      const startTime = start.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
-      const tz = Intl.DateTimeFormat(undefined, { timeZoneName: 'short' }).formatToParts(start)
+      const startTime = start.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      const tz = Intl.DateTimeFormat('en-US', { timeZoneName: 'short' }).formatToParts(start)
         .find(p => p.type === 'timeZoneName')?.value || '';
       return `${startTime}${tz ? ' ' + tz : ''}`;
     }
 
     let _launches = [];
 
-    fetch(`${SB_URL}/rest/v1/launches?order=launch_date`, {
+    fetch(`${SB_URL}/rest/v1/launches?order=date`, {
       headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
     })
       .then(r => r.json())
@@ -94,6 +95,7 @@
 
           return `
           <div class="launch-card reveal-target" data-launch="${i}">
+            ${l.image ? `<div class="launch-card-image" style="background-image:url('${esc(l.image)}')"></div>` : ''}
             <div class="launch-card-date">
               <div class="launch-day">${day}</div>
               <div class="launch-month-year">
@@ -137,6 +139,17 @@
       document.getElementById('launch-modal-date-sub').textContent = timeStr ? `${dateStr} · ${timeStr}` : dateStr;
       document.getElementById('launch-modal-title').textContent = l.name || 'Unnamed Launch';
       document.getElementById('launch-modal-body').innerHTML = mdToHtml(l.description);
+
+      const modalImage = document.getElementById('launch-modal-image');
+      const modalBodyWrap = document.getElementById('launch-modal-body-wrap');
+      if (l.image) {
+        modalImage.style.backgroundImage = `url('${l.image}')`;
+        modalImage.style.display = 'block';
+        modalBodyWrap.classList.add('has-image');
+      } else {
+        modalImage.style.display = 'none';
+        modalBodyWrap.classList.remove('has-image');
+      }
 
       document.getElementById('launch-modal-backdrop').classList.add('open');
       document.body.style.overflow = 'hidden';

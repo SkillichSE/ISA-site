@@ -447,7 +447,7 @@ function pageLaunches() {
     const dateLabel = formatLaunchListDate(l.date);
     const liveStatus = computeLaunchStatus(l);
     return `<div class="item-card">
-      <div class="item-thumb-icon">🛰️</div>
+      ${l.image ? `<div class="item-thumb" style="background-image:url('${esc(l.image)}')"></div>` : `<div class="item-thumb-icon">🛰️</div>`}
       <div class="item-body">
         <div class="item-top">
           <span class="item-title">${l.name}</span>
@@ -698,6 +698,7 @@ function buildForm(type, item) {
     ${field('date','Launch Time (UTC)',toUTCDatetimeInput(v('date')),'UTC time','datetime-local')}
     <div class="form-hint">Status (Open / Upcoming / Full / Closed) is set automatically based on this time and the slot counts below — it's no longer picked manually.</div>
     ${ta('description','Description',v('description'))}
+    ${imgField('image','Image',v('image'))}
     <div class="form-row-2">${field('slots_total','Total Slots',v('slots_total',4),'','number')}${field('slots_taken','Slots Taken',v('slots_taken',0),'','number')}</div>`;
   if (type==='news') return `
     <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. atlas-review-2026')}${sel('tag','Tag',v('tag','Mission Update'),['Mission Update','Community','Research','Engineering','Launchshare'])}</div>
@@ -717,7 +718,7 @@ function getForm(type) {
     const slotsTaken = parseInt(g('slots_taken'))||0;
     return { id:g('id'),name:g('name'),mission_id:g('mission_id'),orbit:g('orbit'),
       status:computeLaunchStatus({ date:launchDate, slots_total:slotsTotal, slots_taken:slotsTaken }),
-      date:launchDate,description:g('description'),slots_total:slotsTotal,slots_taken:slotsTaken,published:g('published')==='true' };
+      date:launchDate,description:g('description'),image:g('image'),slots_total:slotsTotal,slots_taken:slotsTaken,published:g('published')==='true' };
   }
   if (type==='news') return { id:g('id'),tag:g('tag'),title:g('title'),date:g('date'),body:g('body'),image:g('image'),link:g('link') };
 }

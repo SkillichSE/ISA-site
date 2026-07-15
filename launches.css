@@ -19,6 +19,15 @@
 }
 .launch-card:hover { border-color: var(--line2); transform: translateY(-3px); }
 
+.launch-card-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--panel2);
+  flex-shrink: 0;
+}
+
 /* date banner top of card */
 .launch-card-date {
   padding: 20px 24px 0;
@@ -156,7 +165,16 @@
   scrollbar-color: var(--line2) transparent;
 }
 .launch-modal-backdrop.open .launch-modal { transform: translateY(0); }
+.launch-modal-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--panel2);
+  border-radius: 20px 20px 0 0;
+}
 .launch-modal-body { padding: 36px; }
+.launch-modal-body.has-image { padding-top: 28px; }
 .launch-modal-date-big {
   font-size: 3.5rem;
   font-weight: 900;

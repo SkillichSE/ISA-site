@@ -234,6 +234,10 @@ body {
   background: linear-gradient(135deg, rgba(59,130,246,0.22), rgba(226,107,245,0.16));
   border: 1px solid var(--line2);
 }
+.nav-launch-glyph-img {
+  background-size: cover;
+  background-position: center;
+}
 .nav-launch-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
 .nav-launch-name {
   font-size: 0.85rem;

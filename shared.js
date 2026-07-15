@@ -76,18 +76,21 @@ function renderNavLaunches(listEl, launches) {
   }
   listEl.innerHTML = launches.map(l => {
     const date = l.date ? new Date(l.date) : null;
-    const dateStr = date ? date.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : 'TBD';
-    let timeStr = date ? date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : '';
+    const dateStr = date ? date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'TBD';
+    let timeStr = date ? date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '';
     let tzStr = '';
     if (date) {
       try {
-        tzStr = Intl.DateTimeFormat(undefined, { timeZoneName: 'long' }).formatToParts(date)
+        tzStr = Intl.DateTimeFormat('en-US', { timeZoneName: 'long' }).formatToParts(date)
           .find(p => p.type === 'timeZoneName')?.value || '';
       } catch { tzStr = ''; }
     }
+    const glyph = l.image
+      ? `<span class="nav-launch-glyph nav-launch-glyph-img" style="background-image:url('${navEscHtml(l.image)}')"></span>`
+      : `<span class="nav-launch-glyph">🚀</span>`;
     return `
       <a class="nav-launch-item" href="/launches.html">
-        <span class="nav-launch-glyph">🚀</span>
+        ${glyph}
         <span class="nav-launch-info">
           <span class="nav-launch-name">${navEscHtml(l.name || 'Unnamed Launch')}</span>
           <span class="nav-launch-date">${dateStr}${timeStr ? ` · ${timeStr}` : ''}</span>
@@ -101,7 +104,7 @@ function renderNavLaunches(listEl, launches) {
 async function loadNavLaunches(listEl) {
   try {
     const nowIso = new Date().toISOString();
-    const url = `${LAUNCH_SB_URL}/rest/v1/launches?select=name,status,date&published=eq.true&date=gte.${encodeURIComponent(nowIso)}&order=date.asc&limit=${NAV_LAUNCHES_LIMIT}`;
+    const url = `${LAUNCH_SB_URL}/rest/v1/launches?select=name,status,date,image&published=eq.true&date=gte.${encodeURIComponent(nowIso)}&order=date.asc&limit=${NAV_LAUNCHES_LIMIT}`;
     const res = await fetch(url, { headers: { apikey: LAUNCH_SB_KEY, Authorization: `Bearer ${LAUNCH_SB_KEY}` } });
     if (!res.ok) throw new Error(`API ${res.status}`);
     const launches = await res.json();
