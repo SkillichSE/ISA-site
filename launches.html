@@ -72,6 +72,32 @@
       return `${startTime}${tz ? ' ' + tz : ''}`;
     }
 
+    function pad2(n) { return String(n).padStart(2, '0'); }
+
+    function countdownStr(dateIso) {
+      if (!dateIso) return null;
+      const target = new Date(dateIso).getTime();
+      if (isNaN(target)) return null;
+      const diffMs = target - Date.now();
+      const sign = diffMs >= 0 ? 'T-' : 'T+';
+      const abs = Math.abs(diffMs);
+      const days = Math.floor(abs / 86400000);
+      const hours = Math.floor((abs % 86400000) / 3600000);
+      const mins = Math.floor((abs % 3600000) / 60000);
+      const secs = Math.floor((abs % 60000) / 1000);
+      return days > 0
+        ? `${sign}${days}d ${pad2(hours)}:${pad2(mins)}:${pad2(secs)}`
+        : `${sign}${pad2(hours)}:${pad2(mins)}:${pad2(secs)}`;
+    }
+
+    function updateCountdowns() {
+      document.querySelectorAll('[data-countdown]').forEach(el => {
+        const str = countdownStr(el.dataset.countdown);
+        if (str) el.textContent = str;
+      });
+    }
+    setInterval(updateCountdowns, 1000);
+
     let _launches = [];
 
     fetch(`${SB_URL}/rest/v1/launches?order=date`, {
@@ -93,9 +119,11 @@
           const year    = date ? date.getFullYear() : '';
           const timeStr = timeRangeStr(l.date);
 
+          const cd = (l.status === 'scheduled' || l.status === 'upcoming') ? countdownStr(l.date) : null;
+
           return `
           <div class="launch-card reveal-target" data-launch="${i}">
-            ${l.image ? `<div class="launch-card-image" style="background-image:url('${esc(l.image)}')"></div>` : ''}
+            ${l.image ? `<div class="launch-card-image" style="background-image:url('${escHtml(l.image)}')"></div>` : ''}
             <div class="launch-card-date">
               <div class="launch-day">${day}</div>
               <div class="launch-month-year">
@@ -105,7 +133,9 @@
             </div>
             <div class="launch-card-body">
               <div class="launch-meta">
-                <span class="launch-status ${statusClass(l.status)}">${escHtml(l.status || 'scheduled')}</span>
+                ${cd
+                  ? `<span class="launch-status ${statusClass(l.status)}" data-countdown="${escHtml(l.date)}">${cd}</span>`
+                  : `<span class="launch-status ${statusClass(l.status)}">${escHtml(l.status || 'scheduled')}</span>`}
                 ${l.mission_id ? `<span class="launch-mission-badge">${escHtml(String(l.mission_id))}</span>` : ''}
               </div>
               <h3 class="launch-title">${escHtml(l.name || 'Unnamed Launch')}</h3>
@@ -132,8 +162,11 @@
       const dateStr = date ? date.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) : 'TBD';
       const timeStr = timeRangeStr(l.date);
 
+      const modalCd = (l.status === 'scheduled' || l.status === 'upcoming') ? countdownStr(l.date) : null;
       document.getElementById('launch-modal-meta').innerHTML =
-        `<span class="launch-status ${statusClass(l.status)}">${escHtml(l.status || 'scheduled')}</span>
+        `${modalCd
+            ? `<span class="launch-status ${statusClass(l.status)}" data-countdown="${escHtml(l.date)}">${modalCd}</span>`
+            : `<span class="launch-status ${statusClass(l.status)}">${escHtml(l.status || 'scheduled')}</span>`}
          ${l.mission_id ? `<span class="launch-mission-badge" style="margin-left:8px">${escHtml(String(l.mission_id))}</span>` : ''}`;
       document.getElementById('launch-modal-date-big').textContent = date ? date.getDate() : '—';
       document.getElementById('launch-modal-date-sub').textContent = timeStr ? `${dateStr} · ${timeStr}` : dateStr;
