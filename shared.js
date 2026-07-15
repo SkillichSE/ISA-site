@@ -76,12 +76,8 @@ function renderNavLaunches(listEl, launches) {
   }
   listEl.innerHTML = launches.map(l => {
     const date = l.date ? new Date(l.date) : null;
-    const windowEnd = l.window_end ? new Date(l.window_end) : null;
     const dateStr = date ? date.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : 'TBD';
     let timeStr = date ? date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : '';
-    if (timeStr && windowEnd && !isNaN(windowEnd.getTime())) {
-      timeStr += ` – ${windowEnd.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`;
-    }
     let tzStr = '';
     if (date) {
       try {
@@ -105,7 +101,7 @@ function renderNavLaunches(listEl, launches) {
 async function loadNavLaunches(listEl) {
   try {
     const nowIso = new Date().toISOString();
-    const url = `${LAUNCH_SB_URL}/rest/v1/launches?select=name,status,date,window_end&published=eq.true&date=gte.${encodeURIComponent(nowIso)}&order=date.asc&limit=${NAV_LAUNCHES_LIMIT}`;
+    const url = `${LAUNCH_SB_URL}/rest/v1/launches?select=name,status,date&published=eq.true&date=gte.${encodeURIComponent(nowIso)}&order=date.asc&limit=${NAV_LAUNCHES_LIMIT}`;
     const res = await fetch(url, { headers: { apikey: LAUNCH_SB_KEY, Authorization: `Bearer ${LAUNCH_SB_KEY}` } });
     if (!res.ok) throw new Error(`API ${res.status}`);
     const launches = await res.json();
@@ -122,16 +118,43 @@ function initNavLaunches() {
   const listEl  = document.getElementById('nav-launches-list');
   if (!widget || !toggle || !listEl) return;
 
+  let closeTimer = null;
+
+  function openPanel() {
+    if (closeTimer) {
+      clearTimeout(closeTimer);
+      closeTimer = null;
+    }
+    widget.classList.add('open');
+    toggle.setAttribute('aria-expanded', 'true');
+  }
+
   function closePanel() {
     widget.classList.remove('open');
     toggle.setAttribute('aria-expanded', 'false');
   }
 
-  toggle.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const isOpen = widget.classList.toggle('open');
-    toggle.setAttribute('aria-expanded', String(isOpen));
-  });
+  function scheduleClose() {
+    if (closeTimer) clearTimeout(closeTimer);
+    closeTimer = setTimeout(() => {
+      closeTimer = null;
+      closePanel();
+    }, 150);
+  }
+
+  function cancelClose() {
+    if (closeTimer) {
+      clearTimeout(closeTimer);
+      closeTimer = null;
+    }
+  }
+
+  const panel = document.getElementById('nav-launches-panel');
+
+  widget.addEventListener('pointerenter', () => openPanel());
+  widget.addEventListener('pointerleave', scheduleClose);
+  panel?.addEventListener('pointerenter', cancelClose);
+  panel?.addEventListener('pointerleave', scheduleClose);
   document.addEventListener('click', (e) => {
     if (!widget.contains(e.target)) closePanel();
   });

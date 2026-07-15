@@ -92,6 +92,46 @@ body {
   color: var(--text);
   text-decoration: none;
 }
+.nav-country-ticker {
+  display: inline-flex;
+  position: relative;
+  overflow: hidden;
+  width: 120px;
+  height: 18px;
+  margin-left: 12px;
+  vertical-align: middle;
+  font-size: 0.75rem;
+  line-height: 18px;
+  font-weight: 700;
+  color: transparent;
+}
+.nav-country-ticker span {
+  display: block;
+  width: 100%;
+  height: 18px;
+  text-align: left;
+  padding-left: 6px;
+  box-sizing: border-box;
+}
+.nav-country-ticker {
+  animation: navCountryLoop 8s linear infinite;
+}
+.nav-country {
+  display: block;
+}
+.nav-country-it {
+  color: #008c45;
+}
+.nav-country-kz {
+  color: #00b0f0;
+}
+@keyframes navCountryLoop {
+  0%, 22% { transform: translateY(0); }
+  25%, 47% { transform: translateY(-18px); }
+  50%, 72% { transform: translateY(-36px); }
+  75%, 97% { transform: translateY(-54px); }
+  100% { transform: translateY(0); }
+}
 .nav-links {
   display: flex;
   align-items: center;

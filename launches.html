@@ -61,18 +61,13 @@
       return map[s] || 'launch-status-scheduled';
     }
 
-    function timeRangeStr(dateIso, windowEndIso) {
+    function timeRangeStr(dateIso) {
       if (!dateIso) return '';
       const start = new Date(dateIso);
       if (isNaN(start.getTime())) return '';
       const startTime = start.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
       const tz = Intl.DateTimeFormat(undefined, { timeZoneName: 'short' }).formatToParts(start)
         .find(p => p.type === 'timeZoneName')?.value || '';
-      const end = windowEndIso ? new Date(windowEndIso) : null;
-      if (end && !isNaN(end.getTime())) {
-        const endTime = end.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
-        return `${startTime} – ${endTime}${tz ? ' ' + tz : ''}`;
-      }
       return `${startTime}${tz ? ' ' + tz : ''}`;
     }
 
@@ -95,7 +90,7 @@
           const day     = date ? date.getDate() : '—';
           const month   = date ? date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase() : '—';
           const year    = date ? date.getFullYear() : '';
-          const timeStr = timeRangeStr(l.date, l.window_end);
+          const timeStr = timeRangeStr(l.date);
 
           return `
           <div class="launch-card reveal-target" data-launch="${i}">
@@ -133,7 +128,7 @@
     function openModal(l) {
       const date    = l.date ? new Date(l.date) : null;
       const dateStr = date ? date.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) : 'TBD';
-      const timeStr = timeRangeStr(l.date, l.window_end);
+      const timeStr = timeRangeStr(l.date);
 
       document.getElementById('launch-modal-meta').innerHTML =
         `<span class="launch-status ${statusClass(l.status)}">${escHtml(l.status || 'scheduled')}</span>
