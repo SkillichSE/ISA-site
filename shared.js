@@ -69,6 +69,29 @@ function navLaunchStatusClass(s) {
   return map[s] || 'nav-launch-status-scheduled';
 }
 
+function navPad2(n) { return String(n).padStart(2, '0'); }
+
+function navCountdownStr(dateIso) {
+  if (!dateIso) return null;
+  const target = new Date(dateIso).getTime();
+  if (isNaN(target)) return null;
+  const diffMs = target - Date.now();
+  const sign = diffMs >= 0 ? 'T-' : 'T+';
+  const abs = Math.abs(diffMs);
+  const totalHours = Math.floor(abs / 3600000);
+  const mins = Math.floor((abs % 3600000) / 60000);
+  const secs = Math.floor((abs % 60000) / 1000);
+  return `${sign}${navPad2(totalHours)}:${navPad2(mins)}:${navPad2(secs)}`;
+}
+
+function updateNavCountdowns() {
+  document.querySelectorAll('[data-nav-countdown]').forEach(el => {
+    const str = navCountdownStr(el.dataset.navCountdown);
+    if (str) el.textContent = str;
+  });
+}
+setInterval(updateNavCountdowns, 1000);
+
 function renderNavLaunches(listEl, launches) {
   if (!launches.length) {
     listEl.innerHTML = '<div class="nav-launches-empty">No upcoming launches.</div>';
@@ -88,6 +111,7 @@ function renderNavLaunches(listEl, launches) {
     const glyph = l.image
       ? `<span class="nav-launch-glyph nav-launch-glyph-img" style="background-image:url('${navEscHtml(l.image)}')"></span>`
       : `<span class="nav-launch-glyph">🚀</span>`;
+    const cd = (l.status === 'scheduled' || l.status === 'upcoming') ? navCountdownStr(l.date) : null;
     return `
       <a class="nav-launch-item" href="/launches.html">
         ${glyph}
@@ -96,7 +120,9 @@ function renderNavLaunches(listEl, launches) {
           <span class="nav-launch-date">${dateStr}${timeStr ? ` · ${timeStr}` : ''}</span>
           ${tzStr ? `<span class="nav-launch-tz">${navEscHtml(tzStr)}</span>` : ''}
         </span>
-        <span class="nav-launch-status ${navLaunchStatusClass(l.status)}">${navEscHtml(l.status || 'scheduled')}</span>
+        ${cd
+          ? `<span class="nav-launch-status ${navLaunchStatusClass(l.status)}" data-nav-countdown="${navEscHtml(l.date)}">${cd}</span>`
+          : `<span class="nav-launch-status ${navLaunchStatusClass(l.status)}">${navEscHtml(l.status || 'scheduled')}</span>`}
       </a>`;
   }).join('');
 }

@@ -81,13 +81,10 @@
       const diffMs = target - Date.now();
       const sign = diffMs >= 0 ? 'T-' : 'T+';
       const abs = Math.abs(diffMs);
-      const days = Math.floor(abs / 86400000);
-      const hours = Math.floor((abs % 86400000) / 3600000);
+      const totalHours = Math.floor(abs / 3600000);
       const mins = Math.floor((abs % 3600000) / 60000);
       const secs = Math.floor((abs % 60000) / 1000);
-      return days > 0
-        ? `${sign}${days}d ${pad2(hours)}:${pad2(mins)}:${pad2(secs)}`
-        : `${sign}${pad2(hours)}:${pad2(mins)}:${pad2(secs)}`;
+      return `${sign}${pad2(totalHours)}:${pad2(mins)}:${pad2(secs)}`;
     }
 
     function updateCountdowns() {
