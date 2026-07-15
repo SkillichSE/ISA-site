@@ -445,15 +445,16 @@ function pageLaunches() {
   const items = data.launches.length ? data.launches.map(l=>{
     const pct = l.slots_total > 0 ? Math.round(l.slots_taken/l.slots_total*100) : 0;
     const dateLabel = formatLaunchListDate(l.date);
+    const liveStatus = computeLaunchStatus(l);
     return `<div class="item-card">
       <div class="item-thumb-icon">🛰️</div>
       <div class="item-body">
         <div class="item-top">
           <span class="item-title">${l.name}</span>
-          <span class="badge badge-${l.status}">${statusMap[l.status]||l.status}</span>
+          <span class="badge badge-${liveStatus}">${statusMap[liveStatus]||liveStatus}</span>
           ${l.published ? '<span class="badge badge-active">Published</span>' : '<span class="badge badge-inactive">Draft</span>'}
         </div>
-        <div class="item-meta">${l.orbit} · ${dateLabel}${l.mission_id ? ' · Mission: ' + l.mission_id : ''}</div>
+        <div class="item-meta">${l.orbit} · ${dateLabel} UTC${l.mission_id ? ' · Mission: ' + l.mission_id : ''}</div>
         <div class="item-desc">${esc(mdToPlain(l.description))}</div>
         <div class="slots-bar"><div class="slots-fill" style="width:${pct}%"></div></div>
       </div>
@@ -637,21 +638,36 @@ function esc(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(
 function g(id) { return (document.getElementById('f-'+id)||{}).value?.trim()||''; }
 function arr(id) { return g(id).split(',').map(s=>s.trim()).filter(Boolean); }
 
-// datetime-local inputs work in the browser's local wall-clock time and have
-// no timezone info of their own, while launches are stored in Supabase as
-// UTC timestamptz. These convert between the two so the admin always enters
-// times in their own local clock and visitors see it converted to theirs.
-function toLocalDatetimeInput(iso) {
+// datetime-local inputs have no timezone of their own — they're just a
+// wall-clock string. Launch times are entered and shown in UTC everywhere
+// (admin and public site alike), so we read/write that string as UTC
+// directly instead of converting through the browser's local timezone.
+function toUTCDatetimeInput(iso) {
   if (!iso) return '';
   const d = new Date(iso);
   if (isNaN(d.getTime())) return '';
   const pad = n => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())}T${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
 }
-function fromLocalDatetimeInput(value) {
+function fromUTCDatetimeInput(value) {
   if (!value) return null;
-  const d = new Date(value);
+  const d = new Date(value + ':00Z');
   return isNaN(d.getTime()) ? null : d.toISOString();
+}
+
+// Status is derived from the launch time + slot counts rather than set by
+// hand, so it can never go stale: once the countdown to `date` reaches
+// zero the entry flips to "closed" on its own, no re-save required.
+const LAUNCH_OPEN_WINDOW_MS = 2 * 60 * 60 * 1000; // window is "open" starting 2h before launch
+function computeLaunchStatus(l) {
+  if (!l || !l.date) return 'upcoming';
+  const launchTime = new Date(l.date).getTime();
+  if (isNaN(launchTime)) return 'upcoming';
+  const now = Date.now();
+  if (now >= launchTime) return 'closed';
+  if (l.slots_total > 0 && l.slots_taken >= l.slots_total) return 'full';
+  if (launchTime - now <= LAUNCH_OPEN_WINDOW_MS) return 'open';
+  return 'upcoming';
 }
 function formatLaunchListDate(dateIso) {
   if (!dateIso) return '—';
@@ -678,8 +694,9 @@ function buildForm(type, item) {
   if (type==='launches') return `
     <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. launch-003')}${sel('published','Published',v('published')?'true':'false',['true','false'])}</div>
     ${field('name','Mission Name',v('name'))}
-    <div class="form-row-2">${field('mission_id','Mission ID',v('mission_id'),'Optional - which mission this belongs to')}${sel('status','Status',v('status','open'),['open','upcoming','closed','full'])}</div>
-    <div class="form-row-2">${sel('orbit','Orbit',v('orbit','LEO'),['LEO','MEO','GEO','SSO','HEO'])}${field('date','Launch Time',toLocalDatetimeInput(v('date')),'Your local time','datetime-local')}</div>
+    <div class="form-row-2">${field('mission_id','Mission ID',v('mission_id'),'Optional - which mission this belongs to')}${sel('orbit','Orbit',v('orbit','LEO'),['LEO','MEO','GEO','SSO','HEO'])}</div>
+    ${field('date','Launch Time (UTC)',toUTCDatetimeInput(v('date')),'UTC time','datetime-local')}
+    <div class="form-hint">Status (Open / Upcoming / Full / Closed) is set automatically based on this time and the slot counts below — it's no longer picked manually.</div>
     ${ta('description','Description',v('description'))}
     <div class="form-row-2">${field('slots_total','Total Slots',v('slots_total',4),'','number')}${field('slots_taken','Slots Taken',v('slots_taken',0),'','number')}</div>`;
   if (type==='news') return `
@@ -694,7 +711,14 @@ function buildForm(type, item) {
 function getForm(type) {
   if (type==='missions') return { id:g('id'),name:g('name'),division:g('division'),status:g('status'),description:g('description'),tags:arr('tags'),image:g('image') };
   if (type==='careers') return { id:g('id'),title:g('title'),program:g('program'),type:g('type'),description:g('description'),skills:arr('skills') };
-  if (type==='launches') return { id:g('id'),name:g('name'),mission_id:g('mission_id'),orbit:g('orbit'),status:g('status'),date:fromLocalDatetimeInput(g('date')),description:g('description'),slots_total:parseInt(g('slots_total'))||0,slots_taken:parseInt(g('slots_taken'))||0,published:g('published')==='true' };
+  if (type==='launches') {
+    const launchDate = fromUTCDatetimeInput(g('date'));
+    const slotsTotal = parseInt(g('slots_total'))||0;
+    const slotsTaken = parseInt(g('slots_taken'))||0;
+    return { id:g('id'),name:g('name'),mission_id:g('mission_id'),orbit:g('orbit'),
+      status:computeLaunchStatus({ date:launchDate, slots_total:slotsTotal, slots_taken:slotsTaken }),
+      date:launchDate,description:g('description'),slots_total:slotsTotal,slots_taken:slotsTaken,published:g('published')==='true' };
+  }
   if (type==='news') return { id:g('id'),tag:g('tag'),title:g('title'),date:g('date'),body:g('body'),image:g('image'),link:g('link') };
 }
 
