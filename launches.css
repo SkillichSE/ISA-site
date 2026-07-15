@@ -175,14 +175,37 @@
 }
 .launch-modal-body { padding: 36px; }
 .launch-modal-body.has-image { padding-top: 28px; }
+#launch-modal-meta { margin-bottom: 18px; }
+.launch-modal-date-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
 .launch-modal-date-big {
-  font-size: 3.5rem;
+  font-size: 3.2rem;
   font-weight: 900;
   letter-spacing: -2px;
   line-height: 1;
-  margin-bottom: 4px;
 }
-.launch-modal-date-sub { font-size: 0.85rem; color: var(--muted2); margin-bottom: 20px; }
+.launch-modal-date-my {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.launch-modal-month {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--accent-light);
+  text-transform: uppercase;
+}
+.launch-modal-year { font-size: 0.76rem; color: var(--muted2); }
+.launch-modal-time {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
 .launch-modal-body h2 {
   font-size: 1.5rem;
   font-weight: 900;

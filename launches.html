@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Launches — ISA</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="shared.css?v=4">
+  <link rel="stylesheet" href="shared.css?v=5">
   <link rel="stylesheet" href="launches.css">
   <link rel="icon" type="image/png" href="ISSSSSSSAAAA.png">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
@@ -37,8 +37,14 @@
       <div class="launch-modal-image" id="launch-modal-image" style="display:none"></div>
       <div class="launch-modal-body" id="launch-modal-body-wrap">
         <div class="launch-meta" id="launch-modal-meta"></div>
-        <div class="launch-modal-date-big" id="launch-modal-date-big"></div>
-        <div class="launch-modal-date-sub" id="launch-modal-date-sub"></div>
+        <div class="launch-modal-date-row">
+          <div class="launch-modal-date-big" id="launch-modal-date-big"></div>
+          <div class="launch-modal-date-my">
+            <span class="launch-modal-month" id="launch-modal-month"></span>
+            <span class="launch-modal-year" id="launch-modal-year"></span>
+          </div>
+        </div>
+        <div class="launch-modal-time" id="launch-modal-time"></div>
         <h2 id="launch-modal-title"></h2>
         <div class="launch-body-text" id="launch-modal-body"></div>
       </div>
@@ -156,7 +162,8 @@
 
     function openModal(l) {
       const date    = l.date ? new Date(l.date) : null;
-      const dateStr = date ? date.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) : 'TBD';
+      const month   = date ? date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase() : '—';
+      const year    = date ? date.getFullYear() : '';
       const timeStr = timeRangeStr(l.date);
 
       const modalCd = (l.status === 'scheduled' || l.status === 'upcoming') ? countdownStr(l.date) : null;
@@ -166,7 +173,9 @@
             : `<span class="launch-status ${statusClass(l.status)}">${escHtml(l.status || 'scheduled')}</span>`}
          ${l.mission_id ? `<span class="launch-mission-badge" style="margin-left:8px">${escHtml(String(l.mission_id))}</span>` : ''}`;
       document.getElementById('launch-modal-date-big').textContent = date ? date.getDate() : '—';
-      document.getElementById('launch-modal-date-sub').textContent = timeStr ? `${dateStr} · ${timeStr}` : dateStr;
+      document.getElementById('launch-modal-month').textContent = month;
+      document.getElementById('launch-modal-year').textContent = year;
+      document.getElementById('launch-modal-time').textContent = timeStr;
       document.getElementById('launch-modal-title').textContent = l.name || 'Unnamed Launch';
       document.getElementById('launch-modal-body').innerHTML = mdToHtml(l.description);
 
