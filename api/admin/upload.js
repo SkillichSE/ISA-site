@@ -1,13 +1,7 @@
 const { isAuthenticated } = require('../auth');
 
-const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/svg+xml']);
-
-async function readRawBody(req) {
-  const chunks = [];
-  for await (const chunk of req) chunks.push(chunk);
-  return Buffer.concat(chunks);
-}
+const EXT = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp', 'image/gif': 'gif', 'image/svg+xml': 'svg' };
 
 function safeFilename() {
   const rand = require('crypto').randomBytes(8).toString('hex');
@@ -16,13 +10,18 @@ function safeFilename() {
 
 function getSupabaseConfig() {
   const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const anonKey = process.env.SUPABASE_ANON_KEY;
+  if (!url || !serviceKey || !anonKey) {
     throw Object.assign(new Error('Supabase is not configured on the server.'), { status: 500 });
   }
-  return { url, key };
+  return { url, serviceKey, anonKey };
 }
 
+// The file itself never touches this function. We just ask Supabase Storage
+// for a one-time signed upload slot (service-role key, stays server-side)
+// and hand the browser a token + the public anon key so it can PUT the
+// bytes straight to Supabase, skipping the Vercel round-trip entirely.
 module.exports = async function handler(req, res) {
   if (!isAuthenticated(req)) {
     return res.status(401).json({ ok: false, error: 'Not authenticated.' });
@@ -31,44 +30,48 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
-  const contentType = req.headers['content-type'] || 'application/octet-stream';
+  let payload;
+  try {
+    payload = req.body && typeof req.body === 'object' ? req.body : JSON.parse(req.body || '{}');
+  } catch {
+    return res.status(400).json({ ok: false, error: 'Invalid JSON body.' });
+  }
+
+  const { contentType } = payload;
   if (!ALLOWED_TYPES.has(contentType)) {
     return res.status(400).json({ ok: false, error: 'File type not allowed.' });
   }
 
-  const ext = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp', 'image/gif': 'gif', 'image/svg+xml': 'svg' }[contentType];
-
   try {
-    const bytes = await readRawBody(req);
-    if (bytes.length > MAX_BYTES) {
-      return res.status(413).json({ ok: false, error: 'File is too large (max 5 MB).' });
-    }
+    const { url, serviceKey, anonKey } = getSupabaseConfig();
+    const filename = `${safeFilename()}.${EXT[contentType]}`;
 
-    const { url, key } = getSupabaseConfig();
-    const filename = `${safeFilename()}.${ext}`;
-
-    const r = await fetch(`${url}/storage/v1/object/images/${filename}`, {
+    const r = await fetch(`${url}/storage/v1/object/upload/sign/images/${filename}`, {
       method: 'POST',
       headers: {
-        apikey: key,
-        Authorization: `Bearer ${key}`,
-        'Content-Type': contentType,
-        'x-upsert': 'true',
+        apikey: serviceKey,
+        Authorization: `Bearer ${serviceKey}`,
+        'Content-Type': 'application/json',
       },
-      body: bytes,
+      body: JSON.stringify({}),
     });
 
     if (!r.ok) {
       const e = await r.json().catch(() => ({}));
-      return res.status(r.status).json({ ok: false, error: e.message || 'Upload failed.' });
+      return res.status(r.status).json({ ok: false, error: e.message || 'Failed to sign upload.' });
     }
 
-    return res.status(200).json({ ok: true, url: `${url}/storage/v1/object/public/images/${filename}` });
+    // Supabase returns { url: "/object/upload/sign/images/<file>?token=..." }
+    const { url: signedPath } = await r.json();
+
+    return res.status(200).json({
+      ok: true,
+      uploadUrl: `${url}/storage/v1${signedPath}`,
+      apikey: anonKey,
+      contentType,
+      publicUrl: `${url}/storage/v1/object/public/images/${filename}`,
+    });
   } catch (error) {
     return res.status(error.status || 500).json({ ok: false, error: error.message || 'Server error.' });
   }
-};
-
-module.exports.config = {
-  api: { bodyParser: false },
 };

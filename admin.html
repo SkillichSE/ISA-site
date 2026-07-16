@@ -528,21 +528,35 @@ function triggerUpload(fieldId) {
   input.onchange = () => uploadImage(input, fieldId);
   input.click();
 }
+const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // 5 MB, mirrors the Supabase bucket limit
+
 async function uploadImage(input, fieldId) {
   const file = input.files[0];
   if (!file) return;
   const btn = document.getElementById('upload-btn-'+fieldId);
   btn.disabled = true; btn.textContent = 'Uploading…';
   try {
-    const r = await fetch('/api/admin/upload', {
+    if (file.size > MAX_UPLOAD_BYTES) throw new Error('File is too large (max 5 MB).');
+
+    // 1) tiny request to our API: get a one-time signed slot from Supabase
+    const signRes = await fetch('/api/admin/upload', {
       method: 'POST',
-      headers: { 'Content-Type': file.type },
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contentType: file.type })
+    });
+    if (signRes.status === 401) { logout(); throw new Error('Session expired. Please sign in again.'); }
+    const sign = await signRes.json().catch(() => ({}));
+    if (!signRes.ok || !sign.ok) throw new Error(sign.error || 'Upload failed');
+
+    // 2) the actual bytes go straight to Supabase Storage, not through Vercel
+    const putRes = await fetch(sign.uploadUrl, {
+      method: 'PUT',
+      headers: { apikey: sign.apikey, 'Content-Type': sign.contentType },
       body: file
     });
-    if (r.status === 401) { logout(); throw new Error('Session expired. Please sign in again.'); }
-    const payload = await r.json().catch(() => ({}));
-    if (!r.ok || !payload.ok) throw new Error(payload.error || 'Upload failed');
-    document.getElementById('f-'+fieldId).value = payload.url;
+    if (!putRes.ok) throw new Error('Upload to storage failed');
+
+    document.getElementById('f-'+fieldId).value = sign.publicUrl;
     updateImgPreview(fieldId);
     toast('Image uploaded ✓', 'success');
   } catch(e) {
