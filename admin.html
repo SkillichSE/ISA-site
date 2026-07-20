@@ -114,12 +114,16 @@
     .badge-open { background:rgba(62,207,142,0.12); color:var(--success); }
     .badge-upcoming { background:rgba(91,110,245,0.15); color:var(--accent); }
     .badge-closed,.badge-full { background:rgba(255,255,255,0.06); color:var(--text-3); }
+    .badge-in-progress { background:rgba(240,168,48,0.15); color:var(--warn); }
+    .badge-completed { background:rgba(255,255,255,0.06); color:var(--text-3); }
     .badge-volunteer { background:rgba(91,110,245,0.12); color:var(--accent); }
 
     .btn-edit { background:var(--surface3); border:1px solid var(--border); color:var(--text-2); border-radius:var(--r-sm); padding:6px 13px; font-family:inherit; font-size:12px; font-weight:500; cursor:pointer; transition:all .15s; }
     .btn-edit:hover { border-color:var(--border2); color:var(--text); }
     .btn-del { background:transparent; border:1px solid transparent; color:var(--text-3); border-radius:var(--r-sm); padding:6px 10px; font-family:inherit; font-size:12px; cursor:pointer; transition:all .15s; }
     .btn-del:hover { background:var(--danger-bg); border-color:rgba(224,85,85,0.25); color:var(--danger); }
+    .btn-finish { background:transparent; border:1px solid rgba(62,207,142,0.3); color:var(--success); border-radius:var(--r-sm); padding:6px 13px; font-family:inherit; font-size:12px; font-weight:500; cursor:pointer; transition:all .15s; }
+    .btn-finish:hover { background:rgba(62,207,142,0.12); border-color:rgba(62,207,142,0.5); }
 
     /* Edit modal */
     .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:200; padding:20px; backdrop-filter:blur(6px); }
@@ -441,7 +445,7 @@ function pageCareers() {
 
 // Launches tab
 function pageLaunches() {
-  const statusMap = { open:'Open', upcoming:'Upcoming', closed:'Closed', full:'Full' };
+  const statusMap = { open:'Open', upcoming:'Upcoming', closed:'Closed', full:'Full', 'in-progress':'In Progress', completed:'Completed' };
   const items = data.launches.length ? data.launches.map(l=>{
     const pct = l.slots_total > 0 ? Math.round(l.slots_taken/l.slots_total*100) : 0;
     const dateLabel = formatLaunchListDate(l.date);
@@ -460,6 +464,7 @@ function pageLaunches() {
       </div>
       <div class="item-actions">
         <button class="btn-edit" onclick="openEdit('launches','${l.id}')">Edit</button>
+        ${liveStatus!=='completed' ? `<button class="btn-finish" onclick="finishLaunch('${l.id}')" title="Mark this launch as finished">Finish</button>` : ''}
         <button class="btn-del" onclick="del('launches','${l.id}')" title="Delete">✕</button>
       </div>
     </div>`;
@@ -671,14 +676,18 @@ function fromUTCDatetimeInput(value) {
 
 // Status is derived from the launch time + slot counts rather than set by
 // hand, so it can never go stale: once the countdown to `date` reaches
-// zero the entry flips to "closed" on its own, no re-save required.
+// zero the entry flips to "in-progress" on its own, no re-save required.
+// The one manual override is "completed" — set only via the Finish button
+// in the admin UI — which sticks until someone explicitly reverts it.
 const LAUNCH_OPEN_WINDOW_MS = 2 * 60 * 60 * 1000; // window is "open" starting 2h before launch
 function computeLaunchStatus(l) {
-  if (!l || !l.date) return 'upcoming';
+  if (!l) return 'upcoming';
+  if (l.status === 'completed') return 'completed';
+  if (!l.date) return 'upcoming';
   const launchTime = new Date(l.date).getTime();
   if (isNaN(launchTime)) return 'upcoming';
   const now = Date.now();
-  if (now >= launchTime) return 'closed';
+  if (now >= launchTime) return 'in-progress';
   if (l.slots_total > 0 && l.slots_taken >= l.slots_total) return 'full';
   if (launchTime - now <= LAUNCH_OPEN_WINDOW_MS) return 'open';
   return 'upcoming';
@@ -710,7 +719,7 @@ function buildForm(type, item) {
     ${field('name','Mission Name',v('name'))}
     <div class="form-row-2">${field('mission_id','Mission ID',v('mission_id'),'Optional - which mission this belongs to')}${sel('orbit','Orbit',v('orbit','LEO'),['LEO','MEO','GEO','SSO','HEO'])}</div>
     ${field('date','Launch Time (UTC)',toUTCDatetimeInput(v('date')),'UTC time','datetime-local')}
-    <div class="form-hint">Status (Open / Upcoming / Full / Closed) is set automatically based on this time and the slot counts below — it's no longer picked manually.</div>
+    <div class="form-hint">Status (Open / Upcoming / Full / In Progress) is set automatically based on this time and the slot counts below. Once the launch time passes it shows as "In Progress" on the site — use the Finish button on the launch card to mark it Completed.</div>
     ${ta('description','Description',v('description'))}
     ${imgField('image','Image',v('image'))}
     <div class="form-row-2">${field('slots_total','Total Slots',v('slots_total',4),'','number')}${field('slots_taken','Slots Taken',v('slots_taken',0),'','number')}</div>`;
@@ -730,9 +739,12 @@ function getForm(type) {
     const launchDate = fromUTCDatetimeInput(g('date'));
     const slotsTotal = parseInt(g('slots_total'))||0;
     const slotsTaken = parseInt(g('slots_taken'))||0;
+    const existing = editId ? data.launches.find(x=>x.id===editId) : null;
+    const status = (existing && existing.status === 'completed')
+      ? 'completed'
+      : computeLaunchStatus({ date:launchDate, slots_total:slotsTotal, slots_taken:slotsTaken });
     return { id:g('id'),name:g('name'),mission_id:g('mission_id'),orbit:g('orbit'),
-      status:computeLaunchStatus({ date:launchDate, slots_total:slotsTotal, slots_taken:slotsTaken }),
-      date:launchDate,description:g('description'),image:g('image'),slots_total:slotsTotal,slots_taken:slotsTaken,published:g('published')==='true' };
+      status, date:launchDate,description:g('description'),image:g('image'),slots_total:slotsTotal,slots_taken:slotsTaken,published:g('published')==='true' };
   }
   if (type==='news') return { id:g('id'),tag:g('tag'),title:g('title'),date:g('date'),body:g('body'),image:g('image'),link:g('link') };
 }
@@ -763,6 +775,21 @@ async function saveItem() {
     toast('Error: '+e.message,'error');
   }
   btn.disabled = false;
+  document.getElementById('saving-overlay').classList.add('hidden');
+}
+
+async function finishLaunch(id) {
+  if (!confirm('Mark this launch as finished? It will show as Completed on the site.')) return;
+  document.getElementById('saving-overlay').classList.remove('hidden');
+  try {
+    await sbFetch('launches', 'PATCH', { status:'completed' }, `?id=eq.${encodeURIComponent(id)}`);
+    const i = data.launches.findIndex(x=>x.id===id);
+    if (i>-1) data.launches[i] = { ...data.launches[i], status:'completed' };
+    toast('Launch marked as finished ✓','success');
+    render();
+  } catch(e) {
+    toast('Error: '+e.message,'error');
+  }
   document.getElementById('saving-overlay').classList.add('hidden');
 }
 

@@ -79,6 +79,7 @@
 .launch-status-scheduled  { background: rgba(34,197,94,0.12);  color: #22c55e; }
 .launch-status-upcoming   { background: rgba(59,130,246,0.12); color: var(--accent-light); }
 .launch-status-delayed    { background: rgba(251,191,36,0.12); color: #fbbf24; }
+.launch-status-in-progress { background: rgba(251,191,36,0.14); color: #fbbf24; }
 .launch-status-completed  { background: rgba(136,136,136,0.12); color: var(--muted); }
 .launch-status-scrubbed   { background: rgba(224,85,85,0.12);  color: #e05555; }
 .launch-status[data-countdown] { color: #ffffff; }

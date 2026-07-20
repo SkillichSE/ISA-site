@@ -64,8 +64,24 @@
 
     function statusClass(s) {
       const map = { scheduled:'launch-status-scheduled', upcoming:'launch-status-upcoming',
-                    delayed:'launch-status-delayed', completed:'launch-status-completed', scrubbed:'launch-status-scrubbed' };
+                    delayed:'launch-status-delayed', 'in-progress':'launch-status-in-progress',
+                    completed:'launch-status-completed', scrubbed:'launch-status-scrubbed' };
       return map[s] || 'launch-status-scheduled';
+    }
+
+    function statusLabel(s) {
+      const map = { 'in-progress': 'In Progress' };
+      return map[s] || s;
+    }
+
+    // A launch is only ever "completed" or "scrubbed" because the admin said so.
+    // Everything else flips from upcoming to in-progress on its own once the
+    // launch time passes, so the site never has to be re-saved to reflect it.
+    function liveStatus(l) {
+      if (l.status === 'completed' || l.status === 'scrubbed') return l.status;
+      const t = l.date ? new Date(l.date).getTime() : NaN;
+      if (!isNaN(t) && Date.now() >= t) return 'in-progress';
+      return l.status || 'upcoming';
     }
 
     function timeRangeStr(dateIso) {
@@ -97,6 +113,11 @@
       document.querySelectorAll('[data-countdown]').forEach(el => {
         const str = countdownStr(el.dataset.countdown);
         if (str) el.textContent = str;
+        // once T+ hits, flip the badge from "upcoming" styling to "in progress"
+        if (str && str.startsWith('T+') && !el.classList.contains('launch-status-in-progress')) {
+          el.classList.remove('launch-status-scheduled', 'launch-status-upcoming');
+          el.classList.add('launch-status-in-progress');
+        }
       });
     }
     setInterval(updateCountdowns, 1000);
@@ -122,7 +143,8 @@
           const year    = date ? date.getFullYear() : '';
           const timeStr = timeRangeStr(l.date);
 
-          const cd = (l.status === 'scheduled' || l.status === 'upcoming') ? countdownStr(l.date) : null;
+          const eff = liveStatus(l);
+          const cd = (eff !== 'completed' && eff !== 'scrubbed') ? countdownStr(l.date) : null;
 
           return `
           <div class="launch-card reveal-target" data-launch="${i}">
@@ -137,8 +159,8 @@
             <div class="launch-card-body">
               <div class="launch-meta">
                 ${cd
-                  ? `<span class="launch-status ${statusClass(l.status)}" data-countdown="${escHtml(l.date)}">${cd}</span>`
-                  : `<span class="launch-status ${statusClass(l.status)}">${escHtml(l.status || 'scheduled')}</span>`}
+                  ? `<span class="launch-status ${statusClass(eff)}" data-countdown="${escHtml(l.date)}">${cd}</span>`
+                  : `<span class="launch-status ${statusClass(eff)}">${escHtml(statusLabel(eff) || 'scheduled')}</span>`}
                 ${l.mission_id ? `<span class="launch-mission-badge">${escHtml(String(l.mission_id))}</span>` : ''}
               </div>
               <h3 class="launch-title">${escHtml(l.name || 'Unnamed Launch')}</h3>
@@ -166,11 +188,12 @@
       const year    = date ? date.getFullYear() : '';
       const timeStr = timeRangeStr(l.date);
 
-      const modalCd = (l.status === 'scheduled' || l.status === 'upcoming') ? countdownStr(l.date) : null;
+      const modalEff = liveStatus(l);
+      const modalCd = (modalEff !== 'completed' && modalEff !== 'scrubbed') ? countdownStr(l.date) : null;
       document.getElementById('launch-modal-meta').innerHTML =
         `${modalCd
-            ? `<span class="launch-status ${statusClass(l.status)}" data-countdown="${escHtml(l.date)}">${modalCd}</span>`
-            : `<span class="launch-status ${statusClass(l.status)}">${escHtml(l.status || 'scheduled')}</span>`}
+            ? `<span class="launch-status ${statusClass(modalEff)}" data-countdown="${escHtml(l.date)}">${modalCd}</span>`
+            : `<span class="launch-status ${statusClass(modalEff)}">${escHtml(statusLabel(modalEff) || 'scheduled')}</span>`}
          ${l.mission_id ? `<span class="launch-mission-badge" style="margin-left:8px">${escHtml(String(l.mission_id))}</span>` : ''}`;
       document.getElementById('launch-modal-date-big').textContent = date ? date.getDate() : '—';
       document.getElementById('launch-modal-month').textContent = month;
