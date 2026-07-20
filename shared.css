@@ -118,36 +118,63 @@ body {
 }
 .nav-country-it {
   color: #008c45;
-  animation: navCountryDropIT 12s linear infinite;
+  animation: navCountryDropIT 18s linear infinite;
 }
 .nav-country-kz {
   color: #00afca;
-  animation: navCountryDropKZ 12s linear infinite;
+  animation: navCountryDropKZ 18s linear infinite;
 }
 .nav-country-us {
   color: #b22234;
-  animation: navCountryDropUS 12s linear infinite;
+  animation: navCountryDropUS 18s linear infinite;
 }
-/* Italy: enters from the top, holds, then continues down and out */
+.nav-country-se {
+  color: #fecc02;
+  animation: navCountryDropSE 18s linear infinite;
+}
+.nav-country-ru {
+  color: #0039a6;
+  animation: navCountryDropRU 18s linear infinite;
+}
+.nav-country-nl {
+  color: #ff9b00;
+  animation: navCountryDropNL 18s linear infinite;
+}
+/* Six countries take even 1/6 slices of the loop, each dropping in,
+   holding, then dropping out before the next one's turn. */
 @keyframes navCountryDropIT {
-  0%, 13% { transform: translateY(-140%); opacity: 0; }
-  18%, 30% { transform: translateY(0); opacity: 1; }
-  35%, 100% { transform: translateY(140%); opacity: 0; }
+  0%, 0%     { transform: translateY(-140%); opacity: 0; }
+  4%, 12%    { transform: translateY(0);     opacity: 1; }
+  16%, 100%  { transform: translateY(140%);  opacity: 0; }
 }
-/* Kazakhstan: same top-to-bottom motion, offset later in the loop */
 @keyframes navCountryDropKZ {
-  0%, 35% { transform: translateY(-140%); opacity: 0; }
-  40%, 52% { transform: translateY(0); opacity: 1; }
-  57%, 100% { transform: translateY(140%); opacity: 0; }
+  0%, 16.7%   { transform: translateY(-140%); opacity: 0; }
+  20.7%, 28.7% { transform: translateY(0);     opacity: 1; }
+  32.7%, 100% { transform: translateY(140%);  opacity: 0; }
 }
-/* USA: same motion, offset to the final third of the loop */
 @keyframes navCountryDropUS {
-  0%, 57% { transform: translateY(-140%); opacity: 0; }
-  62%, 74% { transform: translateY(0); opacity: 1; }
-  79%, 100% { transform: translateY(140%); opacity: 0; }
+  0%, 33.3%   { transform: translateY(-140%); opacity: 0; }
+  37.3%, 45.3% { transform: translateY(0);     opacity: 1; }
+  49.3%, 100% { transform: translateY(140%);  opacity: 0; }
+}
+@keyframes navCountryDropSE {
+  0%, 50%    { transform: translateY(-140%); opacity: 0; }
+  54%, 62%   { transform: translateY(0);     opacity: 1; }
+  66%, 100%  { transform: translateY(140%);  opacity: 0; }
+}
+@keyframes navCountryDropRU {
+  0%, 66.7%   { transform: translateY(-140%); opacity: 0; }
+  70.7%, 78.7% { transform: translateY(0);     opacity: 1; }
+  82.7%, 100% { transform: translateY(140%);  opacity: 0; }
+}
+@keyframes navCountryDropNL {
+  0%, 83.3%   { transform: translateY(-140%); opacity: 0; }
+  87.3%, 95.3% { transform: translateY(0);     opacity: 1; }
+  99.3%, 100% { transform: translateY(140%);  opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .nav-country-it, .nav-country-kz, .nav-country-us { animation: none; opacity: 0; }
+  .nav-country-it, .nav-country-kz, .nav-country-us,
+  .nav-country-se, .nav-country-ru, .nav-country-nl { animation: none; opacity: 0; }
 }
 .nav-links {
   display: flex;

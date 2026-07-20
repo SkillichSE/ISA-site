@@ -37,7 +37,7 @@
       <div class="launch-modal-image" id="launch-modal-image" style="display:none"></div>
       <div class="launch-modal-body" id="launch-modal-body-wrap">
         <div class="launch-meta" id="launch-modal-meta"></div>
-        <div class="launch-modal-date-row">
+        <div class="launch-modal-date-row" id="launch-modal-date-row">
           <div class="launch-modal-date-big" id="launch-modal-date-big"></div>
           <div class="launch-modal-date-my">
             <span class="launch-modal-month" id="launch-modal-month"></span>
@@ -138,9 +138,10 @@
 
         listEl.innerHTML = published.map((l, i) => {
           const date    = l.date ? new Date(l.date) : null;
-          const day     = date ? date.getDate() : '—';
-          const month   = date ? date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase() : '—';
-          const year    = date ? date.getFullYear() : '';
+          const hasDate = !!(date && !isNaN(date.getTime()));
+          const day     = hasDate ? date.getDate() : '';
+          const month   = hasDate ? date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase() : '';
+          const year    = hasDate ? date.getFullYear() : '';
           const timeStr = timeRangeStr(l.date);
 
           const eff = liveStatus(l);
@@ -149,13 +150,14 @@
           return `
           <div class="launch-card reveal-target" data-launch="${i}">
             ${l.image ? `<div class="launch-card-image" style="background-image:url('${escHtml(l.image)}')"></div>` : ''}
+            ${hasDate ? `
             <div class="launch-card-date">
               <div class="launch-day">${day}</div>
               <div class="launch-month-year">
                 <span class="launch-month">${month}</span>
                 <span class="launch-year">${year}</span>
               </div>
-            </div>
+            </div>` : ''}
             <div class="launch-card-body">
               <div class="launch-meta">
                 ${cd
@@ -184,8 +186,9 @@
 
     function openModal(l) {
       const date    = l.date ? new Date(l.date) : null;
-      const month   = date ? date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase() : '—';
-      const year    = date ? date.getFullYear() : '';
+      const hasDate = !!(date && !isNaN(date.getTime()));
+      const month   = hasDate ? date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase() : '';
+      const year    = hasDate ? date.getFullYear() : '';
       const timeStr = timeRangeStr(l.date);
 
       const modalEff = liveStatus(l);
@@ -195,7 +198,8 @@
             ? `<span class="launch-status ${statusClass(modalEff)}" data-countdown="${escHtml(l.date)}">${modalCd}</span>`
             : `<span class="launch-status ${statusClass(modalEff)}">${escHtml(statusLabel(modalEff) || 'scheduled')}</span>`}
          ${l.mission_id ? `<span class="launch-mission-badge" style="margin-left:8px">${escHtml(String(l.mission_id))}</span>` : ''}`;
-      document.getElementById('launch-modal-date-big').textContent = date ? date.getDate() : '—';
+      document.getElementById('launch-modal-date-row').style.display = hasDate ? 'flex' : 'none';
+      document.getElementById('launch-modal-date-big').textContent = hasDate ? date.getDate() : '';
       document.getElementById('launch-modal-month').textContent = month;
       document.getElementById('launch-modal-year').textContent = year;
       document.getElementById('launch-modal-time').textContent = timeStr;
