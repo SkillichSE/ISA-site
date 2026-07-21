@@ -232,8 +232,7 @@ function initLogoCursorEgg() {
   });
 }
 
-
-  guild_id: GUILD_ID,
+const DISCORD_STATS_FALLBACK = {
   guild_name: 'ISA- community server',
   invite_url: `https://discord.gg/${INVITE_CODE}`,
   member_count: 16,
