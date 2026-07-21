@@ -22,6 +22,12 @@ html {
   overflow-y: scroll;
   scrollbar-gutter: stable;
 }
+
+/* Easter egg: hover the ISA logo 3x in a row and the cursor becomes the logo */
+html.isa-cursor-egg,
+html.isa-cursor-egg * {
+  cursor: url('/ISSSSSSSAAAA.png') 16 16, auto !important;
+}
 body {
   font-family: var(--font);
   background: var(--bg);

@@ -40,6 +40,7 @@ async function injectInclude(placeholderId, url) {
   }
 
   initNavLaunches();
+  initLogoCursorEgg();
 
   const currentPath = new URL(window.location.href).pathname.replace(/\/$/, '/index.html');
   document.querySelectorAll('.nav-links a').forEach(a => {
@@ -195,7 +196,43 @@ function initNavLaunches() {
   setInterval(() => loadNavLaunches(listEl), 300000);
 }
 
-const DISCORD_STATS_FALLBACK = {
+function initLogoCursorEgg() {
+  const logoLink = document.querySelector('.nav-logo-link');
+  if (!logoLink) return;
+
+  const HOVER_STREAK_TARGET = 3;
+  const STREAK_WINDOW_MS = 2500; // must re-hover within this gap to count as "in a row"
+  const EGG_DURATION_MS = 6000;  // how long the custom cursor stays active
+
+  let hoverStreak = 0;
+  let streakResetTimer = null;
+  let eggEndTimer = null;
+
+  function resetStreak() {
+    hoverStreak = 0;
+  }
+
+  function activateEgg() {
+    document.documentElement.classList.add('isa-cursor-egg');
+    clearTimeout(eggEndTimer);
+    eggEndTimer = setTimeout(() => {
+      document.documentElement.classList.remove('isa-cursor-egg');
+    }, EGG_DURATION_MS);
+  }
+
+  logoLink.addEventListener('mouseenter', () => {
+    hoverStreak += 1;
+    clearTimeout(streakResetTimer);
+    streakResetTimer = setTimeout(resetStreak, STREAK_WINDOW_MS);
+
+    if (hoverStreak >= HOVER_STREAK_TARGET) {
+      activateEgg();
+      hoverStreak = 0;
+    }
+  });
+}
+
+
   guild_id: GUILD_ID,
   guild_name: 'ISA- community server',
   invite_url: `https://discord.gg/${INVITE_CODE}`,
