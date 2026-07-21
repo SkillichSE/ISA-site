@@ -91,6 +91,7 @@ body {
   letter-spacing: 4px;
   color: var(--text);
   text-decoration: none;
+  line-height: 22px;
 }
 .nav-country-ticker {
   position: relative;
@@ -98,7 +99,7 @@ body {
   overflow: hidden;
   width: 190px;
   height: 22px;
-  margin-left: 12px;
+  margin-left: 2px;
   vertical-align: middle;
   font-size: 1rem;
   line-height: 22px;
@@ -140,37 +141,57 @@ body {
   color: #ff9b00;
   animation: navCountryDropNL 18s linear infinite;
 }
-/* Six countries take even 1/6 slices of the loop, each dropping in,
-   holding, then dropping out before the next one's turn. */
+/* Six countries take even 1/6 slices of the loop, each dropping in like a
+   heavy weight (accelerating fall, slight overshoot/settle on landing),
+   holding, then dropping out with the same gravity-driven acceleration
+   before the next one's turn. */
 @keyframes navCountryDropIT {
-  0%, 0%     { transform: translateY(-140%); opacity: 0; }
-  4%, 12%    { transform: translateY(0);     opacity: 1; }
-  16%, 100%  { transform: translateY(140%);  opacity: 0; }
+  0%    { transform: translateY(-160%); opacity: 0;   animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+  5%    { transform: translateY(6%);    opacity: 1;   animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); }
+  6.5%  { transform: translateY(-2%);   opacity: 1;   animation-timing-function: ease-out; }
+  8%    { transform: translateY(0);     opacity: 1;   animation-timing-function: linear; }
+  12%   { transform: translateY(0);     opacity: 1;   animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+  16%, 100% { transform: translateY(160%); opacity: 0; }
 }
 @keyframes navCountryDropKZ {
-  0%, 16.7%   { transform: translateY(-140%); opacity: 0; }
-  20.7%, 28.7% { transform: translateY(0);     opacity: 1; }
-  32.7%, 100% { transform: translateY(140%);  opacity: 0; }
+  0%, 16.7%    { transform: translateY(-160%); opacity: 0; animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+  21.7%        { transform: translateY(6%);    opacity: 1; animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); }
+  23.2%        { transform: translateY(-2%);   opacity: 1; animation-timing-function: ease-out; }
+  24.7%        { transform: translateY(0);     opacity: 1; animation-timing-function: linear; }
+  28.7%        { transform: translateY(0);     opacity: 1; animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+  32.7%, 100%  { transform: translateY(160%);  opacity: 0; }
 }
 @keyframes navCountryDropUS {
-  0%, 33.3%   { transform: translateY(-140%); opacity: 0; }
-  37.3%, 45.3% { transform: translateY(0);     opacity: 1; }
-  49.3%, 100% { transform: translateY(140%);  opacity: 0; }
+  0%, 33.3%    { transform: translateY(-160%); opacity: 0; animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+  38.3%        { transform: translateY(6%);    opacity: 1; animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); }
+  39.8%        { transform: translateY(-2%);   opacity: 1; animation-timing-function: ease-out; }
+  41.3%        { transform: translateY(0);     opacity: 1; animation-timing-function: linear; }
+  45.3%        { transform: translateY(0);     opacity: 1; animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+  49.3%, 100%  { transform: translateY(160%);  opacity: 0; }
 }
 @keyframes navCountryDropSE {
-  0%, 50%    { transform: translateY(-140%); opacity: 0; }
-  54%, 62%   { transform: translateY(0);     opacity: 1; }
-  66%, 100%  { transform: translateY(140%);  opacity: 0; }
+  0%, 50%      { transform: translateY(-160%); opacity: 0; animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+  55%          { transform: translateY(6%);    opacity: 1; animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); }
+  56.5%        { transform: translateY(-2%);   opacity: 1; animation-timing-function: ease-out; }
+  58%          { transform: translateY(0);     opacity: 1; animation-timing-function: linear; }
+  62%          { transform: translateY(0);     opacity: 1; animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+  66%, 100%    { transform: translateY(160%);  opacity: 0; }
 }
 @keyframes navCountryDropRU {
-  0%, 66.7%   { transform: translateY(-140%); opacity: 0; }
-  70.7%, 78.7% { transform: translateY(0);     opacity: 1; }
-  82.7%, 100% { transform: translateY(140%);  opacity: 0; }
+  0%, 66.7%    { transform: translateY(-160%); opacity: 0; animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+  71.7%        { transform: translateY(6%);    opacity: 1; animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); }
+  73.2%        { transform: translateY(-2%);   opacity: 1; animation-timing-function: ease-out; }
+  74.7%        { transform: translateY(0);     opacity: 1; animation-timing-function: linear; }
+  78.7%        { transform: translateY(0);     opacity: 1; animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+  82.7%, 100%  { transform: translateY(160%);  opacity: 0; }
 }
 @keyframes navCountryDropNL {
-  0%, 83.3%   { transform: translateY(-140%); opacity: 0; }
-  87.3%, 95.3% { transform: translateY(0);     opacity: 1; }
-  99.3%, 100% { transform: translateY(140%);  opacity: 0; }
+  0%, 83.3%    { transform: translateY(-160%); opacity: 0; animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+  88.3%        { transform: translateY(6%);    opacity: 1; animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); }
+  89.8%        { transform: translateY(-2%);   opacity: 1; animation-timing-function: ease-out; }
+  91.3%        { transform: translateY(0);     opacity: 1; animation-timing-function: linear; }
+  95.3%        { transform: translateY(0);     opacity: 1; animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+  99.3%, 100%  { transform: translateY(160%);  opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   .nav-country-it, .nav-country-kz, .nav-country-us,
