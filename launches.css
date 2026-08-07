@@ -91,6 +91,18 @@
   background: rgba(226,107,245,0.12);
   color: #e26bf5;
 }
+.launch-launchshare-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: rgba(240,168,48,0.14);
+  color: #f0a830;
+  text-decoration: none;
+  transition: background .15s, color .15s;
+}
+.launch-launchshare-badge:hover { background: rgba(240,168,48,0.26); color: #ffc766; }
 .launch-title {
   font-size: 1rem;
   font-weight: 800;

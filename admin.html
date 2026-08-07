@@ -9,6 +9,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
   <script src="markdown.js"></script>
+  <script src="launchshare/capacity.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -117,6 +118,7 @@
     .badge-in-progress { background:rgba(240,168,48,0.15); color:var(--warn); }
     .badge-completed { background:rgba(255,255,255,0.06); color:var(--text-3); }
     .badge-volunteer { background:rgba(91,110,245,0.12); color:var(--accent); }
+    .badge-launchshare { background:rgba(240,168,48,0.15); color:var(--warn); }
 
     .btn-edit { background:var(--surface3); border:1px solid var(--border); color:var(--text-2); border-radius:var(--r-sm); padding:6px 13px; font-family:inherit; font-size:12px; font-weight:500; cursor:pointer; transition:all .15s; }
     .btn-edit:hover { border-color:var(--border2); color:var(--text); }
@@ -457,8 +459,9 @@ function pageLaunches() {
           <span class="item-title">${l.name}</span>
           <span class="badge badge-${liveStatus}">${statusMap[liveStatus]||liveStatus}</span>
           ${l.published ? '<span class="badge badge-active">Published</span>' : '<span class="badge badge-inactive">Draft</span>'}
+          ${l.launchshare ? '<a href="/launchshare/" target="_blank" class="badge badge-launchshare" style="text-decoration:none" title="Open the Launchshare page">Launchshare ↗</a>' : ''}
         </div>
-        <div class="item-meta">${l.orbit} · ${dateLabel}${l.date ? ' UTC' : ''}${l.mission_id ? ' · Mission: ' + l.mission_id : ''}</div>
+        <div class="item-meta">${l.orbit}${l.rocket ? ' · ' + esc(l.rocket) : ''} · ${dateLabel}${l.date ? ' UTC' : ''}${l.mission_id ? ' · Mission: ' + l.mission_id : ''}${l.launchshare && l.launchshare_volume ? ' · ' + l.launchshare_volume + ' blocks' : ''}</div>
         <div class="item-desc">${esc(mdToPlain(l.description))}</div>
         <div class="slots-bar"><div class="slots-fill" style="width:${pct}%"></div></div>
       </div>
@@ -499,13 +502,26 @@ function openNew(type) { editId=null; editType=type; openModal(`New ${label(type
 function openEdit(type, id) { editId=id; editType=type; openModal(`Edit ${label(type)}`, buildForm(type, data[type].find(x=>x.id===id))); }
 function label(t) { return {missions:'Mission',careers:'Position',launches:'Launch',news:'News Post'}[t]; }
 
+let formDirty = false;
 function openModal(title, body) {
   document.getElementById('modal-title').textContent = title;
   document.getElementById('modal-body').innerHTML = body;
   document.getElementById('overlay').classList.remove('hidden');
+  formDirty = false;
+  if (editType === 'launches') updateLaunchshareCapacityPreview();
 }
-function closeModal() { document.getElementById('overlay').classList.add('hidden'); }
+// Closing while there are unsaved edits used to silently discard them (e.g. a
+// stray click on the backdrop, or switching sidebar pages behind the modal).
+// Now it asks first, unless force=true (used after a successful save).
+function closeModal(force) {
+  if (!force && formDirty && !confirm('Discard unsaved changes?')) return false;
+  document.getElementById('overlay').classList.add('hidden');
+  formDirty = false;
+  return true;
+}
 function overlayClick(e) { if(e.target===document.getElementById('overlay')) closeModal(); }
+document.getElementById('modal-body').addEventListener('input', () => { formDirty = true; });
+document.getElementById('modal-body').addEventListener('change', () => { formDirty = true; });
 
 function field(id, lbl, val='', hint='', type='text') {
   return `<div class="form-row"><label>${lbl}</label><input type="${type}" id="f-${id}" value="${esc(String(val))}"><div class="form-hint">${hint}</div></div>`;
@@ -699,6 +715,10 @@ function formatLaunchListDate(dateIso) {
   return d.toLocaleString(undefined, { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
 }
 
+// Same rocket list offered on the public Launchshare booking form (step 2),
+// kept in one place so admin and public stay in sync.
+const ROCKET_OPTIONS = ['Falcon 9','Falcon Heavy','Starship','Electron','Ariane 6','Soyuz','Custom / Other'];
+
 function buildForm(type, item) {
   const v = (k,d='') => item ? (item[k]??d) : d;
   if (type==='missions') return `
@@ -718,11 +738,20 @@ function buildForm(type, item) {
     <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. launch-003')}${sel('published','Published',v('published')?'true':'false',['true','false'])}</div>
     ${field('name','Mission Name',v('name'))}
     <div class="form-row-2">${field('mission_id','Mission ID',v('mission_id'),'Optional - which mission this belongs to')}${sel('orbit','Orbit',v('orbit','LEO'),['LEO','MEO','GEO','SSO','HEO'])}</div>
+    ${sel('rocket','Rocket',v('rocket','Falcon 9'),ROCKET_OPTIONS)}
     ${field('date','Launch Time (UTC)',toUTCDatetimeInput(v('date')),'UTC time','datetime-local')}
     <div class="form-hint">Status (Open / Upcoming / Full / In Progress) is set automatically based on this time and the slot counts below. Once the launch time passes it shows as "In Progress" on the site — use the Finish button on the launch card to mark it Completed.</div>
     ${ta('description','Description',v('description'))}
     ${imgField('image','Image',v('image'))}
-    <div class="form-row-2">${field('slots_total','Total Slots',v('slots_total',4),'','number')}${field('slots_taken','Slots Taken',v('slots_taken',0),'','number')}</div>`;
+    <div class="form-row-2">${field('slots_total','Total Slots',v('slots_total',4),'','number')}${field('slots_taken','Slots Taken',v('slots_taken',0),'','number')}</div>
+    <div class="form-row"><label class="lschk-label"><input type="checkbox" id="f-launchshare" ${v('launchshare')?'checked':''} onchange="toggleLaunchshareVolume()"> Launchshare</label>
+      <div class="form-hint">Marks this launch as a Launchshare slot — adds the Launchshare tag on the public site and links to the booking page.</div>
+    </div>
+    <div class="form-row" id="launchshare-volume-row" style="display:${v('launchshare')?'block':'none'}">
+      <label for="f-launchshare_volume">SATELLITE VOLUME (blocks)</label>
+      <input type="number" id="f-launchshare_volume" value="${esc(String(v('launchshare_volume','')))}" min="0" oninput="updateLaunchshareCapacityPreview()">
+      <div class="form-hint" id="launchshare-capacity-preview"></div>
+    </div>`;
   if (type==='news') return `
     <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. atlas-review-2026')}${sel('tag','Tag',v('tag','Mission Update'),['Mission Update','Community','Research','Engineering','Launchshare'])}</div>
     ${field('title','Title',v('title'))}
@@ -730,6 +759,22 @@ function buildForm(type, item) {
     ${ta('body','Summary / Body',v('body'))}
     ${imgField('image','Image',v('image'))}
     ${field('link','Read More Link',v('link','projects.html'),'Relative or absolute URL')}`;
+}
+
+function toggleLaunchshareVolume() {
+  const on = document.getElementById('f-launchshare').checked;
+  document.getElementById('launchshare-volume-row').style.display = on ? 'block' : 'none';
+  updateLaunchshareCapacityPreview();
+}
+function updateLaunchshareCapacityPreview() {
+  const el = document.getElementById('launchshare-capacity-preview');
+  if (!el) return;
+  const vol = parseInt(document.getElementById('f-launchshare_volume').value) || 0;
+  if (!vol || !window.LaunchshareCapacity) { el.textContent = 'Enter a volume to see the satellite capacity breakdown.'; return; }
+  const rows = window.LaunchshareCapacity.breakdown(vol).filter(c => c.count > 0);
+  el.innerHTML = rows.length
+    ? 'Fits roughly: ' + rows.map(c => `<b>${c.count}×</b> ${esc(c.label)}`).join(' &nbsp;or&nbsp; ')
+    : 'Volume too small for any known satellite class.';
 }
 
 function getForm(type) {
@@ -743,8 +788,11 @@ function getForm(type) {
     const status = (existing && existing.status === 'completed')
       ? 'completed'
       : computeLaunchStatus({ date:launchDate, slots_total:slotsTotal, slots_taken:slotsTaken });
-    return { id:g('id'),name:g('name'),mission_id:g('mission_id'),orbit:g('orbit'),
-      status, date:launchDate,description:g('description'),image:g('image'),slots_total:slotsTotal,slots_taken:slotsTaken,published:g('published')==='true' };
+    const lsVolume = parseInt(g('launchshare_volume')) || 0;
+    const launchshare = document.getElementById('f-launchshare').checked && lsVolume > 0;
+    return { id:g('id'),name:g('name'),mission_id:g('mission_id'),orbit:g('orbit'),rocket:g('rocket'),
+      status, date:launchDate,description:g('description'),image:g('image'),slots_total:slotsTotal,slots_taken:slotsTaken,published:g('published')==='true',
+      launchshare, launchshare_volume: launchshare ? lsVolume : null };
   }
   if (type==='news') return { id:g('id'),tag:g('tag'),title:g('title'),date:g('date'),body:g('body'),image:g('image'),link:g('link') };
 }
@@ -757,6 +805,9 @@ async function saveItem() {
   document.getElementById('saving-overlay').classList.remove('hidden');
   try {
     const exists = data[editType].find(x=>x.id===item.id);
+    // Only announce when Launchshare is newly turned on for this launch —
+    // not on every re-save — so the channel doesn't get spammed on edits.
+    const wasLaunchshare = editType==='launches' && exists ? !!exists.launchshare : false;
     if (editId) {
       // UPDATE
       await sbFetch(editType, 'PATCH', item, `?id=eq.${encodeURIComponent(editId)}`);
@@ -768,14 +819,32 @@ async function saveItem() {
       await sbFetch(editType, 'POST', item);
       data[editType].push(item);
     }
-    closeModal();
+    closeModal(true);
     toast('Saved ✓','success');
     render();
+    if (editType==='launches' && item.launchshare && !wasLaunchshare) {
+      announceLaunchshare(item).catch(()=>{ toast('Saved, but the Discord announcement failed to send.','error'); });
+    }
   } catch(e) {
     toast('Error: '+e.message,'error');
   }
   btn.disabled = false;
   document.getElementById('saving-overlay').classList.add('hidden');
+}
+
+// Best-effort ping to the launch channel when a launch is newly marked as a
+// Launchshare slot. Failing here should never undo the save above.
+async function announceLaunchshare(item) {
+  const r = await fetch('/api/admin/announce-launchshare', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: item.name, date: item.date, orbit: item.orbit,
+      volume: item.launchshare_volume, url: '/launchshare/',
+    }),
+  });
+  const payload = await r.json().catch(() => ({}));
+  if (!r.ok || !payload.ok) throw new Error(payload.error || `HTTP ${r.status}`);
 }
 
 async function finishLaunch(id) {
