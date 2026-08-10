@@ -37,8 +37,10 @@
   position: absolute;
   inset: 0;
   background-image: var(--hero-img);
-  background-size: cover;
+  background-size: contain;
   background-position: center;
+  background-repeat: no-repeat;
+  background-color: var(--panel);
   filter: saturate(1.15) brightness(1.12);
   z-index: 0;
 }

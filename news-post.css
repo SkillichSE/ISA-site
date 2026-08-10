@@ -1,4 +1,5 @@
 /* --- NEWS POST DETAIL --- */
+.section-news-detail { padding: 64px 0 120px; }
 .news-detail-wrap {
   max-width: 720px;
 }
