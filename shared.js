@@ -113,8 +113,9 @@ function renderNavLaunches(listEl, launches) {
       ? `<span class="nav-launch-glyph nav-launch-glyph-img" style="background-image:url('${navEscHtml(l.image)}')"></span>`
       : `<span class="nav-launch-glyph">🚀</span>`;
     const cd = (l.status === 'scheduled' || l.status === 'upcoming') ? navCountdownStr(l.date) : null;
+    const href = l.id ? `/launch.html?id=${encodeURIComponent(l.id)}` : '/launches.html';
     return `
-      <a class="nav-launch-item" href="/launches.html">
+      <a class="nav-launch-item" href="${href}">
         ${glyph}
         <span class="nav-launch-info">
           <span class="nav-launch-name">${navEscHtml(l.name || 'Unnamed Launch')}</span>
@@ -131,7 +132,7 @@ function renderNavLaunches(listEl, launches) {
 async function loadNavLaunches(listEl) {
   try {
     const nowIso = new Date().toISOString();
-    const url = `${LAUNCH_SB_URL}/rest/v1/launches?select=name,status,date,image&published=eq.true&date=gte.${encodeURIComponent(nowIso)}&order=date.asc&limit=${NAV_LAUNCHES_LIMIT}`;
+    const url = `${LAUNCH_SB_URL}/rest/v1/launches?select=id,name,status,date,image&published=eq.true&date=gte.${encodeURIComponent(nowIso)}&order=date.asc&limit=${NAV_LAUNCHES_LIMIT}`;
     const res = await fetch(url, { headers: { apikey: LAUNCH_SB_KEY, Authorization: `Bearer ${LAUNCH_SB_KEY}` } });
     if (!res.ok) throw new Error(`API ${res.status}`);
     const launches = await res.json();

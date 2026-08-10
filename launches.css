@@ -15,6 +15,8 @@
   display: flex;
   flex-direction: column;
   cursor: pointer;
+  color: inherit;
+  text-decoration: none;
   transition: border-color 0.2s, transform 0.22s;
 }
 .launch-card:hover { border-color: var(--line2); transform: translateY(-3px); }
@@ -149,89 +151,7 @@
   font-size: 1rem;
 }
 
-/* --- MODAL --- */
-.launch-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.88);
-  z-index: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  opacity: 0;
-  transition: opacity 0.25s;
-  pointer-events: none;
-}
-.launch-modal-backdrop.open { opacity: 1; pointer-events: all; }
-.launch-modal {
-  background: var(--panel);
-  border: 1px solid var(--line2);
-  border-radius: 20px;
-  max-width: 560px;
-  width: 100%;
-  max-height: 88vh;
-  overflow-y: auto;
-  transform: translateY(28px);
-  transition: transform 0.3s;
-  position: relative;
-  scrollbar-width: thin;
-  scrollbar-color: var(--line2) transparent;
-}
-.launch-modal-backdrop.open .launch-modal { transform: translateY(0); }
-.launch-modal-image {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  background-size: cover;
-  background-position: center;
-  background-color: var(--panel2);
-  border-radius: 20px 20px 0 0;
-}
-.launch-modal-body { padding: 36px; }
-.launch-modal-body.has-image { padding-top: 28px; }
-#launch-modal-meta { margin-bottom: 18px; }
-.launch-modal-date-row {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-}
-.launch-modal-date-big {
-  font-size: 3.2rem;
-  font-weight: 900;
-  letter-spacing: -2px;
-  line-height: 1;
-}
-.launch-modal-date-my {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-.launch-modal-month {
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  color: var(--accent-light);
-  text-transform: uppercase;
-}
-.launch-modal-year { font-size: 0.76rem; color: var(--muted2); }
-.launch-modal-time {
-  font-size: 0.85rem;
-  color: var(--muted);
-  margin-top: 10px;
-  margin-bottom: 20px;
-}
-.launch-modal-body h2 {
-  font-size: 1.5rem;
-  font-weight: 900;
-  letter-spacing: -0.5px;
-  line-height: 1.2;
-  margin: 14px 0 16px;
-}
-.launch-modal-body .launch-body-text {
-  font-size: 0.9rem;
-  color: var(--muted);
-  line-height: 1.85;
-}
+/* --- BODY TEXT (shared with the launch detail page, launch.html) --- */
 .launch-body-text p { margin: 0 0 14px; }
 .launch-body-text p:last-child { margin-bottom: 0; }
 .launch-body-text h1, .launch-body-text h2, .launch-body-text h3 {
@@ -271,26 +191,7 @@
 .launch-body-text pre code { background: none; border: none; padding: 0; }
 .launch-body-text img { max-width: 100%; border-radius: 8px; margin: 8px 0; }
 .launch-body-text hr { border: none; border-top: 1px solid var(--line); margin: 18px 0; }
-.launch-modal-close {
-  position: absolute;
-  top: 16px; right: 16px;
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  border: 1px solid var(--line2);
-  background: var(--panel);
-  color: var(--muted);
-  cursor: pointer;
-  font-size: 20px;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.2s, border-color 0.2s;
-  z-index: 10;
-}
-.launch-modal-close:hover { color: var(--text); border-color: var(--muted2); }
 
 /* --- RESPONSIVE --- */
 @media (max-width: 1000px) { .launches-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 600px)  { .launches-grid { grid-template-columns: 1fr; } }
-@media (max-width: 768px)  { .launch-modal-body { padding: 24px 20px 32px; } }

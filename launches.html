@@ -30,27 +30,6 @@
     </div>
   </section>
 
-  <!-- Modal -->
-  <div class="launch-modal-backdrop" id="launch-modal-backdrop">
-    <div class="launch-modal">
-      <button class="launch-modal-close" id="launch-modal-close" aria-label="Close">×</button>
-      <div class="launch-modal-image" id="launch-modal-image" style="display:none"></div>
-      <div class="launch-modal-body" id="launch-modal-body-wrap">
-        <div class="launch-meta" id="launch-modal-meta"></div>
-        <div class="launch-modal-date-row" id="launch-modal-date-row">
-          <div class="launch-modal-date-big" id="launch-modal-date-big"></div>
-          <div class="launch-modal-date-my">
-            <span class="launch-modal-month" id="launch-modal-month"></span>
-            <span class="launch-modal-year" id="launch-modal-year"></span>
-          </div>
-        </div>
-        <div class="launch-modal-time" id="launch-modal-time"></div>
-        <h2 id="launch-modal-title"></h2>
-        <div class="launch-body-text" id="launch-modal-body"></div>
-      </div>
-    </div>
-  </div>
-
   <div id="footer-placeholder"></div>
 
   <script src="shared.js?v=2"></script>
@@ -148,7 +127,7 @@
           const cd = (eff !== 'completed' && eff !== 'scrubbed') ? countdownStr(l.date) : null;
 
           return `
-          <div class="launch-card reveal-target" data-launch="${i}">
+          <a class="launch-card reveal-target" href="launch.html?id=${encodeURIComponent(l.id)}" data-launch="${i}">
             ${l.image ? `<div class="launch-card-image" style="background-image:url('${escHtml(l.image)}')"></div>` : ''}
             ${hasDate ? `
             <div class="launch-card-date">
@@ -168,69 +147,15 @@
               <h3 class="launch-title">${escHtml(l.name || 'Unnamed Launch')}</h3>
               ${timeStr ? `<p class="launch-time">${escHtml(timeStr)}</p>` : ''}
               ${l.description ? `<p class="launch-desc">${escHtml(mdToPlain(l.description))}</p>` : ''}
-              <button class="launch-read" data-launch="${i}">Details →</button>
+              <span class="launch-read">Details →</span>
             </div>
-          </div>`;
+          </a>`;
         }).join('');
-
-        listEl.addEventListener('click', e => {
-          const card = e.target.closest('[data-launch]');
-          if (!card) return;
-          openModal(_launches[+card.dataset.launch]);
-        });
       })
       .catch(err => {
         console.error('launches error:', err);
         document.getElementById('launches-empty').style.display = 'block';
       });
-
-    function openModal(l) {
-      const date    = l.date ? new Date(l.date) : null;
-      const hasDate = !!(date && !isNaN(date.getTime()));
-      const month   = hasDate ? date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase() : '';
-      const year    = hasDate ? date.getFullYear() : '';
-      const timeStr = timeRangeStr(l.date);
-
-      const modalEff = liveStatus(l);
-      const modalCd = (modalEff !== 'completed' && modalEff !== 'scrubbed') ? countdownStr(l.date) : null;
-      document.getElementById('launch-modal-meta').innerHTML =
-        `${modalCd
-            ? `<span class="launch-status ${statusClass(modalEff)}" data-countdown="${escHtml(l.date)}">${modalCd}</span>`
-            : `<span class="launch-status ${statusClass(modalEff)}">${escHtml(statusLabel(modalEff) || 'scheduled')}</span>`}
-         ${l.mission_id ? `<span class="launch-mission-badge" style="margin-left:8px">${escHtml(String(l.mission_id))}</span>` : ''}`;
-      document.getElementById('launch-modal-date-row').style.display = hasDate ? 'flex' : 'none';
-      document.getElementById('launch-modal-date-big').textContent = hasDate ? date.getDate() : '';
-      document.getElementById('launch-modal-month').textContent = month;
-      document.getElementById('launch-modal-year').textContent = year;
-      document.getElementById('launch-modal-time').textContent = timeStr;
-      document.getElementById('launch-modal-title').textContent = l.name || 'Unnamed Launch';
-      document.getElementById('launch-modal-body').innerHTML = mdToHtml(l.description);
-
-      const modalImage = document.getElementById('launch-modal-image');
-      const modalBodyWrap = document.getElementById('launch-modal-body-wrap');
-      if (l.image) {
-        modalImage.style.backgroundImage = `url('${l.image}')`;
-        modalImage.style.display = 'block';
-        modalBodyWrap.classList.add('has-image');
-      } else {
-        modalImage.style.display = 'none';
-        modalBodyWrap.classList.remove('has-image');
-      }
-
-      document.getElementById('launch-modal-backdrop').classList.add('open');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeModal() {
-      document.getElementById('launch-modal-backdrop').classList.remove('open');
-      document.body.style.overflow = '';
-    }
-
-    document.getElementById('launch-modal-backdrop').addEventListener('click', e => {
-      if (e.target === e.currentTarget) closeModal();
-    });
-    document.getElementById('launch-modal-close').addEventListener('click', closeModal);
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
   </script>
 </body>
 </html>

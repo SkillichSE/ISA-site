@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Launch — ISA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared.css?v=6">
+  <link rel="stylesheet" href="launches.css?v=2">
+  <link rel="stylesheet" href="launch.css?v=1">
+  <link rel="icon" type="image/png" href="ISSSSSSSAAAA.png">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+  <script src="markdown.js"></script>
+</head>
+<body>
+  <div id="nav-placeholder"></div>
+
+  <!-- Loading state -->
+  <div class="launch-state" id="launch-loading">
+    <div class="container">
+      <div class="launch-spinner"></div>
+      <p>Loading launch…</p>
+    </div>
+  </div>
+
+  <!-- Not found state -->
+  <div class="launch-state" id="launch-notfound" style="display:none">
+    <div class="container">
+      <p class="eyebrow">LAUNCH CALENDAR</p>
+      <h1>Launch not found.</h1>
+      <p>This launch may have been removed, or the link is incorrect.</p>
+      <a href="launches.html" class="btn-outline">← Back to launches</a>
+    </div>
+  </div>
+
+  <!-- Launch detail -->
+  <div id="launch-detail" style="display:none">
+    <div class="launch-hero" id="launch-hero">
+      <div class="launch-hero-overlay"></div>
+      <div class="container launch-hero-inner">
+        <a href="launches.html" class="launch-back">← All launches</a>
+        <div class="launch-meta" id="launch-detail-meta"></div>
+        <h1 id="launch-detail-title"></h1>
+        <div class="launch-hero-sub">
+          <span id="launch-detail-datebig"></span>
+          <span id="launch-detail-time"></span>
+        </div>
+      </div>
+    </div>
+
+    <section class="section-launch-detail">
+      <div class="container launch-detail-grid">
+        <div class="launch-detail-main">
+          <div class="launch-body-text" id="launch-detail-body"></div>
+        </div>
+
+        <aside class="launch-detail-side">
+          <div class="launch-info-card">
+            <div class="launch-info-row" id="row-mission" style="display:none">
+              <span class="launch-info-label">Mission</span>
+              <span class="launch-info-value" id="val-mission"></span>
+            </div>
+            <div class="launch-info-row" id="row-orbit" style="display:none">
+              <span class="launch-info-label">Orbit</span>
+              <span class="launch-info-value" id="val-orbit"></span>
+            </div>
+            <div class="launch-info-row" id="row-rocket" style="display:none">
+              <span class="launch-info-label">Rocket</span>
+              <span class="launch-info-value" id="val-rocket"></span>
+            </div>
+            <div class="launch-info-row" id="row-slots" style="display:none">
+              <span class="launch-info-label">Slots</span>
+              <span class="launch-info-value" id="val-slots"></span>
+            </div>
+            <div class="launch-info-row" id="row-status" style="display:none">
+              <span class="launch-info-label">Status</span>
+              <span class="launch-info-value" id="val-status"></span>
+            </div>
+          </div>
+
+          <a href="launchshare/index.html" class="btn-white launch-ls-cta" id="launch-ls-cta" style="display:none">Book this Launchshare slot →</a>
+        </aside>
+      </div>
+    </section>
+  </div>
+
+  <div id="footer-placeholder"></div>
+
+  <script src="shared.js?v=2"></script>
+  <script>
+    const SB_URL = 'https://fqvghuvmgswegirgitom.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxdmdodXZtZ3N3ZWdpcmdpdG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTI4MTAsImV4cCI6MjA5NjY4ODgxMH0.7tKrak3ANnnhp4pISK2ythPdCt557vMACUhpQsqWn0s';
+
+    function escHtml(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function statusClass(s) {
+      const map = { scheduled:'launch-status-scheduled', upcoming:'launch-status-upcoming',
+                    delayed:'launch-status-delayed', 'in-progress':'launch-status-in-progress',
+                    completed:'launch-status-completed', scrubbed:'launch-status-scrubbed' };
+      return map[s] || 'launch-status-scheduled';
+    }
+
+    function statusLabel(s) {
+      const map = { 'in-progress': 'In Progress' };
+      return map[s] || s;
+    }
+
+    function liveStatus(l) {
+      if (l.status === 'completed' || l.status === 'scrubbed') return l.status;
+      const t = l.date ? new Date(l.date).getTime() : NaN;
+      if (!isNaN(t) && Date.now() >= t) return 'in-progress';
+      return l.status || 'upcoming';
+    }
+
+    function timeRangeStr(dateIso) {
+      if (!dateIso) return '';
+      const start = new Date(dateIso);
+      if (isNaN(start.getTime())) return '';
+      const startTime = start.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      const tz = Intl.DateTimeFormat('en-US', { timeZoneName: 'short' }).formatToParts(start)
+        .find(p => p.type === 'timeZoneName')?.value || '';
+      return `${startTime}${tz ? ' ' + tz : ''}`;
+    }
+
+    function fullDateStr(dateIso) {
+      if (!dateIso) return '';
+      const d = new Date(dateIso);
+      if (isNaN(d.getTime())) return '';
+      return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    }
+
+    function pad2(n) { return String(n).padStart(2, '0'); }
+
+    function countdownStr(dateIso) {
+      if (!dateIso) return null;
+      const target = new Date(dateIso).getTime();
+      if (isNaN(target)) return null;
+      const diffMs = target - Date.now();
+      const sign = diffMs >= 0 ? 'T-' : 'T+';
+      const abs = Math.abs(diffMs);
+      const totalHours = Math.floor(abs / 3600000);
+      const mins = Math.floor((abs % 3600000) / 60000);
+      const secs = Math.floor((abs % 60000) / 1000);
+      return `${sign}${pad2(totalHours)}:${pad2(mins)}:${pad2(secs)}`;
+    }
+
+    function updateCountdowns() {
+      document.querySelectorAll('[data-countdown]').forEach(el => {
+        const str = countdownStr(el.dataset.countdown);
+        if (str) el.textContent = str;
+        if (str && str.startsWith('T+') && !el.classList.contains('launch-status-in-progress')) {
+          el.classList.remove('launch-status-scheduled', 'launch-status-upcoming');
+          el.classList.add('launch-status-in-progress');
+        }
+      });
+    }
+    setInterval(updateCountdowns, 1000);
+
+    function showNotFound() {
+      document.getElementById('launch-loading').style.display = 'none';
+      document.getElementById('launch-notfound').style.display = 'block';
+    }
+
+    const id = new URLSearchParams(window.location.search).get('id');
+
+    if (!id) {
+      showNotFound();
+    } else {
+      fetch(`${SB_URL}/rest/v1/launches?id=eq.${encodeURIComponent(id)}&select=*`, {
+        headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+      })
+        .then(r => r.json())
+        .then(rows => {
+          const l = Array.isArray(rows) ? rows[0] : null;
+          if (!l || !l.published) { showNotFound(); return; }
+          renderLaunch(l);
+        })
+        .catch(err => {
+          console.error('launch error:', err);
+          showNotFound();
+        });
+    }
+
+    function renderLaunch(l) {
+      document.title = `${l.name || 'Launch'} — ISA`;
+
+      const eff = liveStatus(l);
+      const cd = (eff !== 'completed' && eff !== 'scrubbed') ? countdownStr(l.date) : null;
+
+      document.getElementById('launch-detail-meta').innerHTML =
+        `${cd
+            ? `<span class="launch-status ${statusClass(eff)}" data-countdown="${escHtml(l.date)}">${cd}</span>`
+            : `<span class="launch-status ${statusClass(eff)}">${escHtml(statusLabel(eff) || 'scheduled')}</span>`}
+         ${l.mission_id ? `<span class="launch-mission-badge">${escHtml(String(l.mission_id))}</span>` : ''}
+         ${l.launchshare ? `<span class="launch-launchshare-badge">LAUNCHSHARE</span>` : ''}`;
+
+      document.getElementById('launch-detail-title').textContent = l.name || 'Unnamed Launch';
+      document.getElementById('launch-detail-datebig').textContent = fullDateStr(l.date);
+      document.getElementById('launch-detail-time').textContent = timeRangeStr(l.date);
+
+      document.getElementById('launch-detail-body').innerHTML = mdToHtml(l.description) || '<p>No further details yet.</p>';
+
+      const hero = document.getElementById('launch-hero');
+      if (l.image) {
+        hero.style.backgroundImage = `url('${l.image}')`;
+        hero.classList.add('has-image');
+      }
+
+      const setRow = (rowId, valId, value) => {
+        if (value === undefined || value === null || value === '') return;
+        document.getElementById(rowId).style.display = 'flex';
+        document.getElementById(valId).textContent = value;
+      };
+      setRow('row-mission', 'val-mission', l.mission_id ? String(l.mission_id) : '');
+      setRow('row-orbit', 'val-orbit', l.orbit || '');
+      setRow('row-rocket', 'val-rocket', l.rocket || '');
+      if (l.slots_total) setRow('row-slots', 'val-slots', `${l.slots_taken || 0} / ${l.slots_total} booked`);
+      setRow('row-status', 'val-status', statusLabel(eff));
+
+      if (l.launchshare) {
+        document.getElementById('launch-ls-cta').style.display = 'inline-flex';
+      }
+
+      document.getElementById('launch-loading').style.display = 'none';
+      document.getElementById('launch-detail').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
