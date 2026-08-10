@@ -38,6 +38,7 @@
   <!-- Launch detail -->
   <div id="launch-detail" style="display:none">
     <div class="launch-hero" id="launch-hero">
+      <img class="launch-hero-bg-img" id="launch-hero-img" alt="">
       <div class="launch-hero-overlay"></div>
       <div class="container launch-hero-inner">
         <a href="launches.html" class="launch-back">← All launches</a>
@@ -208,7 +209,7 @@
 
       const hero = document.getElementById('launch-hero');
       const heroImage = l.image || 'https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?q=80&w=1800&auto=format&fit=crop';
-      hero.style.setProperty('--hero-img', `url('${heroImage}')`);
+      document.getElementById('launch-hero-img').src = heroImage;
       hero.classList.add('has-image');
 
       const setRow = (rowId, valId, value) => {

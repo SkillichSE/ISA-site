@@ -30,29 +30,39 @@
   background-color: var(--panel);
   overflow: hidden;
 }
-.launch-hero.has-image { padding: 190px 0 90px; }
-.launch-hero::before { content: none; }
-.launch-hero.has-image::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: var(--hero-img);
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-color: var(--panel);
-  filter: saturate(1.15) brightness(1.12);
-  z-index: 0;
+/* When an image is present, the hero no longer uses fixed padding —
+   the <img> itself (full width, natural height) sets the hero's
+   height, so the whole photo is visible with no cropping and no
+   letterbox bars. Text is overlaid at the bottom via absolute
+   positioning. */
+.launch-hero.has-image {
+  padding: 0;
+  display: block;
 }
+.launch-hero-bg-img {
+  display: none;
+  width: 100%;
+  height: auto;
+  filter: saturate(1.15) brightness(1.12);
+}
+.launch-hero.has-image .launch-hero-bg-img { display: block; }
+.launch-hero::before { content: none; }
 .launch-hero-overlay { display: none; }
 .launch-hero.has-image .launch-hero-overlay {
   display: block;
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(10,10,10,0.28) 0%, rgba(10,10,10,0.48) 55%, var(--bg, #0a0a0a) 100%);
+  background: linear-gradient(180deg, rgba(10,10,10,0.05) 0%, rgba(10,10,10,0.15) 55%, rgba(10,10,10,0.9) 100%);
   z-index: 1;
 }
 .launch-hero-inner { position: relative; z-index: 2; }
+.launch-hero.has-image .launch-hero-inner {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding-top: 90px;
+  padding-bottom: 40px;
+}
+.launch-hero:not(.has-image) .launch-hero-inner { padding-top: 40px; }
 .launch-back {
   display: inline-flex;
   align-items: center;
@@ -142,6 +152,6 @@
   .launch-detail-side { position: static; }
 }
 @media (max-width: 600px) {
-  .launch-hero { padding: 130px 0 50px; }
-  .launch-hero.has-image { padding: 160px 0 60px; }
+  .launch-hero:not(.has-image) { padding: 130px 0 50px; }
+  .launch-hero.has-image .launch-hero-inner { padding-top: 60px; padding-bottom: 24px; }
 }

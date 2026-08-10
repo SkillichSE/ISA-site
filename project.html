@@ -40,6 +40,7 @@
   <!-- Project detail -->
   <div id="project-detail" style="display:none">
     <div class="launch-hero" id="project-hero">
+      <img class="launch-hero-bg-img" id="project-hero-img" alt="">
       <div class="launch-hero-overlay"></div>
       <div class="container launch-hero-inner">
         <a href="projects.html" class="launch-back">← All projects</a>
@@ -130,7 +131,7 @@
 
       const hero = document.getElementById('project-hero');
       if (m.image) {
-        hero.style.setProperty('--hero-img', `url('${m.image}')`);
+        document.getElementById('project-hero-img').src = m.image;
         hero.classList.add('has-image');
       }
 
