@@ -33,7 +33,6 @@ body {
   background: var(--bg);
   color: var(--text);
   line-height: 1.6;
-  overflow-x: hidden;
   max-width: 100%;
 }
 
