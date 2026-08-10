@@ -33,28 +33,21 @@
 /* When an image is present, the hero no longer uses fixed padding —
    the <img> itself (full width, natural height) sets the hero's
    height, so the whole photo is visible with no cropping and no
-   letterbox bars.
+   letterbox bars. Text is overlaid at the bottom via absolute
+   positioning (left:0;right:0 inside the relatively-positioned hero,
+   so the .container child still centers itself exactly like every
+   other section on the page).
 
-   The text block (back-link + meta + title) is stacked on top of the
-   image via CSS grid (all three children share grid-area 1/1) and is
-   pinned to the bottom of that stack with align-self: end — visually
-   identical to the old absolute-bottom-0 layout.
-
-   On top of that it gets position: sticky; bottom: 0. When the image
-   is taller than the viewport, its "natural" bottom position starts
-   out below the fold, so sticky immediately pulls it up to the
-   bottom of the screen — the user sees the title without scrolling.
-   As the page scrolls, the text stays pinned to the bottom of the
-   viewport for as long as the image still has room below it. Once
-   the image's actual bottom edge scrolls up to meet that position,
-   the sticky element "runs out" of container and settles there,
-   flush with the bottom of the image, right where the content below
-   begins — it never floats over the next section. */
+   When the image is taller than the viewport, JS (see shared.js,
+   initHeroPin) adds .is-pinned to this block, which swaps it to
+   position: fixed — same left:0/right:0/bottom:0, so it lands in the
+   exact same horizontal spot, just anchored to the screen instead of
+   the page. JS removes .is-pinned again once the bottom of the image
+   scrolls up to meet that position, so it settles flush with the
+   bottom of the image, right where the content below begins. */
 .launch-hero.has-image {
   padding: 0;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  overflow: visible; /* let sticky track the page scroller, not this box */
+  display: block;
 }
 .launch-hero-bg-img {
   display: none;
@@ -62,29 +55,26 @@
   height: auto;
   filter: saturate(1.15) brightness(1.12);
 }
-.launch-hero.has-image .launch-hero-bg-img {
-  display: block;
-  grid-area: 1 / 1;
-}
+.launch-hero.has-image .launch-hero-bg-img { display: block; }
 .launch-hero::before { content: none; }
 .launch-hero-overlay { display: none; }
 .launch-hero.has-image .launch-hero-overlay {
   display: block;
-  grid-area: 1 / 1;
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  inset: 0;
   background: linear-gradient(180deg, rgba(10,10,10,0.05) 0%, rgba(10,10,10,0.15) 55%, rgba(10,10,10,0.9) 100%);
   z-index: 1;
 }
 .launch-hero-inner { position: relative; z-index: 2; }
 .launch-hero.has-image .launch-hero-inner {
-  grid-area: 1 / 1;
-  align-self: end;
-  justify-self: stretch;
-  position: sticky;
-  bottom: 0;
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
   padding-top: 90px;
   padding-bottom: 40px;
+}
+.launch-hero.has-image .launch-hero-inner.is-pinned {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
 }
 .launch-hero:not(.has-image) .launch-hero-inner { padding-top: 40px; }
 .launch-back {

@@ -362,3 +362,58 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     el.style.transitionDelay = `${i * 70}ms`;
   });
 });
+
+// --- Hero title pinning (launch / project / news-post detail pages) ---
+// Used on pages with a `.launch-hero.has-image` block where the photo can
+// be taller than the viewport. While the image still has room below the
+// current scroll position, the title block is pinned to the bottom of the
+// screen (position: fixed) so it's visible without scrolling. Once the
+// bottom of the image scrolls up to meet that position, the pin is
+// released and the block settles in its normal spot, flush with the
+// bottom of the image.
+(function initHeroPin() {
+  let hero = null, inner = null, img = null;
+  let ticking = false;
+
+  function find() {
+    hero = document.querySelector('.launch-hero.has-image');
+    inner = hero && hero.querySelector('.launch-hero-inner');
+    img = hero && hero.querySelector('.launch-hero-bg-img');
+    return !!(hero && inner && img);
+  }
+
+  function update() {
+    ticking = false;
+    if (!hero || !document.body.contains(hero)) { if (!find()) return; }
+    const rect = hero.getBoundingClientRect();
+    const pin = rect.bottom > window.innerHeight;
+    inner.classList.toggle('is-pinned', pin);
+  }
+
+  function onScrollOrResize() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(update);
+  }
+
+  function start() {
+    if (!find()) return;
+    window.addEventListener('scroll', onScrollOrResize, { passive: true });
+    window.addEventListener('resize', onScrollOrResize);
+    if (img.complete) update();
+    img.addEventListener('load', update);
+  }
+
+  // The hero image src is set asynchronously after a data fetch on these
+  // pages, so watch for the `has-image` class (and the whole subtree, in
+  // case the hero markup itself gets rendered later) rather than relying
+  // on DOMContentLoaded alone.
+  const mo = new MutationObserver(() => { if (!hero) start(); else update(); });
+  mo.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class', 'src'] });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
+  }
+})();
