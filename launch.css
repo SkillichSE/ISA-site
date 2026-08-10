@@ -28,6 +28,12 @@
   padding: 150px 0 70px;
   border-bottom: 1px solid var(--line);
   background-color: var(--panel);
+}
+/* overflow:hidden would turn the hero itself into the sticky containing
+   block for .launch-hero-inner below, breaking the pin-to-viewport effect
+   — so it's only applied to the plain (no image) variant, which needs it
+   to keep its background clipped. */
+.launch-hero:not(.has-image) {
   overflow: hidden;
 }
 /* When an image is present, the hero no longer uses fixed padding —
@@ -37,7 +43,14 @@
    positioning. */
 .launch-hero.has-image {
   padding: 0;
-  display: block;
+  /* Stack the image, gradient and text block on top of each other in a
+     single grid cell whose height is driven by the image (auto). Unlike
+     absolute positioning, grid items stay in normal flow, which lets the
+     text block use position: sticky below. */
+  display: grid;
+}
+.launch-hero.has-image > * {
+  grid-area: 1 / 1;
 }
 .launch-hero-bg-img {
   display: none;
@@ -50,15 +63,20 @@
 .launch-hero-overlay { display: none; }
 .launch-hero.has-image .launch-hero-overlay {
   display: block;
-  position: absolute;
-  inset: 0;
+  width: 100%;
+  height: 100%;
   background: linear-gradient(180deg, rgba(10,10,10,0.05) 0%, rgba(10,10,10,0.15) 55%, rgba(10,10,10,0.9) 100%);
   z-index: 1;
 }
 .launch-hero-inner { position: relative; z-index: 2; }
 .launch-hero.has-image .launch-hero-inner {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
+  /* Sits at the bottom of the image by default. If the image is taller
+     than the viewport, "sticky" keeps it pinned to the bottom of the
+     screen while the image scrolls by, then lets it settle back at the
+     image's bottom edge once the image has fully scrolled past. */
+  align-self: end;
+  position: sticky;
+  bottom: 0;
   padding-top: 90px;
   padding-bottom: 40px;
 }
