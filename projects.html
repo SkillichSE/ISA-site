@@ -29,20 +29,6 @@
     </div>
   </section>
 
-  <!-- Modal -->
-  <div class="mission-modal-backdrop" id="mission-modal-backdrop">
-    <div class="mission-modal" id="mission-modal">
-      <button class="mission-modal-close" id="mission-modal-close" aria-label="Close">×</button>
-      <div class="mission-modal-img" id="mission-modal-img"></div>
-      <div class="mission-modal-body">
-        <div class="mission-meta" id="mission-modal-meta"></div>
-        <h2 id="mission-modal-title"></h2>
-        <div class="mission-body-text" id="mission-modal-body"></div>
-        <div class="mission-tags" id="mission-modal-tags"></div>
-      </div>
-    </div>
-  </div>
-
   <section class="section-join-cta">
     <div class="container">
       <div class="join-cta-inner">
@@ -76,11 +62,14 @@
       return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
+    function capitalize(s) {
+      s = String(s || '');
+      return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+
     function tagsHtml(tags) {
       return (tags || []).map(t => `<span>${escHtml(t)}</span>`).join('');
     }
-
-    let _missions = [];
 
     fetch(`${SB_URL}/rest/v1/missions?order=id`, {
       headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
@@ -91,61 +80,24 @@
           document.getElementById('missions-list').innerHTML = '<p style="color:var(--muted);padding:40px 0">No missions yet.</p>';
           return;
         }
-        _missions = missions;
-        document.getElementById('missions-list').innerHTML = missions.map((m, i) => `
-          <div class="mission-card reveal-target" data-mission="${i}">
+        document.getElementById('missions-list').innerHTML = missions.map(m => `
+          <a class="mission-card reveal-target" href="project.html?id=${encodeURIComponent(m.id)}">
             <div class="mission-card-img${m.image ? '' : ' none'}" style="${m.image ? `background-image:url('${escHtml(m.image)}')` : ''}"></div>
             <div class="mission-card-body">
               <div class="mission-meta">
-                <span class="mission-status ${STATUS_CLASS[m.status] || ''}">${escHtml(STATUS_LABEL[m.status] || m.status)}</span>
+                <span class="mission-status ${STATUS_CLASS[m.status] || ''}">${escHtml(STATUS_LABEL[m.status] || capitalize(m.status))}</span>
                 <span class="mission-division">${escHtml(m.division)}</span>
               </div>
               <h2 class="mission-title">${escHtml(m.name)}</h2>
               <p class="mission-desc">${escHtml(mdToPlain(m.description))}</p>
               <div class="mission-tags">${tagsHtml(m.tags)}</div>
-              <button class="mission-read" data-mission="${i}">Learn more →</button>
+              <span class="mission-read">Learn more →</span>
             </div>
-          </div>`).join('');
-
-        document.getElementById('missions-list').addEventListener('click', e => {
-          const card = e.target.closest('[data-mission]');
-          if (!card) return;
-          openModal(_missions[+card.dataset.mission]);
-        });
+          </a>`).join('');
       })
       .catch(() => {
         document.getElementById('missions-list').innerHTML = '<p style="color:#e05555;padding:40px 0">Failed to load missions.</p>';
       });
-
-    function openModal(m) {
-      const imgEl = document.getElementById('mission-modal-img');
-      if (m.image) {
-        imgEl.style.backgroundImage = `url('${escHtml(m.image)}')`;
-        imgEl.classList.remove('hidden');
-      } else {
-        imgEl.style.backgroundImage = '';
-        imgEl.classList.add('hidden');
-      }
-      document.getElementById('mission-modal-meta').innerHTML =
-        `<span class="mission-status ${STATUS_CLASS[m.status] || ''}">${escHtml(STATUS_LABEL[m.status] || m.status)}</span>
-         <span class="mission-division">${escHtml(m.division)}</span>`;
-      document.getElementById('mission-modal-title').textContent = m.name || '';
-      document.getElementById('mission-modal-body').innerHTML = mdToHtml(m.description);
-      document.getElementById('mission-modal-tags').innerHTML = tagsHtml(m.tags);
-      document.getElementById('mission-modal-backdrop').classList.add('open');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeModal() {
-      document.getElementById('mission-modal-backdrop').classList.remove('open');
-      document.body.style.overflow = '';
-    }
-
-    document.getElementById('mission-modal-backdrop').addEventListener('click', e => {
-      if (e.target === e.currentTarget) closeModal();
-    });
-    document.getElementById('mission-modal-close').addEventListener('click', closeModal);
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
   </script>
 </body>
 </html>

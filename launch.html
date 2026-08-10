@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="shared.css?v=6">
   <link rel="stylesheet" href="launches.css?v=2">
+  <link rel="stylesheet" href="news.css">
   <link rel="stylesheet" href="launch.css?v=1">
   <link rel="icon" type="image/png" href="ISSSSSSSAAAA.png">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
@@ -52,7 +53,7 @@
     <section class="section-launch-detail">
       <div class="container launch-detail-grid">
         <div class="launch-detail-main">
-          <div class="launch-body-text" id="launch-detail-body"></div>
+          <div class="news-body-text" id="launch-detail-body"></div>
         </div>
 
         <aside class="launch-detail-side">
@@ -105,7 +106,9 @@
 
     function statusLabel(s) {
       const map = { 'in-progress': 'In Progress' };
-      return map[s] || s;
+      if (map[s]) return map[s];
+      s = String(s || '');
+      return s.charAt(0).toUpperCase() + s.slice(1);
     }
 
     function liveStatus(l) {
@@ -216,7 +219,7 @@
       setRow('row-mission', 'val-mission', l.mission_id ? String(l.mission_id) : '');
       setRow('row-orbit', 'val-orbit', l.orbit || '');
       setRow('row-rocket', 'val-rocket', l.rocket || '');
-      if (l.slots_total) setRow('row-slots', 'val-slots', `${l.slots_taken || 0} / ${l.slots_total} booked`);
+      if (l.launchshare && l.slots_total) setRow('row-slots', 'val-slots', `${l.slots_taken || 0} / ${l.slots_total} booked`);
       setRow('row-status', 'val-status', statusLabel(eff));
 
       if (l.launchshare) {
