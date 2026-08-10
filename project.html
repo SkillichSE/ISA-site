@@ -130,7 +130,7 @@
 
       const hero = document.getElementById('project-hero');
       if (m.image) {
-        hero.style.backgroundImage = `url('${m.image}')`;
+        hero.style.setProperty('--hero-img', `url('${m.image}')`);
         hero.classList.add('has-image');
       }
 

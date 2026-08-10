@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="shared.css?v=6">
   <link rel="stylesheet" href="news.css">
+  <link rel="stylesheet" href="launch.css?v=1">
   <link rel="stylesheet" href="news-post.css?v=1">
   <link rel="icon" type="image/png" href="ISSSSSSSAAAA.png">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
@@ -36,10 +37,10 @@
 
   <!-- News detail -->
   <div id="news-detail" style="display:none">
-    <div class="news-hero" id="news-hero">
-      <div class="news-hero-overlay"></div>
-      <div class="container news-hero-inner">
-        <a href="news.html" class="news-back">← All news</a>
+    <div class="launch-hero" id="news-hero">
+      <div class="launch-hero-overlay"></div>
+      <div class="container launch-hero-inner">
+        <a href="news.html" class="launch-back">← All news</a>
         <div class="news-meta" id="news-detail-meta"></div>
         <h1 id="news-detail-title"></h1>
       </div>
@@ -121,7 +122,7 @@
 
       if (n.image) {
         const hero = document.getElementById('news-hero');
-        hero.style.backgroundImage = `url('${n.image}')`;
+        hero.style.setProperty('--hero-img', `url('${n.image}')`);
         hero.classList.add('has-image');
       }
 

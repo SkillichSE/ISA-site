@@ -208,7 +208,7 @@
 
       const hero = document.getElementById('launch-hero');
       const heroImage = l.image || 'https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?q=80&w=1800&auto=format&fit=crop';
-      hero.style.backgroundImage = `url('${heroImage}')`;
+      hero.style.setProperty('--hero-img', `url('${heroImage}')`);
       hero.classList.add('has-image');
 
       const setRow = (rowId, valId, value) => {
