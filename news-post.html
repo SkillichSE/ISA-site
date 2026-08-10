@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>News — ISA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared.css?v=6">
+  <link rel="stylesheet" href="news.css">
+  <link rel="stylesheet" href="news-detail.css?v=1">
+  <link rel="icon" type="image/png" href="ISSSSSSSAAAA.png">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+  <script src="markdown.js"></script>
+</head>
+<body>
+  <div id="nav-placeholder"></div>
+
+  <!-- Loading state -->
+  <div class="news-state" id="news-loading">
+    <div class="container">
+      <div class="news-spinner"></div>
+      <p>Loading story…</p>
+    </div>
+  </div>
+
+  <!-- Not found state -->
+  <div class="news-state" id="news-notfound" style="display:none">
+    <div class="container">
+      <p class="eyebrow">NEWS</p>
+      <h1>Story not found.</h1>
+      <p>This post may have been removed, or the link is incorrect.</p>
+      <a href="news.html" class="btn-outline">← Back to news</a>
+    </div>
+  </div>
+
+  <!-- News detail -->
+  <div id="news-detail" style="display:none">
+    <div class="news-hero" id="news-hero">
+      <div class="news-hero-overlay"></div>
+      <div class="container news-hero-inner">
+        <a href="news.html" class="news-back">← All news</a>
+        <div class="news-meta" id="news-detail-meta"></div>
+        <h1 id="news-detail-title"></h1>
+      </div>
+    </div>
+
+    <section class="section-news-detail">
+      <div class="container news-detail-wrap">
+        <div class="news-detail-body">
+          <div class="news-body-text" id="news-detail-body"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="footer-placeholder"></div>
+
+  <script src="shared.js?v=2"></script>
+  <script>
+    const SB_URL = 'https://fqvghuvmgswegirgitom.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxdmdodXZtZ3N3ZWdpcmdpdG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTI4MTAsImV4cCI6MjA5NjY4ODgxMH0.7tKrak3ANnnhp4pISK2ythPdCt557vMACUhpQsqWn0s';
+
+    function escHtml(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Dates in the DB can be typed inconsistently (ISO, "13 june 2026", "05/07/2026", "Jun 2, 2026"...).
+    function parseFlexDate(str) {
+      if (!str) return null;
+      const s = String(str).trim();
+      let m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
+      m = s.match(/^(\d{1,2})[.\/](\d{1,2})[.\/](\d{4})$/);
+      if (m) return new Date(+m[3], +m[2] - 1, +m[1]);
+      const d = new Date(s);
+      return isNaN(d.getTime()) ? null : d;
+    }
+
+    function formatNiceDate(str) {
+      const d = parseFlexDate(str);
+      if (!d) return escHtml(str);
+      return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    function showNotFound() {
+      document.getElementById('news-loading').style.display = 'none';
+      document.getElementById('news-notfound').style.display = 'block';
+    }
+
+    const id = new URLSearchParams(window.location.search).get('id');
+
+    if (!id) {
+      showNotFound();
+    } else {
+      fetch(`${SB_URL}/rest/v1/news?id=eq.${encodeURIComponent(id)}&select=*`, {
+        headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+      })
+        .then(r => r.json())
+        .then(rows => {
+          const n = Array.isArray(rows) ? rows[0] : null;
+          if (!n) { showNotFound(); return; }
+          renderPost(n);
+        })
+        .catch(err => {
+          console.error('news post error:', err);
+          showNotFound();
+        });
+    }
+
+    function renderPost(n) {
+      document.title = `${n.title || 'News'} — ISA`;
+
+      document.getElementById('news-detail-meta').innerHTML =
+        `${n.tag ? `<span class="news-tag">${escHtml(n.tag)}</span>` : ''}
+         ${n.date ? `<span class="news-date">${formatNiceDate(n.date)}</span>` : ''}`;
+
+      document.getElementById('news-detail-title').textContent = n.title || 'Untitled';
+
+      document.getElementById('news-detail-body').innerHTML = mdToHtml(n.body) || '<p>No further details yet.</p>';
+
+      if (n.image) {
+        const hero = document.getElementById('news-hero');
+        hero.style.backgroundImage = `url('${n.image}')`;
+        hero.classList.add('has-image');
+      }
+
+      document.getElementById('news-loading').style.display = 'none';
+      document.getElementById('news-detail').style.display = 'block';
+    }
+  </script>
+</body>
+</html>

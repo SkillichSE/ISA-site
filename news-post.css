@@ -1,0 +1,7 @@
+/* --- NEWS POST DETAIL --- */
+.news-post-body-wrap {
+  max-width: 720px;
+}
+.news-post-body-wrap .news-body-text {
+  font-size: 0.98rem;
+}

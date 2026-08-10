@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project — ISA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared.css?v=6">
+  <link rel="stylesheet" href="launches.css?v=2">
+  <link rel="stylesheet" href="launch.css?v=1">
+  <link rel="stylesheet" href="projects.css">
+  <link rel="stylesheet" href="news.css">
+  <link rel="stylesheet" href="project.css">
+  <link rel="icon" type="image/png" href="ISSSSSSSAAAA.png">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+  <script src="markdown.js"></script>
+</head>
+<body>
+  <div id="nav-placeholder"></div>
+
+  <!-- Loading state -->
+  <div class="launch-state" id="project-loading">
+    <div class="container">
+      <div class="launch-spinner"></div>
+      <p>Loading project…</p>
+    </div>
+  </div>
+
+  <!-- Not found state -->
+  <div class="launch-state" id="project-notfound" style="display:none">
+    <div class="container">
+      <p class="eyebrow">PROJECTS</p>
+      <h1>Project not found.</h1>
+      <p>This project may have been removed, or the link is incorrect.</p>
+      <a href="projects.html" class="btn-outline">← Back to projects</a>
+    </div>
+  </div>
+
+  <!-- Project detail -->
+  <div id="project-detail" style="display:none">
+    <div class="launch-hero" id="project-hero">
+      <div class="launch-hero-overlay"></div>
+      <div class="container launch-hero-inner">
+        <a href="projects.html" class="launch-back">← All projects</a>
+        <div class="mission-meta" id="project-meta"></div>
+        <h1 id="project-title"></h1>
+      </div>
+    </div>
+
+    <section class="section-launch-detail">
+      <div class="container launch-detail-grid">
+        <div class="launch-detail-main">
+          <div class="news-body-text" id="project-body"></div>
+        </div>
+
+        <aside class="launch-detail-side">
+          <div class="launch-info-card">
+            <div class="launch-info-row" id="row-status" style="display:none">
+              <span class="launch-info-label">Status</span>
+              <span class="launch-info-value" id="val-status"></span>
+            </div>
+            <div class="launch-info-row" id="row-division" style="display:none">
+              <span class="launch-info-label">Division</span>
+              <span class="launch-info-value" id="val-division"></span>
+            </div>
+          </div>
+          <div class="mission-tags" id="project-tags"></div>
+        </aside>
+      </div>
+    </section>
+  </div>
+
+  <div id="footer-placeholder"></div>
+
+  <script src="shared.js?v=2"></script>
+  <script>
+    const SB_URL = 'https://fqvghuvmgswegirgitom.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxdmdodXZtZ3N3ZWdpcmdpdG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTI4MTAsImV4cCI6MjA5NjY4ODgxMH0.7tKrak3ANnnhp4pISK2ythPdCt557vMACUhpQsqWn0s';
+
+    const STATUS_LABEL = { active: 'Active', development: 'In Development', inactive: 'Inactive' };
+    const STATUS_CLASS = { active: 'status-active', development: 'status-development', inactive: 'status-inactive' };
+
+    function escHtml(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function capitalize(s) {
+      s = String(s || '');
+      return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+
+    function tagsHtml(tags) {
+      return (tags || []).map(t => `<span>${escHtml(t)}</span>`).join('');
+    }
+
+    function showNotFound() {
+      document.getElementById('project-loading').style.display = 'none';
+      document.getElementById('project-notfound').style.display = 'block';
+    }
+
+    const id = new URLSearchParams(window.location.search).get('id');
+
+    if (!id) {
+      showNotFound();
+    } else {
+      fetch(`${SB_URL}/rest/v1/missions?id=eq.${encodeURIComponent(id)}&select=*`, {
+        headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+      })
+        .then(r => r.json())
+        .then(rows => {
+          const m = Array.isArray(rows) ? rows[0] : null;
+          if (!m) { showNotFound(); return; }
+          renderProject(m);
+        })
+        .catch(err => {
+          console.error('project error:', err);
+          showNotFound();
+        });
+    }
+
+    function renderProject(m) {
+      document.title = `${m.name || 'Project'} — ISA`;
+
+      document.getElementById('project-meta').innerHTML =
+        `${m.status ? `<span class="mission-status ${STATUS_CLASS[m.status] || ''}">${escHtml(STATUS_LABEL[m.status] || capitalize(m.status))}</span>` : ''}
+         ${m.division ? `<span class="mission-division">${escHtml(m.division)}</span>` : ''}`;
+
+      document.getElementById('project-title').textContent = m.name || 'Untitled Project';
+
+      const hero = document.getElementById('project-hero');
+      if (m.image) {
+        hero.style.backgroundImage = `url('${m.image}')`;
+        hero.classList.add('has-image');
+      }
+
+      document.getElementById('project-body').innerHTML = mdToHtml(m.description) || '<p>No further details yet.</p>';
+
+      const setRow = (rowId, valId, value) => {
+        if (value === undefined || value === null || value === '') return;
+        document.getElementById(rowId).style.display = 'flex';
+        document.getElementById(valId).textContent = value;
+      };
+      setRow('row-status', 'val-status', m.status ? (STATUS_LABEL[m.status] || capitalize(m.status)) : '');
+      setRow('row-division', 'val-division', m.division || '');
+
+      document.getElementById('project-tags').innerHTML = tagsHtml(m.tags);
+
+      document.getElementById('project-loading').style.display = 'none';
+      document.getElementById('project-detail').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
