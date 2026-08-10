@@ -53,6 +53,7 @@
 .launch-hero.has-image {
   padding: 0;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   overflow: visible; /* let sticky track the page scroller, not this box */
 }
 .launch-hero-bg-img {
