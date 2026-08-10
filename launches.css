@@ -152,7 +152,7 @@
 }
 
 /* --- BODY TEXT (shared with the launch detail page, launch.html) --- */
-.launch-body-text p { margin: 0 0 14px; }
+.launch-body-text p { margin: 0 0 8px; }
 .launch-body-text p:last-child { margin-bottom: 0; }
 .launch-body-text h1, .launch-body-text h2, .launch-body-text h3 {
   color: var(--text);

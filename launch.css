@@ -91,7 +91,7 @@
 .launch-detail-main .launch-body-text {
   font-size: 0.98rem;
   color: var(--muted);
-  line-height: 1.9;
+  line-height: 1.6;
 }
 
 .launch-detail-side { position: sticky; top: 110px; }
