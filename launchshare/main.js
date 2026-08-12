@@ -205,6 +205,62 @@ function removeFile() {
   document.getElementById('upload-selected').style.display = 'none';
 }
 
+// Optional code attachment (separate from the .nbt schematic upload)
+const codeUploadZone = document.getElementById('code-upload-zone');
+const codeFileInput = document.getElementById('code-file-input');
+
+if (codeUploadZone && codeFileInput) {
+  codeUploadZone.addEventListener('click', (e) => {
+    if (e.target.closest('#code-file-remove') || e.target.closest('#code-upload-selected')) return;
+    codeFileInput.click();
+  });
+
+  codeUploadZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    codeUploadZone.classList.add('drag-over');
+  });
+
+  codeUploadZone.addEventListener('dragleave', () => {
+    codeUploadZone.classList.remove('drag-over');
+  });
+
+  codeUploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    codeUploadZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) handleCodeFile(file);
+  });
+
+  codeFileInput.addEventListener('change', () => {
+    if (codeFileInput.files[0]) handleCodeFile(codeFileInput.files[0]);
+  });
+}
+
+function handleCodeFile(file) {
+  const allowed = ['.lua', '.txt'];
+  const ext = '.' + file.name.split('.').pop().toLowerCase();
+  if (!allowed.includes(ext)) {
+    alert('File type not allowed. Only .lua or .txt files are accepted.');
+    return;
+  }
+  if (file.size > 512 * 1024) {
+    alert('Code file is too large. Max size is 512 KB.');
+    return;
+  }
+  document.getElementById('code-upload-inner').style.display = 'none';
+  document.getElementById('code-upload-selected').style.display = 'flex';
+  document.getElementById('code-file-display-name').textContent = file.name;
+}
+
+function removeCodeFile() {
+  codeFileInput.value = '';
+  document.getElementById('code-upload-inner').style.display = 'block';
+  document.getElementById('code-upload-selected').style.display = 'none';
+}
+
+const codeFileRemoveBtn = document.getElementById('code-file-remove');
+if (codeFileRemoveBtn) codeFileRemoveBtn.addEventListener('click', removeCodeFile);
+
 // Character counter for the description field
 const textarea = document.getElementById('mission-desc');
 const charCount = document.getElementById('char-count');
@@ -269,6 +325,7 @@ async function buildSubmitPayload() {
     launchDateMax: getLaunchDateMaxValue(),
     description: document.getElementById('mission-desc').value.trim(),
     file: null,
+    codeFile: null,
   };
 
   if (fileInput.files[0]) {
@@ -276,6 +333,15 @@ async function buildSubmitPayload() {
     payload.file = {
       name: file.name,
       type: file.type || 'application/octet-stream',
+      data: await readFileAsBase64(file),
+    };
+  }
+
+  if (codeFileInput && codeFileInput.files[0]) {
+    const file = codeFileInput.files[0];
+    payload.codeFile = {
+      name: file.name,
+      type: file.type || 'text/plain',
       data: await readFileAsBase64(file),
     };
   }
@@ -330,6 +396,7 @@ function resetForm() {
   document.querySelector('.form-progress').style.display = 'flex';
   document.getElementById('form-success').style.display = 'none';
   removeFile();
+  if (codeFileInput) removeCodeFile();
   charCount.textContent = '0';
   setLaunchDateDefaults();
   document.getElementById('orbit-value').value = 'LEO';

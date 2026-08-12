@@ -619,6 +619,11 @@
 }
 .upload-remove:hover { color: #ef4444; background: rgba(239,68,68,0.1); }
 
+.upload-zone-compact .upload-inner { padding: 22px 20px; }
+.upload-zone-compact .upload-icon { margin-bottom: 8px; }
+.upload-zone-compact .upload-title { font-size: 0.88rem; }
+.upload-zone-compact .upload-sub { font-size: 0.78rem; }
+
 /* requirements warning box */
 .requirements-box {
   background: rgba(245, 158, 11, 0.07);

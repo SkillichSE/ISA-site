@@ -230,6 +230,15 @@
                       </div>
                     </div>
                   </div>
+                  <div class="req-divider"></div>
+                  <div class="req-row">
+                    <svg class="req-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <div class="req-text">
+                      <strong>Onboard computer:</strong> if your satellite includes a CC:Tweaked computer, it is <strong>required</strong> to run our
+                      <a href="satellite_example.lua" download style="color: var(--accent-light, #6b9bf5); text-decoration: underline;">base telemetry program</a>
+                      as its startup script. This is what lets the ground station track your satellite — builds with a computer that isn't running it will be <strong>rejected</strong>.
+                    </div>
+                  </div>
                 </div>
 
                 <div class="upload-zone" id="upload-zone">
@@ -247,6 +256,25 @@
                     <button type="button" class="upload-remove" onclick="removeFile()">✕</button>
                   </div>
                 </div>
+              </div>
+              <div class="form-group">
+                <label for="code-file-input">SATELLITE CODE <span style="font-weight:400; text-transform:none; color: var(--muted2);">(optional)</span></label>
+                <div class="upload-zone upload-zone-compact" id="code-upload-zone">
+                  <input type="file" id="code-file-input" name="code" accept=".lua,.txt" hidden>
+                  <div class="upload-inner" id="code-upload-inner">
+                    <div class="upload-icon">
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                    </div>
+                    <p class="upload-title">Attach your .lua program</p>
+                    <p class="upload-sub">or <button type="button" class="upload-browse" id="code-browse-btn">browse</button> — if your satellite runs a CC:Tweaked computer, attach it here alongside the schematic</p>
+                  </div>
+                  <div class="upload-selected" id="code-upload-selected" style="display:none">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span id="code-file-display-name"></span>
+                    <button type="button" class="upload-remove" id="code-file-remove">✕</button>
+                  </div>
+                </div>
+                <span class="field-hint">Not required, but if you're submitting code, base it on our <a href="satellite_example.lua" download style="color: var(--accent-light, #6b9bf5); text-decoration: underline;">example telemetry program</a>.</span>
               </div>
               <div class="form-group">
                 <label for="mission-desc">MISSION DESCRIPTION</label>
