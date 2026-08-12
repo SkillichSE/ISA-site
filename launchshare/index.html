@@ -23,6 +23,20 @@
     .ls-slot-fit { font-size: 0.72rem; color: rgba(255,255,255,0.75); line-height: 1.5; }
     .ls-slot-fit b { color: #fff; }
     .ls-schedule-empty { font-size: 0.85rem; color: rgba(255,255,255,0.5); padding: 8px 0; }
+
+    /* In-form Launchshare flight picker (step 2) */
+    .form-schedule-list { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; max-height: 380px; overflow-y: auto; padding-right: 4px; }
+    .form-slot { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; background: rgba(255,255,255,0.04); border: 1px solid var(--line, rgba(255,255,255,0.1)); border-radius: 12px; padding: 12px 16px; cursor: pointer; transition: border-color .2s, background .2s; }
+    .form-slot:hover { border-color: var(--accent-light, #6b9bf5); background: rgba(255,255,255,0.07); }
+    .form-slot.selected { border-color: var(--accent-light, #6b9bf5); background: rgba(107,155,245,0.1); }
+    .form-slot-date { flex: 0 0 auto; font-size: 0.78rem; font-weight: 700; color: var(--accent-light, #6b9bf5); min-width: 92px; }
+    .form-slot-main { flex: 1; min-width: 0; }
+    .form-slot-name { font-size: 0.92rem; font-weight: 800; color: #fff; margin-bottom: 3px; }
+    .form-slot-meta { font-size: 0.72rem; color: rgba(255,255,255,0.55); }
+    .form-slot-fit { font-size: 0.72rem; color: rgba(255,255,255,0.75); margin-top: 4px; line-height: 1.5; }
+    .form-slot-fit b { color: #fff; }
+    .form-slot-check { flex: 0 0 auto; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--line, rgba(255,255,255,0.2)); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: transparent; transition: color .2s, background .2s, border-color .2s; }
+    .form-slot.selected .form-slot-check { color: #fff; background: var(--accent-light, #6b9bf5); border-color: var(--accent-light, #6b9bf5); }
   </style>
 </head>
 <body>
@@ -107,94 +121,104 @@
             
             <div class="form-step" id="step-2">
               <div class="form-group">
-                <label>DESIRED ORBIT</label>
-                <div class="orbit-selector" id="orbit-selector">
-                  <button type="button" class="orbit-btn active" data-orbit="LEO">
-                    <span class="ob-code">LEO</span>
-                    <span class="ob-name">Low Earth</span>
-                  </button>
-                  <button type="button" class="orbit-btn" data-orbit="SSO">
-                    <span class="ob-code">SSO</span>
-                    <span class="ob-name">Sun-Sync</span>
-                  </button>
-                  <button type="button" class="orbit-btn" data-orbit="POLAR">
-                    <span class="ob-code">POLAR</span>
-                    <span class="ob-name">Polar</span>
-                  </button>
-                  <button type="button" class="orbit-btn" data-orbit="MEO">
-                    <span class="ob-code">MEO</span>
-                    <span class="ob-name">Medium</span>
-                  </button>
-                  <button type="button" class="orbit-btn" data-orbit="GTO">
-                    <span class="ob-code">GTO</span>
-                    <span class="ob-name">Transfer</span>
-                  </button>
-                  <button type="button" class="orbit-btn" data-orbit="GEO">
-                    <span class="ob-code">GEO</span>
-                    <span class="ob-name">Geostationary</span>
-                  </button>
+                <label>PICK A LAUNCHSHARE FLIGHT</label>
+                <span class="field-hint">Click a flight below to lock in its orbit, rocket and date. Don't see one that fits? Skip it — just hit "Next" and our team will help you pick on Discord.</span>
+                <div class="form-schedule-list" id="form-schedule-list">
+                  <div class="ls-schedule-empty">Loading schedule…</div>
                 </div>
-                <input type="hidden" id="orbit-value" name="orbit" value="LEO">
               </div>
-              <div class="form-group">
-                <label>ROCKET</label>
-                <div class="orbit-selector" id="rocket-selector">
-                  <button type="button" class="orbit-btn active" data-rocket="Falcon 9"><span class="ob-code">F9</span><span class="ob-name">Falcon 9</span></button>
-                  <button type="button" class="orbit-btn" data-rocket="Falcon Heavy"><span class="ob-code">FH</span><span class="ob-name">Falcon Heavy</span></button>
-                  <button type="button" class="orbit-btn" data-rocket="Starship"><span class="ob-code">SS</span><span class="ob-name">Starship</span></button>
-                  <button type="button" class="orbit-btn" data-rocket="Electron"><span class="ob-code">EL</span><span class="ob-name">Electron</span></button>
-                  <button type="button" class="orbit-btn" data-rocket="Ariane 6"><span class="ob-code">AR6</span><span class="ob-name">Ariane 6</span></button>
-                  <button type="button" class="orbit-btn" data-rocket="Soyuz"><span class="ob-code">SOY</span><span class="ob-name">Soyuz</span></button>
-                  <button type="button" class="orbit-btn" data-rocket="Custom / Other"><span class="ob-code">?</span><span class="ob-name">Custom</span></button>
-                </div>
-                <input type="hidden" id="rocket-value" name="rocket" value="Falcon 9">
-                <span class="field-hint">Pick a Launchshare slot below and this fills in automatically.</span>
-              </div>
-              <div class="form-row">
+
+              <div style="display:none">
                 <div class="form-group">
-                  <label>NO EARLIER THAN</label>
-                  <div class="date-picker" id="launch-date-picker">
-                    <select id="launch-month" aria-label="Earliest month">
-                      <option value="01">January</option>
-                      <option value="02">February</option>
-                      <option value="03">March</option>
-                      <option value="04">April</option>
-                      <option value="05">May</option>
-                      <option value="06">June</option>
-                      <option value="07">July</option>
-                      <option value="08">August</option>
-                      <option value="09">September</option>
-                      <option value="10" selected>October</option>
-                      <option value="11">November</option>
-                      <option value="12">December</option>
-                    </select>
-                    <select id="launch-year" aria-label="Earliest year"></select>
+                  <label>DESIRED ORBIT</label>
+                  <div class="orbit-selector" id="orbit-selector">
+                    <button type="button" class="orbit-btn active" data-orbit="LEO">
+                      <span class="ob-code">LEO</span>
+                      <span class="ob-name">Low Earth</span>
+                    </button>
+                    <button type="button" class="orbit-btn" data-orbit="SSO">
+                      <span class="ob-code">SSO</span>
+                      <span class="ob-name">Sun-Sync</span>
+                    </button>
+                    <button type="button" class="orbit-btn" data-orbit="POLAR">
+                      <span class="ob-code">POLAR</span>
+                      <span class="ob-name">Polar</span>
+                    </button>
+                    <button type="button" class="orbit-btn" data-orbit="MEO">
+                      <span class="ob-code">MEO</span>
+                      <span class="ob-name">Medium</span>
+                    </button>
+                    <button type="button" class="orbit-btn" data-orbit="GTO">
+                      <span class="ob-code">GTO</span>
+                      <span class="ob-name">Transfer</span>
+                    </button>
+                    <button type="button" class="orbit-btn" data-orbit="GEO">
+                      <span class="ob-code">GEO</span>
+                      <span class="ob-name">Geostationary</span>
+                    </button>
                   </div>
+                  <input type="hidden" id="orbit-value" name="orbit" value="LEO">
                 </div>
                 <div class="form-group">
-                  <label>NO LATER THAN (OPTIONAL)</label>
-                  <div class="date-picker" id="launch-date-max-picker">
-                    <select id="launch-date-max-month" aria-label="Latest month">
-                      <option value="">—</option>
-                      <option value="01">January</option>
-                      <option value="02">February</option>
-                      <option value="03">March</option>
-                      <option value="04">April</option>
-                      <option value="05">May</option>
-                      <option value="06">June</option>
-                      <option value="07">July</option>
-                      <option value="08">August</option>
-                      <option value="09">September</option>
-                      <option value="10">October</option>
-                      <option value="11">November</option>
-                      <option value="12">December</option>
-                    </select>
-                    <select id="launch-date-max-year" aria-label="Latest year">
-                      <option value="">—</option>
-                    </select>
+                  <label>ROCKET</label>
+                  <div class="orbit-selector" id="rocket-selector">
+                    <button type="button" class="orbit-btn active" data-rocket="Falcon 9"><span class="ob-code">F9</span><span class="ob-name">Falcon 9</span></button>
+                    <button type="button" class="orbit-btn" data-rocket="Falcon Heavy"><span class="ob-code">FH</span><span class="ob-name">Falcon Heavy</span></button>
+                    <button type="button" class="orbit-btn" data-rocket="Starship"><span class="ob-code">SS</span><span class="ob-name">Starship</span></button>
+                    <button type="button" class="orbit-btn" data-rocket="Electron"><span class="ob-code">EL</span><span class="ob-name">Electron</span></button>
+                    <button type="button" class="orbit-btn" data-rocket="Ariane 6"><span class="ob-code">AR6</span><span class="ob-name">Ariane 6</span></button>
+                    <button type="button" class="orbit-btn" data-rocket="Soyuz"><span class="ob-code">SOY</span><span class="ob-name">Soyuz</span></button>
+                    <button type="button" class="orbit-btn" data-rocket="Custom / Other"><span class="ob-code">?</span><span class="ob-name">Custom</span></button>
+                  </div>
+                  <input type="hidden" id="rocket-value" name="rocket" value="Falcon 9">
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>NO EARLIER THAN</label>
+                    <div class="date-picker" id="launch-date-picker">
+                      <select id="launch-month" aria-label="Earliest month">
+                        <option value="01">January</option>
+                        <option value="02">February</option>
+                        <option value="03">March</option>
+                        <option value="04">April</option>
+                        <option value="05">May</option>
+                        <option value="06">June</option>
+                        <option value="07">July</option>
+                        <option value="08">August</option>
+                        <option value="09">September</option>
+                        <option value="10" selected>October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                      </select>
+                      <select id="launch-year" aria-label="Earliest year"></select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>NO LATER THAN (OPTIONAL)</label>
+                    <div class="date-picker" id="launch-date-max-picker">
+                      <select id="launch-date-max-month" aria-label="Latest month">
+                        <option value="">—</option>
+                        <option value="01">January</option>
+                        <option value="02">February</option>
+                        <option value="03">March</option>
+                        <option value="04">April</option>
+                        <option value="05">May</option>
+                        <option value="06">June</option>
+                        <option value="07">July</option>
+                        <option value="08">August</option>
+                        <option value="09">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                      </select>
+                      <select id="launch-date-max-year" aria-label="Latest year">
+                        <option value="">—</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
+
               <div class="form-nav">
                 <button type="button" class="btn btn-back" onclick="prevStep(2)">← Back</button>
                 <button type="button" class="btn btn-next" onclick="nextStep(2)">Next — Payload →</button>
@@ -390,12 +414,97 @@
 
     (async function initLaunchshareSchedule() {
       try {
-        renderLaunchshareSchedule(await fetchLaunchshareLaunches());
+        const launches = await fetchLaunchshareLaunches();
+        renderLaunchshareSchedule(launches);
+        renderFormSchedule(launches);
       } catch (e) {
         const list = document.getElementById('ls-schedule-list');
         if (list) list.innerHTML = '<div class="ls-schedule-empty">Couldn\'t load the schedule right now.</div>';
+        const formList = document.getElementById('form-schedule-list');
+        if (formList) formList.innerHTML = '<div class="ls-schedule-empty">Couldn\'t load the schedule — no worries, just hit Next to skip.</div>';
       }
     })();
+
+    // --- In-form flight picker (step 2) -------------------------------
+    // Same data as the hero schedule widget, rendered as a vertical list of
+    // selectable cards. Picking one fills in the hidden orbit/rocket/date
+    // fields (still driven by main.js); skipping is fine, Next just carries
+    // the existing defaults forward.
+    let formScheduleLaunches = [];
+
+    function renderFormSchedule(launches) {
+      const list = document.getElementById('form-schedule-list');
+      if (!list) return;
+      const slots = (launches || [])
+        .filter(l => l.launchshare && l.date)
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      formScheduleLaunches = slots;
+
+      if (!slots.length) {
+        list.innerHTML = '<div class="ls-schedule-empty">No Launchshare slots open right now — skip this step, our team will help you pick one on Discord.</div>';
+        return;
+      }
+
+      list.innerHTML = slots.map((l, i) => {
+        const d = new Date(l.date);
+        const dateLabel = isNaN(d.getTime()) ? 'TBD' : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        const rows = (l.launchshare_volume && window.LaunchshareCapacity) ? window.LaunchshareCapacity.summaryRows(l.launchshare_volume) : [];
+        const fitText = rows.length
+          ? 'Fits roughly: ' + rows.map(r => `<b>${r.count}×</b> ${r.label}`).join(' &nbsp;or&nbsp; ')
+          : '';
+        return `<button type="button" class="form-slot" id="form-slot-${i}" onclick="selectFormFlight(${i})">
+          <div class="form-slot-date">${dateLabel}</div>
+          <div class="form-slot-main">
+            <div class="form-slot-name">${l.name || 'Launchshare slot'}</div>
+            <div class="form-slot-meta">${l.orbit || ''}${l.rocket ? ' · ' + l.rocket : ''}${l.launchshare_volume ? ' · ' + l.launchshare_volume + ' blocks' : ''}</div>
+            ${fitText ? `<div class="form-slot-fit">${fitText}</div>` : ''}
+          </div>
+          <div class="form-slot-check">✓</div>
+        </button>`;
+      }).join('');
+    }
+
+    function selectFormFlight(i) {
+      const l = formScheduleLaunches[i];
+      if (!l) return;
+
+      document.querySelectorAll('.form-slot').forEach(el => el.classList.remove('selected'));
+      document.getElementById('form-slot-' + i)?.classList.add('selected');
+
+      if (l.orbit) {
+        const orbitWrap = document.getElementById('orbit-selector');
+        if (orbitWrap) orbitWrap.querySelectorAll('.orbit-btn').forEach(b => b.classList.toggle('active', b.dataset.orbit === l.orbit));
+        const orbitHidden = document.getElementById('orbit-value');
+        if (orbitHidden) orbitHidden.value = l.orbit;
+      }
+
+      if (l.rocket) {
+        const rocketWrap = document.getElementById('rocket-selector');
+        if (rocketWrap) rocketWrap.querySelectorAll('.orbit-btn').forEach(b => b.classList.toggle('active', b.dataset.rocket === l.rocket));
+        const rocketHidden = document.getElementById('rocket-value');
+        if (rocketHidden) rocketHidden.value = l.rocket;
+      }
+
+      const d = new Date(l.date);
+      if (!isNaN(d.getTime())) {
+        const monthSel = document.getElementById('launch-month');
+        const yearSel = document.getElementById('launch-year');
+        if (monthSel) monthSel.value = String(d.getMonth() + 1).padStart(2, '0');
+        if (yearSel) {
+          const yearStr = String(d.getFullYear());
+          if (![...yearSel.options].some(o => o.value === yearStr)) {
+            const opt = document.createElement('option');
+            opt.value = yearStr;
+            opt.textContent = yearStr;
+            yearSel.appendChild(opt);
+          }
+          yearSel.value = yearStr;
+        }
+      }
+
+      if (typeof updateSidebar === 'function') updateSidebar();
+    }
 
     // Rocket selector (step 2). Scoped to #rocket-selector on purpose so it
     // never collides with what main.js already does for #orbit-selector.
