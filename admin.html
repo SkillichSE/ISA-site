@@ -456,7 +456,7 @@ function pageLaunches() {
           ${l.published ? '<span class="badge badge-active">Published</span>' : '<span class="badge badge-inactive">Draft</span>'}
           ${l.launchshare ? '<a href="/launchshare/" target="_blank" class="badge badge-launchshare" style="text-decoration:none" title="Open the Launchshare page">Launchshare ↗</a>' : ''}
         </div>
-        <div class="item-meta">${l.orbit}${l.rocket ? ' · ' + esc(l.rocket) : ''} · ${dateLabel}${l.date ? ' UTC' : ''}${l.mission_id ? ' · Mission: ' + l.mission_id : ''}${l.launchshare && l.launchshare_volume ? ' · ' + l.launchshare_volume + ' blocks' : ''}</div>
+        <div class="item-meta">${l.orbit} · ${dateLabel}${l.date ? ' UTC' : ''}${l.mission_id ? ' · Mission: ' + l.mission_id : ''}${l.launchshare && l.launchshare_volume ? ' · ' + l.launchshare_volume + ' blocks' : ''}</div>
         <div class="item-desc">${esc(mdToPlain(l.description))}</div>
       </div>
       <div class="item-actions">
@@ -708,10 +708,6 @@ function formatLaunchListDate(dateIso) {
   return d.toLocaleString(undefined, { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
 }
 
-// Same rocket list offered on the public Launchshare booking form (step 2),
-// kept in one place so admin and public stay in sync.
-const ROCKET_OPTIONS = ['Falcon 9','Falcon Heavy','Starship','Electron','Ariane 6','Soyuz','Custom / Other'];
-
 function buildForm(type, item) {
   const v = (k,d='') => item ? (item[k]??d) : d;
   if (type==='missions') return `
@@ -731,7 +727,6 @@ function buildForm(type, item) {
     <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. launch-003')}${sel('published','Published',v('published')?'true':'false',['true','false'])}</div>
     ${field('name','Mission Name',v('name'))}
     <div class="form-row-2">${field('mission_id','Mission ID',v('mission_id'),'Optional - which mission this belongs to')}${sel('orbit','Orbit',v('orbit','LEO'),['LEO','MEO','GEO','SSO','HEO'])}</div>
-    ${sel('rocket','Rocket',v('rocket','Falcon 9'),ROCKET_OPTIONS)}
     ${field('date','Launch Time (UTC)',toUTCDatetimeInput(v('date')),'UTC time','datetime-local')}
     <div class="form-hint">Status (Open / Upcoming / In Progress) is set automatically based on this time. Once the launch time passes it shows as "In Progress" on the site — use the Finish button on the launch card to mark it Completed.</div>
     ${ta('description','Description',v('description'))}
@@ -780,7 +775,7 @@ function getForm(type) {
       : computeLaunchStatus({ date:launchDate });
     const lsVolume = parseInt(g('launchshare_volume')) || 0;
     const launchshare = document.getElementById('f-launchshare').checked && lsVolume > 0;
-    return { id:g('id'),name:g('name'),mission_id:g('mission_id'),orbit:g('orbit'),rocket:g('rocket'),
+    return { id:g('id'),name:g('name'),mission_id:g('mission_id'),orbit:g('orbit'),
       status, date:launchDate,description:g('description'),image:g('image'),published:g('published')==='true',
       launchshare, launchshare_volume: launchshare ? lsVolume : null };
   }

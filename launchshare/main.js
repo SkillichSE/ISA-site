@@ -321,7 +321,6 @@ async function buildSubmitPayload() {
     discord: document.getElementById('discord-name').value.trim(),
     satName: document.getElementById('sat-name').value.trim(),
     orbit: document.getElementById('orbit-value').value,
-    rocket: document.getElementById('rocket-value').value,
     launchDate: getLaunchDateValue(),
     launchDateMax: getLaunchDateMaxValue(),
     description: document.getElementById('mission-desc').value.trim(),
@@ -401,10 +400,8 @@ function resetForm() {
   charCount.textContent = '0';
   setLaunchDateDefaults();
   document.getElementById('orbit-value').value = 'LEO';
-  document.getElementById('rocket-value').value = 'Falcon 9';
   document.querySelectorAll('.orbit-btn').forEach(b => b.classList.remove('active'));
   document.querySelector('.orbit-btn[data-orbit="LEO"]').classList.add('active');
-  document.querySelector('.orbit-btn[data-rocket="Falcon 9"]').classList.add('active');
 
   // re-enable submit
   const submitBtn = document.querySelector('.btn-submit');
