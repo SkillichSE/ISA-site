@@ -790,9 +790,6 @@ async function saveItem() {
   document.getElementById('saving-overlay').classList.remove('hidden');
   try {
     const exists = data[editType].find(x=>x.id===item.id);
-    // Only announce when Launchshare is newly turned on for this launch —
-    // not on every re-save — so the channel doesn't get spammed on edits.
-    const wasLaunchshare = editType==='launches' && exists ? !!exists.launchshare : false;
     if (editId) {
       // UPDATE
       await sbFetch(editType, 'PATCH', item, `?id=eq.${encodeURIComponent(editId)}`);
@@ -807,29 +804,11 @@ async function saveItem() {
     closeModal(true);
     toast('Saved ✓','success');
     render();
-    if (editType==='launches' && item.launchshare && !wasLaunchshare) {
-      announceLaunchshare(item).catch(()=>{ toast('Saved, but the Discord announcement failed to send.','error'); });
-    }
   } catch(e) {
     toast('Error: '+e.message,'error');
   }
   btn.disabled = false;
   document.getElementById('saving-overlay').classList.add('hidden');
-}
-
-// Best-effort ping to the launch channel when a launch is newly marked as a
-// Launchshare slot. Failing here should never undo the save above.
-async function announceLaunchshare(item) {
-  const r = await fetch('/api/admin/announce-launchshare', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      name: item.name, date: item.date, orbit: item.orbit,
-      volume: item.launchshare_volume, url: '/launchshare/',
-    }),
-  });
-  const payload = await r.json().catch(() => ({}));
-  if (!r.ok || !payload.ok) throw new Error(payload.error || `HTTP ${r.status}`);
 }
 
 async function finishLaunch(id) {
