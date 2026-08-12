@@ -19,11 +19,18 @@
 
   // Ordered largest -> smallest. Tweak volumes/labels here and every surface
   // (admin preview, Discord embeds, public schedule) picks it up.
+  //
+  // "volume" is the unit size used for the floor-division estimate below.
+  // For cubesat we use its max legal size (3x3x3 = 27 blocks) rather than
+  // some arbitrary mid-size guess — that keeps the count a conservative
+  // "this many will DEFINITELY fit" number instead of an optimistic one
+  // that assumes every cubesat happens to be built at the small end
+  // (min size is 1x1x1 = 1 block; real builds land anywhere in between).
   const CLASSES = [
     { key: 'observatory', label: 'giant observatory satellite (Hubble-class)', volume: 375 },
     { key: 'telecom',     label: 'large telecom / GPS satellite',              volume: 120 },
     { key: 'starlink',    label: 'Starlink-class small satellite',             volume: 40  },
-    { key: 'cubesat',     label: 'cubesat',                                    volume: 8   },
+    { key: 'cubesat',     label: 'cubesat (1×1×1–3×3×3)',                      volume: 27  },
   ];
 
   function breakdown(volume) {

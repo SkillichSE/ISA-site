@@ -71,10 +71,6 @@
               <span class="launch-info-label">Rocket</span>
               <span class="launch-info-value" id="val-rocket"></span>
             </div>
-            <div class="launch-info-row" id="row-slots" style="display:none">
-              <span class="launch-info-label">Slots</span>
-              <span class="launch-info-value" id="val-slots"></span>
-            </div>
             <div class="launch-info-row" id="row-status" style="display:none">
               <span class="launch-info-label">Status</span>
               <span class="launch-info-value" id="val-status"></span>
@@ -220,7 +216,6 @@
       setRow('row-mission', 'val-mission', l.mission_id ? String(l.mission_id) : '');
       setRow('row-orbit', 'val-orbit', l.orbit || '');
       setRow('row-rocket', 'val-rocket', l.rocket || '');
-      if (l.launchshare && l.slots_total) setRow('row-slots', 'val-slots', `${l.slots_taken || 0} / ${l.slots_total} booked`);
       setRow('row-status', 'val-status', statusLabel(eff));
 
       if (l.launchshare) {
