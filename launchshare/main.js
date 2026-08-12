@@ -134,20 +134,26 @@ document.getElementById('orbit-selector').addEventListener('click', (e) => {
   updateSidebar();
 });
 
-// Keep the summary sidebar in sync as the user types
+// Keep the summary sidebar in sync as the user types (sidebar is optional —
+// guarded so this is a no-op on pages where it's been removed)
 function updateSidebar() {
+  const orbitEl = document.getElementById('sidebar-orbit');
+  const dateEl = document.getElementById('sidebar-date');
+  const satEl = document.getElementById('sidebar-sat');
+  if (!orbitEl && !dateEl && !satEl) return;
+
   const orbit = document.getElementById('orbit-value').value || 'LEO';
   const date = getLaunchDateValue();
   const satName = document.getElementById('sat-name').value.trim();
 
-  document.getElementById('sidebar-orbit').textContent = orbit;
+  if (orbitEl) orbitEl.textContent = orbit;
 
-  if (date) {
+  if (date && dateEl) {
     const [year, month] = date.split('-');
-    document.getElementById('sidebar-date').textContent = MONTH_SHORT[parseInt(month, 10) - 1] + ' ' + year;
+    dateEl.textContent = MONTH_SHORT[parseInt(month, 10) - 1] + ' ' + year;
   }
 
-  document.getElementById('sidebar-sat').textContent = satName || '—';
+  if (satEl) satEl.textContent = satName || '—';
 }
 
 // listen for live inputs

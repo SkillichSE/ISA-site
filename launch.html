@@ -191,7 +191,7 @@
             ? `<span class="launch-status ${statusClass(eff)}" data-countdown="${escHtml(l.date)}">${cd}</span>`
             : `<span class="launch-status ${statusClass(eff)}">${escHtml(statusLabel(eff) || 'scheduled')}</span>`}
          ${l.mission_id ? `<span class="launch-mission-badge">${escHtml(String(l.mission_id))}</span>` : ''}
-         ${l.launchshare ? `<span class="launch-launchshare-badge">LAUNCHSHARE</span>` : ''}`;
+         ${l.launchshare ? `<span class="launch-launchshare-badge">Launchshare</span>` : ''}`;
 
       document.getElementById('launch-detail-title').textContent = l.name || 'Unnamed Launch';
       document.getElementById('launch-detail-datebig').textContent = fullDateStr(l.date);
