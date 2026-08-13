@@ -764,9 +764,9 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
       ctx.fillText(line, PAD, titleTop + size + i * lineHeight);
     });
 
-    // custom tags - single row, all at same height, matching website CSS
+    // custom tags - single row, all at same height
     if (tags.length) {
-      ctx.font = '600 12px Inter, sans-serif';
+      ctx.font = '600 16px Inter, sans-serif';
       ctx.textBaseline = 'middle';
       let tx = PAD;
       
