@@ -565,6 +565,27 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     });
   }
 
+  function loadBackgroundImage() {
+    return new Promise((resolve) => {
+      // Try to load the hero/mission background image
+      const heroImg = document.querySelector('.launch-hero-bg-img');
+      const missionImg = document.querySelector('.mission-cover-img');
+      const newsImg = document.querySelector('.news-featured-img, .news-card img');
+      const imgEl = heroImg || missionImg || newsImg;
+      
+      if (!imgEl || !imgEl.src) {
+        resolve(null);
+        return;
+      }
+      
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => resolve(img);
+      img.onerror = () => resolve(null);
+      img.src = imgEl.src;
+    });
+  }
+
   function wrapText(ctx, text, maxWidth, maxLines, force) {
     const words = text.split(/\s+/).filter(Boolean);
     if (!words.length) return [''];
@@ -645,12 +666,25 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     const ctx = canvas.getContext('2d');
     ctx.scale(SCALE, SCALE);
 
-    // base
+    // Load background image
+    const bgImg = await loadBackgroundImage();
+
+    // base background
     const bgGrad = ctx.createLinearGradient(0, 0, W, H);
     bgGrad.addColorStop(0, '#0d0d0d');
     bgGrad.addColorStop(1, '#141414');
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, W, H);
+
+    // Apply background image if available
+    if (bgImg) {
+      ctx.globalAlpha = 0.35;
+      const scale = Math.max(W / bgImg.width, H / bgImg.height);
+      const x = (W - bgImg.width * scale) / 2;
+      const y = (H - bgImg.height * scale) / 2;
+      ctx.drawImage(bgImg, x, y, bgImg.width * scale, bgImg.height * scale);
+      ctx.globalAlpha = 1;
+    }
 
     // glow accents, matching the site's accent + mission-badge colors
     const glow1 = ctx.createRadialGradient(W - 100, 40, 0, W - 100, 40, 440);
@@ -736,13 +770,7 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     ctx.font = '600 15px Inter, sans-serif';
     ctx.fillStyle = '#666666';
     ctx.textAlign = 'left';
-    ctx.fillText('isa.space', PAD, H - PAD + 4);
-
-    const stamp = new Date().toLocaleString('en-US', {
-      month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit',
-    });
-    ctx.textAlign = 'right';
-    ctx.fillText(`Generated ${stamp}`, W - PAD, H - PAD + 4);
+    ctx.fillText('https://isa-aerospace.vercel.app/', PAD, H - PAD + 4);
     ctx.textAlign = 'left';
 
     canvas.toBlob((blob) => {
