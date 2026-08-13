@@ -657,7 +657,7 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
 
     const st = statusStyle(info.status);
     const heading = String(info.title).trim() || 'ISA Mission';
-    const tags = (info.tags || []).filter(Boolean).slice(0, 4);
+    const tags = (info.tags || []).filter(Boolean);
 
     const W = 1200, H = 630, SCALE = 2, PAD = 64;
     const canvas = document.createElement('canvas');
@@ -669,34 +669,30 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     // Load background image
     const bgImg = await loadBackgroundImage();
 
-    // base background
+    // base background (dark fallback)
     const bgGrad = ctx.createLinearGradient(0, 0, W, H);
     bgGrad.addColorStop(0, '#0d0d0d');
     bgGrad.addColorStop(1, '#141414');
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, W, H);
 
-    // Apply background image if available
+    // Apply background image if available - bright & saturated like on site
     if (bgImg) {
-      ctx.globalAlpha = 0.35;
       const scale = Math.max(W / bgImg.width, H / bgImg.height);
       const x = (W - bgImg.width * scale) / 2;
       const y = (H - bgImg.height * scale) / 2;
       ctx.drawImage(bgImg, x, y, bgImg.width * scale, bgImg.height * scale);
-      ctx.globalAlpha = 1;
+      // Simulate CSS filter: saturate(1.15) brightness(1.12) by drawing a lighter overlay
+      ctx.fillStyle = 'rgba(255,255,255,0.08)';
+      ctx.fillRect(0, 0, W, H);
     }
 
-    // glow accents, matching the site's accent + mission-badge colors
-    const glow1 = ctx.createRadialGradient(W - 100, 40, 0, W - 100, 40, 440);
-    glow1.addColorStop(0, 'rgba(59,130,246,0.20)');
-    glow1.addColorStop(1, 'rgba(59,130,246,0)');
-    ctx.fillStyle = glow1;
-    ctx.fillRect(0, 0, W, H);
-
-    const glow2 = ctx.createRadialGradient(60, H - 20, 0, 60, H - 20, 380);
-    glow2.addColorStop(0, 'rgba(226,107,245,0.10)');
-    glow2.addColorStop(1, 'rgba(226,107,245,0)');
-    ctx.fillStyle = glow2;
+    // Overlay gradient: light at top, dark at bottom (like on site)
+    const overlayGrad = ctx.createLinearGradient(0, 0, 0, H);
+    overlayGrad.addColorStop(0, 'rgba(10,10,10,0.05)');
+    overlayGrad.addColorStop(0.55, 'rgba(10,10,10,0.15)');
+    overlayGrad.addColorStop(1, 'rgba(10,10,10,0.9)');
+    ctx.fillStyle = overlayGrad;
     ctx.fillRect(0, 0, W, H);
 
     // border frame
@@ -705,49 +701,53 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    let contentTop = PAD;
+    // Content positioned at BOTTOM like site hero-inner
+    const contentBottomPadding = 40;
+    let contentTop = H - contentBottomPadding;
 
-    if (withLogo) {
-      const logo = await loadLogo();
-      const logoSize = 56;
-      if (logo) ctx.drawImage(logo, PAD, PAD, logoSize, logoSize);
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '800 26px Inter, sans-serif';
-      ctx.fillText('ISA', PAD + logoSize + 16, PAD + logoSize / 2 - 7);
-      ctx.fillStyle = '#888888';
-      ctx.font = '600 13px Inter, sans-serif';
-      ctx.fillText('INTERNATIONAL SPACE ASSOCIATION', PAD + logoSize + 16, PAD + logoSize / 2 + 14);
-      contentTop = PAD + logoSize + 40;
-    }
-
-    // status pill
+    // Calculate space needed for content (working backwards from bottom)
     ctx.font = '700 22px Inter, sans-serif';
     const pillLabel = st.label.toUpperCase();
     const pillPadX = 20;
     const pillW = ctx.measureText(pillLabel).width + pillPadX * 2;
     const pillH = 42;
-    roundRect(ctx, PAD, contentTop, pillW, pillH, pillH / 2);
+
+    // Estimate title height
+    const { size, lines } = fitTitle(ctx, heading, W - PAD * 2, 2);
+    const lineHeight = size * 1.14;
+    const titleHeight = size + (lines.length - 1) * lineHeight;
+    
+    // Calculate tags height if present
+    let tagsHeight = 0;
+    if (tags.length) {
+      tagsHeight = 36 + 12; // tag height + spacing
+    }
+
+    // Position content from bottom: padding -> url -> tags -> title -> pill -> back link
+    const urlTop = contentTop - 18;
+    const tagsTop = urlTop - tagsHeight - 20;
+    const titleTop = tagsTop - titleHeight - 40;
+    const pillTop = titleTop - pillH - 20;
+
+    // status pill
+    ctx.font = '700 22px Inter, sans-serif';
     ctx.fillStyle = st.bg;
+    roundRect(ctx, PAD, pillTop, pillW, pillH, pillH / 2);
     ctx.fill();
     ctx.fillStyle = st.fg;
     ctx.textBaseline = 'middle';
-    ctx.fillText(pillLabel, PAD + pillPadX, contentTop + pillH / 2 + 1);
+    ctx.fillText(pillLabel, PAD + pillPadX, pillTop + pillH / 2 + 1);
 
-    // title
-    const titleTop = contentTop + pillH + 34;
-    const { size, lines } = fitTitle(ctx, heading, W - PAD * 2, 2);
+    // title (bright white)
     ctx.fillStyle = '#ffffff';
     ctx.textBaseline = 'alphabetic';
-    const lineHeight = size * 1.14;
     lines.forEach((line, i) => {
       ctx.font = `800 ${size}px Inter, sans-serif`;
       ctx.fillText(line, PAD, titleTop + size + i * lineHeight);
     });
 
-    // custom tags, read straight from the page, drawn below the title
+    // custom tags - show all that fit
     if (tags.length) {
-      const tagsTop = titleTop + size + (lines.length - 1) * lineHeight + 30;
       let tx = PAD;
       ctx.font = '700 20px Inter, sans-serif';
       ctx.textBaseline = 'middle';
@@ -755,22 +755,31 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
       tags.forEach((tag) => {
         const label = tag.toUpperCase();
         const w = ctx.measureText(label).width + tagPadX * 2;
-        if (tx + w > W - PAD) return; // stop rather than overflow the card
-        roundRect(ctx, tx, tagsTop, w, tagH, tagH / 2);
-        ctx.fillStyle = 'rgba(45,212,191,0.14)';
-        ctx.fill();
-        ctx.fillStyle = '#2dd4bf';
-        ctx.fillText(label, tx + tagPadX, tagsTop + tagH / 2 + 1);
-        tx += w + 8;
+        if (tx + w > W - PAD) {
+          // wrap to next line if space
+          tx = PAD;
+        }
+        if (tx === PAD && tags.indexOf(tag) > 0) {
+          // already placed some, wrap
+          return;
+        }
+        if (tx + w <= W - PAD) {
+          roundRect(ctx, tx, tagsTop, w, tagH, tagH / 2);
+          ctx.fillStyle = 'rgba(45,212,191,0.14)';
+          ctx.fill();
+          ctx.fillStyle = '#2dd4bf';
+          ctx.fillText(label, tx + tagPadX, tagsTop + tagH / 2 + 1);
+          tx += w + 8;
+        }
       });
       ctx.textBaseline = 'alphabetic';
     }
 
-    // footer
+    // footer URL
     ctx.font = '600 15px Inter, sans-serif';
-    ctx.fillStyle = '#666666';
+    ctx.fillStyle = '#888888';
     ctx.textAlign = 'left';
-    ctx.fillText('https://isa-aerospace.vercel.app/', PAD, H - PAD + 4);
+    ctx.fillText('https://isa-aerospace.vercel.app/', PAD, urlTop);
     ctx.textAlign = 'left';
 
     canvas.toBlob((blob) => {
