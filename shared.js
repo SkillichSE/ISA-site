@@ -769,9 +769,14 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     const titleHeight = size + (lines.length - 1) * lineHeight;
 
     // Simple fixed positioning from bottom
-    // URL at H-20, then title, then the badge row directly above it
+    // URL at H-20, then the title (bottom-anchored above it with a real
+    // gap that accounts for the title's own height/descender so short
+    // one-line titles at max font size never crowd the URL), then the
+    // badge row directly above the title.
     const urlTop = H - 20;
-    const titleTop = H - 110;
+    const urlFontSize = 13;
+    const titleUrlGap = 30; // visual breathing room between title and URL
+    const titleTop = (urlTop - urlFontSize) - titleUrlGap - titleHeight - size * 0.22;
     const badgeRowTop = titleTop - titleHeight - 16;
 
     // badge row (status, mission badge, tags — one row, above the title)
