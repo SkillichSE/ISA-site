@@ -718,7 +718,7 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
 
     // Draw logo if present
     if (logo) {
-      const logoSize = 56;
+      const logoSize = 180;
       ctx.drawImage(logo, PAD, PAD, logoSize, logoSize);
     }
 
@@ -738,10 +738,24 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     const lineHeight = size * 1.14;
     const titleHeight = size + (lines.length - 1) * lineHeight;
     
-    // Calculate tags height if present (SMALLER TAGS)
+    // Calculate tags height - need to estimate number of rows
     let tagsHeight = 0;
+    const tagH = 28, tagPadX = 12, tagGapY = 8;
+    const maxTagWidth = W - PAD * 2;
     if (tags.length) {
-      tagsHeight = 28 + 8; // smaller tag height + spacing
+      ctx.font = '600 16px Inter, sans-serif';
+      let currentRowWidth = 0;
+      let numRows = 1;
+      tags.forEach((tag) => {
+        const w = ctx.measureText(tag).width + tagPadX * 2 + 6;
+        if (currentRowWidth + w > maxTagWidth && currentRowWidth > 0) {
+          numRows++;
+          currentRowWidth = w;
+        } else {
+          currentRowWidth += w;
+        }
+      });
+      tagsHeight = numRows * tagH + (numRows - 1) * tagGapY;
     }
 
     // Position content from bottom: padding -> url -> tags -> title -> pill
@@ -767,41 +781,40 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
       ctx.fillText(line, PAD, titleTop + size + i * lineHeight);
     });
 
-    // custom tags - SMALLER VERSION
+    // custom tags - multiple rows if needed
     if (tags.length) {
-      let tx = PAD;
+      let tx = PAD, ty = tagsTop;
       ctx.font = '600 16px Inter, sans-serif';
       ctx.textBaseline = 'middle';
-      const tagPadX = 12, tagH = 28;
+      const tagPadX = 12, tagH = 28, tagGapY = 8;
+      const maxWidth = W - PAD * 2;
+      
       tags.forEach((tag) => {
-        const label = tag.toUpperCase();
+        const label = tag;
         const w = ctx.measureText(label).width + tagPadX * 2;
-        if (tx + w > W - PAD) {
-          return; // stop if doesn't fit
+        
+        // wrap to new row if doesn't fit
+        if (tx + w > PAD + maxWidth && tx !== PAD) {
+          tx = PAD;
+          ty -= tagH + tagGapY;
         }
-        roundRect(ctx, tx, tagsTop, w, tagH, tagH / 2);
+        
+        roundRect(ctx, tx, ty, w, tagH, tagH / 2);
         ctx.fillStyle = 'rgba(45,212,191,0.14)';
         ctx.fill();
         ctx.fillStyle = '#2dd4bf';
-        ctx.fillText(label, tx + tagPadX, tagsTop + tagH / 2 + 1);
+        ctx.fillText(label, tx + tagPadX, ty + tagH / 2 + 1);
         tx += w + 6;
       });
       ctx.textBaseline = 'alphabetic';
     }
 
-    // footer URL - RIGHT ALIGNED or under logo
+    // footer URL - BOTTOM LEFT always
     ctx.font = '600 13px Inter, sans-serif';
     ctx.fillStyle = '#888888';
-    
-    if (logo) {
-      // Under logo
-      ctx.textAlign = 'left';
-      ctx.fillText('https://isa-aerospace.vercel.app/', PAD, PAD + 88);
-    } else {
-      // Right bottom corner
-      ctx.textAlign = 'right';
-      ctx.fillText('https://isa-aerospace.vercel.app/', W - PAD, urlTop);
-    }
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('https://isa-aerospace.vercel.app/', PAD, H - 20);
     ctx.textAlign = 'left';
 
     canvas.toBlob((blob) => {

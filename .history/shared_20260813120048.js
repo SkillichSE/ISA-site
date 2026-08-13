@@ -509,10 +509,11 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     const projectTitle = document.getElementById('project-title');
     if (projectTitle && textOf(projectTitle)) {
       const meta = document.getElementById('project-meta');
+      const projectTags = document.getElementById('project-tags');
       return {
         title: textOf(projectTitle),
         status: textOf(meta && meta.querySelector('.mission-status')) || 'Active',
-        tags: tagsFrom(document.getElementById('project-tags')),
+        tags: tagsFrom(projectTags) || tagsFrom(meta) || [],
       };
     }
 
@@ -681,6 +682,7 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
 
     // Load background image
     const bgImg = await loadBackgroundImage();
+    const logo = withLogo ? await loadLogo() : null;
 
     // base background (dark fallback)
     const bgGrad = ctx.createLinearGradient(0, 0, W, H);
@@ -714,6 +716,12 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     ctx.lineWidth = 2;
     ctx.stroke();
 
+    // Draw logo if present
+    if (logo) {
+      const logoSize = 180;
+      ctx.drawImage(logo, PAD, PAD, logoSize, logoSize);
+    }
+
     // Content positioned at BOTTOM like site hero-inner
     const contentBottomPadding = 40;
     let contentTop = H - contentBottomPadding;
@@ -725,15 +733,31 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     const pillW = ctx.measureText(pillLabel).width + pillPadX * 2;
     const pillH = 42;
 
+    // Tag dimensions
+    const tagH = 28, tagPadX = 12, tagGapY = 8;
+    const maxTagWidth = W - PAD * 2;
+
     // Estimate title height
     const { size, lines } = fitTitle(ctx, heading, W - PAD * 2, 2);
     const lineHeight = size * 1.14;
     const titleHeight = size + (lines.length - 1) * lineHeight;
     
-    // Calculate tags height if present (SMALLER TAGS)
+    // Calculate tags height - need to estimate number of rows
     let tagsHeight = 0;
     if (tags.length) {
-      tagsHeight = 28 + 8; // smaller tag height + spacing
+      ctx.font = '600 16px Inter, sans-serif';
+      let currentRowWidth = 0;
+      let numRows = 1;
+      tags.forEach((tag) => {
+        const w = ctx.measureText(tag).width + tagPadX * 2 + 6;
+        if (currentRowWidth + w > maxTagWidth && currentRowWidth > 0) {
+          numRows++;
+          currentRowWidth = w;
+        } else {
+          currentRowWidth += w;
+        }
+      });
+      tagsHeight = numRows * tagH + (numRows - 1) * tagGapY;
     }
 
     // Position content from bottom: padding -> url -> tags -> title -> pill
@@ -759,41 +783,38 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
       ctx.fillText(line, PAD, titleTop + size + i * lineHeight);
     });
 
-    // custom tags - SMALLER VERSION
+    // custom tags - multiple rows if needed
     if (tags.length) {
-      let tx = PAD;
+      let tx = PAD, ty = tagsTop;
       ctx.font = '600 16px Inter, sans-serif';
       ctx.textBaseline = 'middle';
-      const tagPadX = 12, tagH = 28;
+      
       tags.forEach((tag) => {
-        const label = tag.toUpperCase();
+        const label = tag;
         const w = ctx.measureText(label).width + tagPadX * 2;
-        if (tx + w > W - PAD) {
-          return; // stop if doesn't fit
+        
+        // wrap to new row if doesn't fit
+        if (tx + w > PAD + maxTagWidth && tx !== PAD) {
+          tx = PAD;
+          ty -= tagH + tagGapY;
         }
-        roundRect(ctx, tx, tagsTop, w, tagH, tagH / 2);
+        
+        roundRect(ctx, tx, ty, w, tagH, tagH / 2);
         ctx.fillStyle = 'rgba(45,212,191,0.14)';
         ctx.fill();
         ctx.fillStyle = '#2dd4bf';
-        ctx.fillText(label, tx + tagPadX, tagsTop + tagH / 2 + 1);
+        ctx.fillText(label, tx + tagPadX, ty + tagH / 2 + 1);
         tx += w + 6;
       });
       ctx.textBaseline = 'alphabetic';
     }
 
-    // footer URL - RIGHT ALIGNED or under logo
+    // footer URL - BOTTOM LEFT always
     ctx.font = '600 13px Inter, sans-serif';
     ctx.fillStyle = '#888888';
-    
-    if (withLogo) {
-      // Under logo
-      ctx.textAlign = 'left';
-      ctx.fillText('https://isa-aerospace.vercel.app/', PAD, PAD + 88);
-    } else {
-      // Right bottom corner
-      ctx.textAlign = 'right';
-      ctx.fillText('https://isa-aerospace.vercel.app/', W - PAD, urlTop);
-    }
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('https://isa-aerospace.vercel.app/', PAD, H - 20);
     ctx.textAlign = 'left';
 
     canvas.toBlob((blob) => {
