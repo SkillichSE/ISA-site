@@ -770,9 +770,9 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     // custom tags - SMALLER VERSION
     if (tags.length) {
       let tx = PAD;
-      ctx.font = '600 12px Inter, sans-serif';
+      ctx.font = '600 16px Inter, sans-serif';
       ctx.textBaseline = 'middle';
-      const tagPadX = 8, tagH = 20;
+      const tagPadX = 12, tagH = 28;
       tags.forEach((tag) => {
         const label = tag.toUpperCase();
         const w = ctx.measureText(label).width + tagPadX * 2;
