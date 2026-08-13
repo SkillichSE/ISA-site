@@ -506,14 +506,20 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     }
 
     // Project detail page
+    // NOTE: #project-tags (.mission-tags) is hidden on the site (display:none
+    // in projects.css) — the tags actually shown to visitors are the
+    // .isa-tag pills rendered into #project-meta. Read from meta first so
+    // isaCard() matches what's really on the page; fall back to the hidden
+    // container only if meta somehow has nothing.
     const projectTitle = document.getElementById('project-title');
     if (projectTitle && textOf(projectTitle)) {
       const meta = document.getElementById('project-meta');
       const projectTags = document.getElementById('project-tags');
+      const metaTags = tagsFrom(meta);
       return {
         title: textOf(projectTitle),
         status: textOf(meta && meta.querySelector('.mission-status')) || 'Active',
-        tags: tagsFrom(projectTags) || tagsFrom(meta) || [],
+        tags: metaTags.length ? metaTags : tagsFrom(projectTags),
       };
     }
 
@@ -740,9 +746,9 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     // Simple fixed positioning from bottom
     // URL at H-20, then gap, then tags, then gap, then title, then gap, then pill
     const urlTop = H - 20;
-    const tagsTop = H - 80; // 60px gap from URL
-    const titleTop = H - 200; // 120px gap from tags
-    const pillTop = titleTop - titleHeight - 32;
+    const tagsTop = H - 60; // 20px from bottom to URL baseline
+    const titleTop = H - 110; // 50px for URL+gap+tags
+    const pillTop = titleTop - titleHeight - 16;
 
     // status pill
     ctx.font = '700 22px Inter, sans-serif';
