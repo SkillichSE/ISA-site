@@ -781,7 +781,7 @@ function getForm(type) {
       status, date:launchDate,description:g('description'),image:g('image'),published:g('published')==='true',
       tags:arr('tags'), launchshare, launchshare_volume: launchshare ? lsVolume : null };
   }
-  if (type==='news') return { id:g('id'),tag:g('tag'),title:g('title'),date:g('date'),body:g('body'),image:g('image'),link:g('link'),tags:arr('tags') };
+  if (type==='news') return { id:g('id'),tag:g('tag'),title:g('title'),date:g('date'),body:g('body'),image:g('image'),link:g('link') };
 }
 
 async function saveItem() {

@@ -744,7 +744,6 @@ function buildForm(type, item) {
     <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. atlas-review-2026')}${sel('tag','Tag',v('tag','Mission Update'),['Mission Update','Community','Research','Engineering','Launchshare'])}</div>
     ${field('title','Title',v('title'))}
     ${field('date','Date',v('date'),'e.g. Jun 2, 2026')}
-    ${field('tags','Additional Tags',Array.isArray(v('tags'))?v('tags',[]).join(', '):v('tags'),'Comma-separated, will appear on isaCard() badge')}
     ${ta('body','Summary / Body',v('body'))}
     ${imgField('image','Image',v('image'))}
     ${field('link','Read More Link',v('link','projects.html'),'Relative or absolute URL')}`;
@@ -781,7 +780,7 @@ function getForm(type) {
       status, date:launchDate,description:g('description'),image:g('image'),published:g('published')==='true',
       tags:arr('tags'), launchshare, launchshare_volume: launchshare ? lsVolume : null };
   }
-  if (type==='news') return { id:g('id'),tag:g('tag'),title:g('title'),date:g('date'),body:g('body'),image:g('image'),link:g('link'),tags:arr('tags') };
+  if (type==='news') return { id:g('id'),tag:g('tag'),title:g('title'),date:g('date'),body:g('body'),image:g('image'),link:g('link') };
 }
 
 async function saveItem() {
