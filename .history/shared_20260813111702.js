@@ -474,20 +474,7 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
 
   function tagsFrom(scope) {
     if (!scope) return [];
-    // Try to find tags from .isa-tag elements or data-tags attribute
-    const tagEls = Array.from(scope.querySelectorAll('.isa-tag, [data-isa-tag]'));
-    if (tagEls.length) {
-      return tagEls.map(t => t.textContent.trim() || t.getAttribute('data-isa-tag')).filter(Boolean);
-    }
-    // Fallback: check for data-tags attribute
-    const dataTags = scope.getAttribute('data-tags');
-    if (dataTags) {
-      try {
-        const parsed = JSON.parse(dataTags);
-        return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
-      } catch { return []; }
-    }
-    return [];
+    return Array.from(scope.querySelectorAll('.isa-tag')).map(t => t.textContent.trim()).filter(Boolean);
   }
 
   // Looks at the current page and pulls whichever launch / project / news
@@ -509,11 +496,10 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     const projectTitle = document.getElementById('project-title');
     if (projectTitle && textOf(projectTitle)) {
       const meta = document.getElementById('project-meta');
-      const projectTags = document.getElementById('project-tags');
       return {
         title: textOf(projectTitle),
         status: textOf(meta && meta.querySelector('.mission-status')) || 'Active',
-        tags: tagsFrom(projectTags) || tagsFrom(meta) || [],
+        tags: tagsFrom(document.getElementById('project-tags')),
       };
     }
 

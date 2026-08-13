@@ -509,11 +509,10 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     const projectTitle = document.getElementById('project-title');
     if (projectTitle && textOf(projectTitle)) {
       const meta = document.getElementById('project-meta');
-      const projectTags = document.getElementById('project-tags');
       return {
         title: textOf(projectTitle),
         status: textOf(meta && meta.querySelector('.mission-status')) || 'Active',
-        tags: tagsFrom(projectTags) || tagsFrom(meta) || [],
+        tags: tagsFrom(document.getElementById('project-tags')),
       };
     }
 
