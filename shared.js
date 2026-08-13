@@ -777,7 +777,7 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     const urlFontSize = 13;
     const titleUrlGap = 30; // visual breathing room between title and URL
     const titleTop = (urlTop - urlFontSize) - titleUrlGap - titleHeight - size * 0.22;
-    const badgeRowTop = titleTop - titleHeight - 16;
+    const badgeRowTop = titleTop - badgeH - 12;
 
     // badge row (status, mission badge, tags — one row, above the title)
     if (badges.length) {
