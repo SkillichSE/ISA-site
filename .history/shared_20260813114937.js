@@ -795,12 +795,19 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
       ctx.textBaseline = 'alphabetic';
     }
 
-    // footer URL - BOTTOM LEFT always
+    // footer URL - RIGHT ALIGNED or under logo
     ctx.font = '600 13px Inter, sans-serif';
     ctx.fillStyle = '#888888';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'bottom';
-    ctx.fillText('https://isa-aerospace.vercel.app/', PAD, H - 20);
+    
+    if (logo) {
+      // Under logo
+      ctx.textAlign = 'left';
+      ctx.fillText('https://isa-aerospace.vercel.app/', PAD, PAD + 88);
+    } else {
+      // Right bottom corner
+      ctx.textAlign = 'right';
+      ctx.fillText('https://isa-aerospace.vercel.app/', W - PAD, urlTop);
+    }
     ctx.textAlign = 'left';
 
     canvas.toBlob((blob) => {
