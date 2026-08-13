@@ -738,8 +738,23 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     const lineHeight = size * 1.14;
     const titleHeight = size + (lines.length - 1) * lineHeight;
     
-    // Calculate tags height - single row
-    let tagsHeight = tags.length ? tagH : 0;
+    // Calculate tags height - need to estimate number of rows
+    let tagsHeight = 0;
+    if (tags.length) {
+      ctx.font = '600 16px Inter, sans-serif';
+      let currentRowWidth = 0;
+      let numRows = 1;
+      tags.forEach((tag) => {
+        const w = ctx.measureText(tag).width + tagPadX * 2 + 6;
+        if (currentRowWidth + w > maxTagWidth && currentRowWidth > 0) {
+          numRows++;
+          currentRowWidth = w;
+        } else {
+          currentRowWidth += w;
+        }
+      });
+      tagsHeight = numRows * tagH + (numRows - 1) * tagGapY;
+    }
 
     // Position content from bottom: padding -> url -> tags -> title -> pill
     const urlTop = contentTop - 18;
