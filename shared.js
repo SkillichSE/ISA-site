@@ -472,63 +472,99 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     return el ? el.textContent.trim() : '';
   }
 
-  function tagsFrom(scope) {
+  // Colors for the non-status badge types, matching their real CSS classes
+  // (launches.css / news.css / shared.css) so the card looks like the site.
+  const BADGE_COLORS = {
+    mission:     { fg: '#e26bf5', bg: 'rgba(226,107,245,0.12)' }, // .launch-mission-badge
+    launchshare: { fg: '#f0a830', bg: 'rgba(240,168,48,0.14)' },  // .launch-launchshare-badge
+    tag:         { fg: '#2dd4bf', bg: 'rgba(45,212,191,0.14)' },  // .isa-tag
+    newsTag:     { fg: '#3b82f6', bg: 'rgba(37,99,235,0.15)' },   // .news-tag
+  };
+
+  // Walks a meta/card container and returns every *visible* pill badge in
+  // it, in DOM order, with the color it actually has on the site. This
+  // covers status pills, the rocket/mission badge, the launchshare badge,
+  // and isa-tag pills together — mirrors what a visitor actually sees in
+  // one row, instead of picking one badge type and dropping the rest.
+  function collectBadges(scope) {
     if (!scope) return [];
-    // Try to find tags from .isa-tag elements or data-tags attribute
-    const tagEls = Array.from(scope.querySelectorAll('.isa-tag, [data-isa-tag]'));
-    if (tagEls.length) {
-      return tagEls.map(t => t.textContent.trim() || t.getAttribute('data-isa-tag')).filter(Boolean);
+    const sel = '.launch-status, .mission-status, .launch-mission-badge, .launch-launchshare-badge, .isa-tag, [data-isa-tag], .news-tag';
+    const els = Array.from(scope.querySelectorAll(sel));
+    const badges = [];
+    for (const el of els) {
+      let text, style;
+      if (el.classList.contains('launch-status')) {
+        text = readStatusFromBadge(el);
+        style = statusStyle(text);
+        text = style.label;
+      } else if (el.classList.contains('mission-status')) {
+        text = textOf(el);
+        style = statusStyle(text);
+        text = style.label;
+      } else if (el.classList.contains('launch-mission-badge')) {
+        text = textOf(el);
+        style = BADGE_COLORS.mission;
+      } else if (el.classList.contains('launch-launchshare-badge')) {
+        text = textOf(el);
+        style = BADGE_COLORS.launchshare;
+      } else if (el.classList.contains('news-tag')) {
+        text = textOf(el);
+        style = BADGE_COLORS.newsTag;
+      } else {
+        text = el.textContent.trim() || el.getAttribute('data-isa-tag');
+        style = BADGE_COLORS.tag;
+      }
+      text = (text || '').trim();
+      if (text) badges.push({ text, fg: style.fg, bg: style.bg });
     }
-    // Fallback: check for data-tags attribute
-    const dataTags = scope.getAttribute('data-tags');
-    if (dataTags) {
-      try {
-        const parsed = JSON.parse(dataTags);
-        return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
-      } catch { return []; }
-    }
-    return [];
+    return badges;
   }
 
   // Looks at the current page and pulls whichever launch / project / news
   // item is already on screen — a detail page's single item, or the first
   // card on a list page — so nothing has to be typed by hand.
+  function withFallback(badges, fallbackText, fallbackKey) {
+    if (badges.length) return badges;
+    const style = fallbackKey === 'news' ? BADGE_COLORS.newsTag : statusStyle(fallbackText);
+    return [{ text: style.label || fallbackText, fg: style.fg, bg: style.bg }];
+  }
+
   function detectPageContent() {
-    // Launch detail page
+    // Launch detail page — status, mission (rocket) badge, launchshare
+    // badge, and isa-tags all sit in #launch-detail-meta in that order,
+    // exactly as rendered on the page. Read them together as one row.
     const launchTitle = document.getElementById('launch-detail-title');
     if (launchTitle && textOf(launchTitle)) {
       const meta = document.getElementById('launch-detail-meta');
       return {
         title: textOf(launchTitle),
-        status: readStatusFromBadge(meta && meta.querySelector('.launch-status')) || 'Upcoming',
-        tags: tagsFrom(meta),
+        badges: withFallback(collectBadges(meta), 'Upcoming'),
       };
     }
 
     // Project detail page
     // NOTE: #project-tags (.mission-tags) is hidden on the site (display:none
-    // in projects.css) — the tags actually shown to visitors are the
-    // .isa-tag pills rendered into #project-meta. Read from meta first so
+    // in projects.css) — the badges actually shown to visitors (status,
+    // isa-tags) are rendered into #project-meta. Read from meta first so
     // isaCard() matches what's really on the page; fall back to the hidden
     // container only if meta somehow has nothing.
     const projectTitle = document.getElementById('project-title');
     if (projectTitle && textOf(projectTitle)) {
       const meta = document.getElementById('project-meta');
       const projectTags = document.getElementById('project-tags');
-      const metaTags = tagsFrom(meta);
+      const metaBadges = collectBadges(meta);
       return {
         title: textOf(projectTitle),
-        status: textOf(meta && meta.querySelector('.mission-status')) || 'Active',
-        tags: metaTags.length ? metaTags : tagsFrom(projectTags),
+        badges: withFallback(metaBadges.length ? metaBadges : collectBadges(projectTags), 'Active'),
       };
     }
 
-    // News post detail page (no separate status concept — first tag doubles as one)
+    // News post detail page (no separate status concept — the news-tag pill
+    // doubles as the leading badge, followed by any isa-tags)
     const newsTitle = document.getElementById('news-detail-title');
     if (newsTitle && textOf(newsTitle)) {
       const meta = document.getElementById('news-detail-meta');
-      const tags = tagsFrom(meta);
-      return { title: textOf(newsTitle), status: tags[0] || 'News', tags: tags.slice(1) };
+      return { title: textOf(newsTitle), badges: withFallback(collectBadges(meta), 'News', 'news') };
     }
 
     // Launches list page — use the top (soonest) card
@@ -536,8 +572,7 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     if (launchCard) {
       return {
         title: textOf(launchCard.querySelector('.launch-title')),
-        status: readStatusFromBadge(launchCard.querySelector('.launch-status')) || 'Upcoming',
-        tags: tagsFrom(launchCard),
+        badges: withFallback(collectBadges(launchCard), 'Upcoming'),
       };
     }
 
@@ -546,19 +581,16 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     if (missionCard) {
       return {
         title: textOf(missionCard.querySelector('.mission-title')),
-        status: textOf(missionCard.querySelector('.mission-status')) || 'Active',
-        tags: tagsFrom(missionCard),
+        badges: withFallback(collectBadges(missionCard), 'Active'),
       };
     }
 
     // News list page — featured post first, else the first grid card
     const newsCard = document.querySelector('.news-featured') || document.querySelector('#news-grid .news-card');
     if (newsCard) {
-      const tags = tagsFrom(newsCard);
       return {
         title: textOf(newsCard.querySelector('h2, h3')),
-        status: tags[0] || 'News',
-        tags: tags.slice(1),
+        badges: withFallback(collectBadges(newsCard), 'News', 'news'),
       };
     }
 
@@ -675,9 +707,8 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
 
     await ensureFontsReady();
 
-    const st = statusStyle(info.status);
     const heading = String(info.title).trim() || 'ISA Mission';
-    const tags = (info.tags || []).filter(Boolean);
+    const badges = (info.badges || []).filter(b => b && b.text);
 
     const W = 1200, H = 630, SCALE = 2, PAD = 64;
     const canvas = document.createElement('canvas');
@@ -725,39 +756,40 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     }
 
     // Content positioned at BOTTOM like site hero-inner
-    const contentBottomPadding = 40;
-    let contentTop = H - contentBottomPadding;
 
-    // Calculate space needed for content
-    ctx.font = '700 22px Inter, sans-serif';
-    const pillLabel = st.label.toUpperCase();
-    const pillPadX = 20;
-    const pillW = ctx.measureText(pillLabel).width + pillPadX * 2;
-    const pillH = 42;
-
-    // Tag dimensions
-    const tagH = 20, tagPadX = 10, tagGapX = 6;
+    // Badge row: status + mission badge + isa-tags, all together, same
+    // size, in page order — matches the single meta row shown on the site.
+    ctx.font = '700 16px Inter, sans-serif';
+    const badgePadX = 16, badgeH = 34, badgeGapX = 10;
+    const badgeWidths = badges.map(b => ctx.measureText(b.text).width + badgePadX * 2);
 
     // Estimate title height
     const { size, lines } = fitTitle(ctx, heading, W - PAD * 2, 2);
     const lineHeight = size * 1.14;
     const titleHeight = size + (lines.length - 1) * lineHeight;
-    
-    // Simple fixed positioning from bottom
-    // URL at H-20, then gap, then tags, then gap, then title, then gap, then pill
-    const urlTop = H - 20;
-    const tagsTop = H - 60; // 20px from bottom to URL baseline
-    const titleTop = H - 110; // 50px for URL+gap+tags
-    const pillTop = titleTop - titleHeight - 16;
 
-    // status pill
-    ctx.font = '700 22px Inter, sans-serif';
-    ctx.fillStyle = st.bg;
-    roundRect(ctx, PAD, pillTop, pillW, pillH, pillH / 2);
-    ctx.fill();
-    ctx.fillStyle = st.fg;
-    ctx.textBaseline = 'middle';
-    ctx.fillText(pillLabel, PAD + pillPadX, pillTop + pillH / 2 + 1);
+    // Simple fixed positioning from bottom
+    // URL at H-20, then title, then the badge row directly above it
+    const urlTop = H - 20;
+    const titleTop = H - 110;
+    const badgeRowTop = titleTop - titleHeight - 16;
+
+    // badge row (status, mission badge, tags — one row, above the title)
+    if (badges.length) {
+      ctx.font = '700 16px Inter, sans-serif';
+      ctx.textBaseline = 'middle';
+      let bx = PAD;
+      badges.forEach((b, idx) => {
+        const w = badgeWidths[idx];
+        ctx.fillStyle = b.bg;
+        roundRect(ctx, bx, badgeRowTop, w, badgeH, badgeH / 2);
+        ctx.fill();
+        ctx.fillStyle = b.fg;
+        ctx.fillText(b.text, bx + badgePadX, badgeRowTop + badgeH / 2 + 1);
+        bx += w + badgeGapX;
+      });
+      ctx.textBaseline = 'alphabetic';
+    }
 
     // title (bright white)
     ctx.fillStyle = '#ffffff';
@@ -766,29 +798,6 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
       ctx.font = `800 ${size}px Inter, sans-serif`;
       ctx.fillText(line, PAD, titleTop + size + i * lineHeight);
     });
-
-    // custom tags - all in single row
-    if (tags.length > 0) {
-      ctx.font = '600 12px Inter, sans-serif';
-      ctx.textBaseline = 'middle';
-      let tx = PAD;
-      
-      tags.forEach((tag, idx) => {
-        const w = ctx.measureText(tag).width + tagPadX * 2;
-        
-        // Draw background pill
-        roundRect(ctx, tx, tagsTop, w, tagH, tagH / 2);
-        ctx.fillStyle = 'rgba(45,212,191,0.14)';
-        ctx.fill();
-        
-        // Draw text centered in pill
-        ctx.fillStyle = '#2dd4bf';
-        ctx.fillText(tag, tx + tagPadX, tagsTop + tagH / 2);
-        tx += w + (idx < tags.length - 1 ? tagGapX : 0);
-      });
-      
-      ctx.textBaseline = 'alphabetic';
-    }
 
     // footer URL - BOTTOM LEFT always
     ctx.font = '600 13px Inter, sans-serif';
@@ -803,7 +812,7 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `isa-${slug(st.label)}-${slug(heading)}.png`;
+      a.download = `isa-${slug(badges[0] ? badges[0].text : 'card')}-${slug(heading)}.png`;
       document.body.appendChild(a);
       a.click();
       a.remove();
