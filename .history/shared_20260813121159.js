@@ -782,28 +782,25 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
       ctx.fillText(line, PAD, titleTop + size + i * lineHeight);
     });
 
-    // custom tags - multiple rows if needed
-    if (tagsRows.length > 0) {
+    // custom tags - single row, all at same height, matching website CSS
+    if (tags.length) {
       ctx.font = '600 12px Inter, sans-serif';
       ctx.textBaseline = 'middle';
+      let tx = PAD;
       
-      tagsRows.forEach((row, rowIdx) => {
-        let tx = PAD;
-        const ty = tagsTop + rowIdx * (tagH + tagGapY);
+      tags.forEach((tag) => {
+        const label = tag;
+        const w = ctx.measureText(label).width + tagPadX * 2;
         
-        row.forEach((tag) => {
-          const w = ctx.measureText(tag).width + tagPadX * 2;
-          
-          // Draw background pill
-          roundRect(ctx, tx, ty, w, tagH, tagH / 2);
-          ctx.fillStyle = 'rgba(45,212,191,0.14)';
-          ctx.fill();
-          
-          // Draw text centered in pill
-          ctx.fillStyle = '#2dd4bf';
-          ctx.fillText(tag, tx + tagPadX, ty + tagH / 2);
-          tx += w + tagGapX;
-        });
+        // Draw background pill
+        roundRect(ctx, tx, tagsTop, w, tagH, tagH / 2);
+        ctx.fillStyle = 'rgba(45,212,191,0.14)';
+        ctx.fill();
+        
+        // Draw text centered in pill
+        ctx.fillStyle = '#2dd4bf';
+        ctx.fillText(label, tx + tagPadX, tagsTop + tagH / 2);
+        tx += w + 6;
       });
       
       ctx.textBaseline = 'alphabetic';
