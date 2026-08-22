@@ -833,3 +833,148 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     'color:#888888;font-size:12px;'
   );
 })();
+
+// =======================================================================
+// Hero media slideshow — crossfading background of videos + photos
+// pulled from across the whole site. Drop an empty
+//   <div class="hero-media-slideshow" data-hero-media></div>
+// inside any .hero / .page-hero section to opt it in (see index.html,
+// careers.html, news.html, projects.html, launches.html). Launchshare's
+// page has its own dedicated background video and does not use this.
+//
+// Media pool:
+//  - Videos: the same two clips already used for the homepage hero
+//    (Supabase Storage, "media" bucket — Space A.mp4 / Space B.mp4).
+//  - Photos: the live `image` field of every row in the missions
+//    (projects), launches and news tables — i.e. every photo already
+//    shown somewhere else on the site, fetched fresh via the same
+//    Supabase REST API the rest of the site uses.
+// Photos are shown for ~5s each; videos play once through at their
+// natural length; every switch is a 1.5s crossfade. The play order is
+// reshuffled ("в разброс") each time the pool is exhausted.
+// =======================================================================
+(function () {
+  const HERO_MEDIA_VIDEOS = [
+    'https://fqvghuvmgswegirgitom.supabase.co/storage/v1/object/public/media/Space%20A.mp4',
+    'https://fqvghuvmgswegirgitom.supabase.co/storage/v1/object/public/media/Space%20B.mp4',
+  ];
+  const HERO_PHOTO_MS = 5000;
+
+  function heroShuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  async function fetchHeroPhotoPool() {
+    const headers = { apikey: LAUNCH_SB_KEY, Authorization: `Bearer ${LAUNCH_SB_KEY}` };
+    const tables = ['missions', 'launches', 'news'];
+    try {
+      const results = await Promise.all(tables.map(t =>
+        fetch(`${LAUNCH_SB_URL}/rest/v1/${t}?select=image`, { headers })
+          .then(r => r.ok ? r.json() : [])
+          .catch(() => [])
+      ));
+      const urls = results.flat().map(row => row && row.image).filter(Boolean);
+      return Array.from(new Set(urls));
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function loadIntoLayer(layer, item) {
+    return new Promise(resolve => {
+      layer.innerHTML = '';
+      if (item.type === 'video') {
+        const v = document.createElement('video');
+        v.muted = true;
+        v.playsInline = true;
+        v.preload = 'auto';
+        let done = false;
+        const finish = () => { if (!done) { done = true; resolve(v); } };
+        v.addEventListener('canplay', finish, { once: true });
+        v.addEventListener('error', () => { if (!done) { done = true; resolve(null); } }, { once: true });
+        // Don't let a slow/broken connection stall the whole slideshow.
+        setTimeout(finish, 3000);
+        layer.appendChild(v);
+        v.src = item.src;
+        v.load();
+      } else {
+        const img = new Image();
+        img.alt = '';
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(null);
+        layer.appendChild(img);
+        img.src = item.src;
+      }
+    });
+  }
+
+  function startHeroMediaSlideshow(root, basePool) {
+    root.innerHTML = '<div class="hero-media-layer"></div><div class="hero-media-layer"></div>';
+    const layers = root.querySelectorAll('.hero-media-layer');
+    let queue = heroShuffle(basePool);
+    let activeIdx = -1;
+    let destroyed = false;
+
+    root._heroMediaDestroy = () => { destroyed = true; };
+
+    function nextItem() {
+      if (!queue.length) queue = heroShuffle(basePool);
+      return queue.shift();
+    }
+
+    async function advance() {
+      if (destroyed) return;
+      const item = nextItem();
+      const nextIdx = activeIdx === 0 ? 1 : 0;
+      const nextLayer = layers[nextIdx];
+      const prevLayer = activeIdx === -1 ? null : layers[activeIdx];
+
+      const el = await loadIntoLayer(nextLayer, item);
+      if (destroyed) return;
+      if (!el) { advance(); return; }
+
+      requestAnimationFrame(() => {
+        nextLayer.classList.add('active');
+        if (prevLayer) prevLayer.classList.remove('active');
+      });
+      activeIdx = nextIdx;
+
+      root.dispatchEvent(new CustomEvent('hero-media-change', { detail: { type: item.type, el } }));
+
+      if (item.type === 'video') {
+        el.play().catch(() => {});
+        el.addEventListener('ended', advance, { once: true });
+        el.addEventListener('error', () => setTimeout(advance, 300), { once: true });
+      } else {
+        setTimeout(advance, HERO_PHOTO_MS);
+      }
+    }
+
+    advance();
+  }
+
+  async function initHeroMediaSlideshows() {
+    const roots = document.querySelectorAll('[data-hero-media]');
+    if (!roots.length) return;
+
+    const photos = await fetchHeroPhotoPool();
+    const pool = [
+      ...HERO_MEDIA_VIDEOS.map(src => ({ type: 'video', src })),
+      ...photos.map(src => ({ type: 'photo', src })),
+    ];
+    if (!pool.length) return;
+
+    roots.forEach(root => startHeroMediaSlideshow(root, pool));
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHeroMediaSlideshows);
+  } else {
+    initHeroMediaSlideshows();
+  }
+})();
