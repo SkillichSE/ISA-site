@@ -482,6 +482,26 @@ body {
   display: block;
 }
 
+/* "New" badge — small pill on a card, top-right. See isaGetNewIds()
+   in shared.js for how items get flagged. Cards using this need
+   position:relative (added per-card below). */
+.isa-new-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+  background: var(--accent-light);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  padding: 4px 9px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
 .site-footer {
   padding: 40px 0;
   border-top: 1px solid var(--line);

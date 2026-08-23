@@ -117,6 +117,8 @@
         if (!published.length) { emptyEl.style.display = 'block'; return; }
         _launches = published;
 
+        const newIds = isaGetNewIds('launches', published.map(l => l.id));
+
         listEl.innerHTML = published.map((l, i) => {
           const date    = l.date ? new Date(l.date) : null;
           const hasDate = !!(date && !isNaN(date.getTime()));
@@ -130,6 +132,7 @@
 
           return `
           <a class="launch-card reveal-target" href="launch.html?id=${encodeURIComponent(l.id)}" data-launch="${i}">
+            ${newIds.has(Number(l.id)) ? '<span class="isa-new-badge">New</span>' : ''}
             ${l.image ? `<div class="launch-card-image" style="background-image:url('${escHtml(l.image)}')"></div>` : ''}
             ${hasDate ? `
             <div class="launch-card-date">

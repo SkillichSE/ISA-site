@@ -60,6 +60,48 @@ const LAUNCH_SB_URL = 'https://fqvghuvmgswegirgitom.supabase.co';
 const LAUNCH_SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxdmdodXZtZ3N3ZWdpcmdpdG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTI4MTAsImV4cCI6MjA5NjY4ODgxMH0.7tKrak3ANnnhp4pISK2ythPdCt557vMACUhpQsqWn0s';
 const NAV_LAUNCHES_LIMIT = 3;
 
+// ---------------------------------------------------------------------
+// "New" badge tracking — no created_at column exists on missions/
+// launches/news, so recency is inferred from auto-increment `id`
+// (rows are always created with `order=id` ascending, same as every
+// list on the site already sorts by). Per visitor, per category
+// (missions/launches/news), we remember the highest id seen so far in
+// localStorage; anything with a bigger id than that is "new" and gets
+// badged. The very first time a category is seen, nothing is badged
+// (just establishes a baseline) so new visitors aren't shown the whole
+// site as "new". Call isaGetNewIds(category, ids) once per page load,
+// right after fetching a list — it both returns the new ones AND marks
+// them seen for next time.
+// ---------------------------------------------------------------------
+function isaGetNewIds(category, ids) {
+  const key = `isa_seen_${category}_maxid`;
+  let lastSeen = null;
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw !== null && raw !== '') {
+      const parsed = parseInt(raw, 10);
+      if (!isNaN(parsed)) lastSeen = parsed;
+    }
+  } catch (e) {}
+
+  const numericIds = (ids || [])
+    .map(id => Number(id))
+    .filter(id => !isNaN(id));
+  const maxId = numericIds.length ? Math.max(...numericIds) : null;
+
+  const newIds = new Set();
+  if (lastSeen !== null) {
+    numericIds.forEach(id => { if (id > lastSeen) newIds.add(id); });
+  }
+
+  if (maxId !== null) {
+    const nextSeen = lastSeen === null ? maxId : Math.max(lastSeen, maxId);
+    try { localStorage.setItem(key, String(nextSeen)); } catch (e) {}
+  }
+
+  return newIds;
+}
+
 function navEscHtml(str) {
   return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }

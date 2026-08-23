@@ -38,8 +38,11 @@
     const SB_URL = 'https://fqvghuvmgswegirgitom.supabase.co';
     const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxdmdodXZtZ3N3ZWdpcmdpdG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTI4MTAsImV4cCI6MjA5NjY4ODgxMH0.7tKrak3ANnnhp4pISK2ythPdCt557vMACUhpQsqWn0s';
 
-    // image height alternation for masonry variety
-    const IMG_SIZES = ['tall', 'short', 'tall', 'none', 'short', 'tall', 'none', 'short'];
+    // image height alternation for masonry variety — every card always
+    // shows an image block (real photo, or a placeholder icon), just at
+    // one of these two heights, so cards stay visually consistent.
+    const IMG_SIZES = ['tall', 'short'];
+    const NEWS_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>';
 
     function escHtml(str) {
       return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -94,10 +97,13 @@
         const [featured, ...rest] = posts;
         window._newsPosts = posts;
 
+        const newIds = isaGetNewIds('news', posts.map(p => p.id));
+
         // featured card
         featuredWrap.innerHTML = `
           <a class="news-featured reveal-target" href="news-post.html?id=${encodeURIComponent(featured.id)}">
-            <div class="news-featured-img" style="${featured.image ? `background-image:url('${escHtml(featured.image)}')` : ''}"></div>
+            ${newIds.has(Number(featured.id)) ? '<span class="isa-new-badge">New</span>' : ''}
+            <div class="news-featured-img${featured.image ? '' : ' no-image'}" style="${featured.image ? `background-image:url('${escHtml(featured.image)}')` : ''}">${featured.image ? '' : NEWS_ICON_SVG}</div>
             <div class="news-featured-body">
               <div class="news-meta">
                 <span class="news-tag">${escHtml(featured.tag)}</span>
@@ -111,10 +117,11 @@
 
         // masonry cards
         grid.innerHTML = rest.map((n, i) => {
-          const sizeClass = n.image ? (IMG_SIZES[i % IMG_SIZES.length] || 'short') : 'none';
+          const sizeClass = IMG_SIZES[i % IMG_SIZES.length];
           return `
           <a class="news-card reveal-target" href="news-post.html?id=${encodeURIComponent(n.id)}">
-            <div class="news-card-img ${sizeClass}" style="${n.image ? `background-image:url('${escHtml(n.image)}')` : ''}"></div>
+            ${newIds.has(Number(n.id)) ? '<span class="isa-new-badge">New</span>' : ''}
+            <div class="news-card-img ${sizeClass}${n.image ? '' : ' no-image'}" style="${n.image ? `background-image:url('${escHtml(n.image)}')` : ''}">${n.image ? '' : NEWS_ICON_SVG}</div>
             <div class="news-card-body">
               <div class="news-meta">
                 <span class="news-tag">${escHtml(n.tag)}</span>

@@ -181,9 +181,11 @@
       }
 
       const sizeClass = (i) => i < 2 ? 'project-large' : 'project-small';
+      const newIds = isaGetNewIds('missions', missions.map(m => m.id));
       document.getElementById('projects-grid').innerHTML = missions.map((m, i) => `
         <a class="project-card ${sizeClass(i)} reveal-target" href="projects.html" style="background-image:url('${escHtml(m.image || '')}')">
           <div class="project-overlay"></div>
+          ${newIds.has(Number(m.id)) ? '<span class="isa-new-badge">New</span>' : ''}
           <div class="project-info">
             <span class="project-name">${escHtml(m.name)}</span>
             <span class="project-sub">${escHtml(m.division)}</span>

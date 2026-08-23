@@ -82,8 +82,10 @@
           document.getElementById('missions-list').innerHTML = '<p style="color:var(--muted);padding:40px 0">No missions yet.</p>';
           return;
         }
+        const newIds = isaGetNewIds('missions', missions.map(m => m.id));
         document.getElementById('missions-list').innerHTML = missions.map(m => `
           <a class="mission-card reveal-target" href="project.html?id=${encodeURIComponent(m.id)}">
+            ${newIds.has(Number(m.id)) ? '<span class="isa-new-badge">New</span>' : ''}
             <div class="mission-card-img${m.image ? '' : ' none'}" style="${m.image ? `background-image:url('${escHtml(m.image)}')` : ''}"></div>
             <div class="mission-card-body">
               <div class="mission-meta">
