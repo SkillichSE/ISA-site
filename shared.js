@@ -68,15 +68,16 @@ const NAV_LAUNCHES_LIMIT = 3;
 // list on the site already sorts by). Per visitor, per category
 // (missions/launches/news), we remember the highest id seen so far in
 // localStorage; anything with a bigger id than that is "new" and gets
-// badged. The very first time a category is seen, nothing is badged
-// (just establishes a baseline) so new visitors aren't shown the whole
-// site as "new". Call isaGetNewIds(category, ids) once per page load,
-// right after fetching a list — it both returns the new ones AND marks
-// them seen for next time.
+// badged. If nothing has ever been marked seen yet (fresh browser, or
+// right after this feature shipped), everything counts as unseen —
+// that's what actually surfaces a just-added item as "New" the first
+// time someone checks. Call isaGetNewIds(category, ids) once per page
+// load, right after fetching a list — it both returns the new ones AND
+// marks them seen for next time.
 // ---------------------------------------------------------------------
 function isaGetNewIds(category, ids) {
-  const key = `isa_seen_${category}_maxid`;
-  let lastSeen = null;
+  const key = `isa_seen_v2_${category}_maxid`;
+  let lastSeen = 0;
   try {
     const raw = localStorage.getItem(key);
     if (raw !== null && raw !== '') {
@@ -91,12 +92,10 @@ function isaGetNewIds(category, ids) {
   const maxId = numericIds.length ? Math.max(...numericIds) : null;
 
   const newIds = new Set();
-  if (lastSeen !== null) {
-    numericIds.forEach(id => { if (id > lastSeen) newIds.add(id); });
-  }
+  numericIds.forEach(id => { if (id > lastSeen) newIds.add(id); });
 
   if (maxId !== null) {
-    const nextSeen = lastSeen === null ? maxId : Math.max(lastSeen, maxId);
+    const nextSeen = Math.max(lastSeen, maxId);
     try { localStorage.setItem(key, String(nextSeen)); } catch (e) {}
   }
 
@@ -108,8 +107,8 @@ function isaGetNewIds(category, ids) {
 // WITHOUT updating the seen marker (only actually visiting the page,
 // via isaGetNewIds above, marks things seen).
 function isaPeekHasNew(category, ids) {
-  const key = `isa_seen_${category}_maxid`;
-  let lastSeen = null;
+  const key = `isa_seen_v2_${category}_maxid`;
+  let lastSeen = 0;
   try {
     const raw = localStorage.getItem(key);
     if (raw !== null && raw !== '') {
@@ -117,8 +116,6 @@ function isaPeekHasNew(category, ids) {
       if (!isNaN(parsed)) lastSeen = parsed;
     }
   } catch (e) {}
-  // No baseline yet (first-ever visit to the site) — nothing to flag.
-  if (lastSeen === null) return false;
   return (ids || []).some(id => Number(id) > lastSeen);
 }
 
