@@ -238,6 +238,7 @@ body {
   gap: 4px;
 }
 .nav-links a {
+  position: relative;
   color: var(--muted);
   text-decoration: none;
   font-size: 0.88rem;
@@ -249,6 +250,18 @@ body {
 }
 .nav-links a:hover { color: var(--text); background: rgba(255,255,255,0.06); }
 .nav-links a.active { color: var(--text); }
+.nav-new-dot {
+  display: none;
+  position: absolute;
+  top: 5px;
+  right: 4px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-light);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.18);
+}
+.nav-new-dot.show { display: block; }
 
 /* --- NAV: UPCOMING LAUNCHES DROPDOWN --- */
 .nav-launches { position: relative; }

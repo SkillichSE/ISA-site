@@ -40,6 +40,7 @@ async function injectInclude(placeholderId, url) {
   }
 
   initNavLaunches();
+  initNavNewDots();
   initLogoCursorEgg();
 
   const currentPath = new URL(window.location.href).pathname.replace(/\/$/, '/index.html');
@@ -100,6 +101,52 @@ function isaGetNewIds(category, ids) {
   }
 
   return newIds;
+}
+
+// Non-destructive version for the nav dots below: checks whether a
+// category has anything newer than what's already been marked seen,
+// WITHOUT updating the seen marker (only actually visiting the page,
+// via isaGetNewIds above, marks things seen).
+function isaPeekHasNew(category, ids) {
+  const key = `isa_seen_${category}_maxid`;
+  let lastSeen = null;
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw !== null && raw !== '') {
+      const parsed = parseInt(raw, 10);
+      if (!isNaN(parsed)) lastSeen = parsed;
+    }
+  } catch (e) {}
+  // No baseline yet (first-ever visit to the site) — nothing to flag.
+  if (lastSeen === null) return false;
+  return (ids || []).some(id => Number(id) > lastSeen);
+}
+
+// Small dot on the Projects/Launches/News nav links when that section
+// has something new the visitor hasn't opened yet. Skips the section
+// matching the current page, since you're already looking at it there.
+const NAV_NEW_SECTIONS = [
+  { table: 'missions', selector: '[data-nav-new-for="missions"]', selfPaths: ['/', '/index.html', '/projects.html'] },
+  { table: 'launches', selector: '[data-nav-new-for="launches"]', selfPaths: ['/launches.html'] },
+  { table: 'news',     selector: '[data-nav-new-for="news"]',     selfPaths: ['/news.html'] },
+];
+
+async function initNavNewDots() {
+  const path = window.location.pathname.replace(/\/$/, '/index.html') || '/index.html';
+  const headers = { apikey: LAUNCH_SB_KEY, Authorization: `Bearer ${LAUNCH_SB_KEY}` };
+
+  await Promise.all(NAV_NEW_SECTIONS.map(async (cfg) => {
+    const dot = document.querySelector(cfg.selector);
+    if (!dot) return;
+    if (cfg.selfPaths.includes(path)) return;
+
+    try {
+      const rows = await fetch(`${LAUNCH_SB_URL}/rest/v1/${cfg.table}?select=id`, { headers })
+        .then(r => r.ok ? r.json() : []);
+      const ids = (Array.isArray(rows) ? rows : []).map(r => r.id);
+      if (isaPeekHasNew(cfg.table, ids)) dot.classList.add('show');
+    } catch (e) {}
+  }));
 }
 
 function navEscHtml(str) {
