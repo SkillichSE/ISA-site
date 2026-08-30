@@ -2,6 +2,10 @@
 .launch-detail-main .news-body-text {
   font-size: 0.98rem;
 }
-.launch-detail-side .mission-tags {
-  margin-top: 16px;
+.launch-hero .mission-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
 }
+.launch-hero .mission-tags:empty { display: none; margin-top: 0; }
