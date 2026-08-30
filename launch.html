@@ -42,7 +42,6 @@
       <div class="launch-hero-overlay"></div>
       <div class="container launch-hero-inner">
         <div class="launch-meta" id="launch-detail-meta"></div>
-        <div class="launch-tags" id="launch-detail-tags"></div>
         <h1 id="launch-detail-title"></h1>
         <div class="launch-hero-sub">
           <span id="launch-detail-datebig"></span>
@@ -190,12 +189,18 @@
       const eff = liveStatus(l);
       const cd = (eff !== 'completed' && eff !== 'scrubbed') ? countdownStr(l.date) : null;
 
+      const branchColorObj = l.branch ? branchColor(l.branch) : null;
+      const manualTags = (l.tags && Array.isArray(l.tags)) ? l.tags : [];
+
       document.getElementById('launch-detail-meta').innerHTML =
         `${cd
             ? `<span class="launch-status ${statusClass(eff)}" data-countdown="${escHtml(l.date)}">${cd}</span>`
             : `<span class="launch-status ${statusClass(eff)}">${escHtml(statusLabel(eff) || 'scheduled')}</span>`}
          ${l.mission_id ? `<span class="launch-mission-badge">${escHtml(String(l.mission_id))}</span>` : ''}
-         ${l.launchshare ? `<span class="launch-launchshare-badge">Launchshare</span>` : ''}`;
+         ${l.launchshare ? `<span class="launch-launchshare-badge">Launchshare</span>` : ''}
+         ${branchColorObj ? `<span class="branch-tag" style="background:${branchColorObj.bg};color:${branchColorObj.fg}">${escHtml(l.branch)}</span>` : ''}
+         ${l.orbit ? `<span class="isa-tag">${escHtml(l.orbit)}</span>` : ''}
+         ${manualTags.map(t => `<span class="isa-tag">${escHtml(String(t))}</span>`).join('')}`;
 
       document.getElementById('launch-detail-title').textContent = l.name || 'Unnamed Launch';
       document.getElementById('launch-detail-datebig').textContent = fullDateStr(l.date);
@@ -207,13 +212,6 @@
       const heroImage = l.image || 'https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?q=80&w=1800&auto=format&fit=crop';
       document.getElementById('launch-hero-img').src = heroImage;
       hero.classList.add('has-image');
-
-      const branchColorObj = l.branch ? branchColor(l.branch) : null;
-      const manualTags = (l.tags && Array.isArray(l.tags)) ? l.tags : [];
-      document.getElementById('launch-detail-tags').innerHTML =
-        `${branchColorObj ? `<span class="branch-tag" style="background:${branchColorObj.bg};color:${branchColorObj.fg}">${escHtml(l.branch)}</span>` : ''}
-         ${l.orbit ? `<span class="isa-tag">${escHtml(l.orbit)}</span>` : ''}
-         ${manualTags.map(t => `<span class="isa-tag">${escHtml(String(t))}</span>`).join('')}`;
 
       if (l.launchshare) {
         document.getElementById('launch-ls-cta').style.display = 'inline-flex';
