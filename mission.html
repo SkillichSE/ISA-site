@@ -44,9 +44,8 @@
       <div class="launch-hero-overlay"></div>
       <div class="container launch-hero-inner">
         <a href="missions.html" class="launch-back">← All missions</a>
-        <div class="mission-meta" id="project-meta"></div>
         <h1 id="project-title"></h1>
-        <div class="mission-tags" id="project-tags"></div>
+        <div class="mission-meta" id="project-meta"></div>
       </div>
     </div>
 
@@ -76,10 +75,6 @@
     function capitalize(s) {
       s = String(s || '');
       return s.charAt(0).toUpperCase() + s.slice(1);
-    }
-
-    function tagsHtml(tags) {
-      return (tags || []).map(t => `<span class="isa-tag">${escHtml(t)}</span>`).join('');
     }
 
     function showNotFound() {
@@ -112,7 +107,8 @@
 
       document.getElementById('project-meta').innerHTML =
         `${m.status ? `<span class="mission-status ${STATUS_CLASS[m.status] || ''}">${escHtml(STATUS_LABEL[m.status] || capitalize(m.status))}</span>` : ''}
-         ${m.division ? `<span class="mission-division">${escHtml(m.division)}</span>` : ''}`;
+         ${m.division ? `<span class="mission-division">${escHtml(m.division)}</span>` : ''}
+         ${m.tags && Array.isArray(m.tags) ? m.tags.map(t => `<span class="isa-tag">${escHtml(String(t))}</span>`).join('') : ''}`;
 
       document.getElementById('project-title').textContent = m.name || 'Untitled Mission';
 
@@ -123,8 +119,6 @@
       }
 
       document.getElementById('project-body').innerHTML = mdToHtml(m.description) || '<p>No further details yet.</p>';
-
-      document.getElementById('project-tags').innerHTML = tagsHtml(m.tags);
 
       document.getElementById('project-loading').style.display = 'none';
       document.getElementById('project-detail').style.display = 'block';

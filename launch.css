@@ -138,17 +138,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 16px;
 }
-.launch-tags:empty { display: none; margin-top: 0; }
-.launch-hero .launch-tags { margin-top: 0; margin-bottom: 18px; }
-.launch-hero .launch-tags:empty { margin-bottom: 0; }
-
-/* When the side column has nothing left in it (no Launchshare CTA),
-   collapse back to a single, full-width column instead of leaving a
-   blank 300px gap next to the body copy. */
-.launch-detail-side:empty { display: none; }
-.launch-detail-grid:has(.launch-detail-side:empty) { grid-template-columns: 1fr; }
+.launch-tags:empty { display: none; }
 .branch-tag {
   display: inline-flex;
   align-items: center;
