@@ -87,19 +87,21 @@
 }
 .news-read:hover { gap: 9px; }
 
-/* --- MASONRY GRID --- */
+/* --- GRID (was CSS multi-column "masonry" — switched to a real grid so
+   cards read left-to-right, top-to-bottom in the order they're sorted;
+   the old column layout filled top-to-bottom per column first, which
+   made newest-to-oldest order look shuffled when scanning a row) --- */
 .news-masonry {
-  columns: 3;
-  column-gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
 }
 .news-card {
   position: relative;
-  break-inside: avoid;
   border: 1px solid var(--line);
   border-radius: 14px;
   overflow: hidden;
   background: var(--panel);
-  margin-bottom: 16px;
   transition: border-color 0.2s, transform 0.22s;
   cursor: pointer;
   display: flex;
@@ -197,12 +199,12 @@
 
 /* --- RESPONSIVE --- */
 @media (max-width: 1000px) {
-  .news-masonry { columns: 2; }
+  .news-masonry { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 900px) {
   .news-featured { grid-template-columns: 1fr; }
   .news-featured-img { min-height: 220px; }
 }
 @media (max-width: 580px) {
-  .news-masonry { columns: 1; }
+  .news-masonry { grid-template-columns: 1fr; }
 }
