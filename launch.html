@@ -57,25 +57,6 @@
         </div>
 
         <aside class="launch-detail-side">
-          <div class="launch-info-card">
-            <div class="launch-info-row" id="row-mission" style="display:none">
-              <span class="launch-info-label">Mission</span>
-              <span class="launch-info-value" id="val-mission"></span>
-            </div>
-            <div class="launch-info-row" id="row-orbit" style="display:none">
-              <span class="launch-info-label">Orbit</span>
-              <span class="launch-info-value" id="val-orbit"></span>
-            </div>
-            <div class="launch-info-row" id="row-status" style="display:none">
-              <span class="launch-info-label">Status</span>
-              <span class="launch-info-value" id="val-status"></span>
-            </div>
-            <div class="launch-info-row" id="row-branch" style="display:none">
-              <span class="launch-info-label">Branch</span>
-              <span class="launch-info-value" id="val-branch"></span>
-            </div>
-          </div>
-
           <div class="launch-tags" id="launch-detail-tags"></div>
 
           <a href="launchshare/index.html" class="btn-white launch-ls-cta" id="launch-ls-cta" style="display:none">Book this Launchshare slot →</a>
@@ -228,20 +209,11 @@
       document.getElementById('launch-hero-img').src = heroImage;
       hero.classList.add('has-image');
 
-      const setRow = (rowId, valId, value) => {
-        if (value === undefined || value === null || value === '') return;
-        document.getElementById(rowId).style.display = 'flex';
-        document.getElementById(valId).textContent = value;
-      };
-      setRow('row-mission', 'val-mission', l.mission_id ? String(l.mission_id) : '');
-      setRow('row-orbit', 'val-orbit', l.orbit || '');
-      setRow('row-status', 'val-status', statusLabel(eff));
-      setRow('row-branch', 'val-branch', l.branch || '');
-
       const branchColorObj = l.branch ? branchColor(l.branch) : null;
       const manualTags = (l.tags && Array.isArray(l.tags)) ? l.tags : [];
       document.getElementById('launch-detail-tags').innerHTML =
         `${branchColorObj ? `<span class="branch-tag" style="background:${branchColorObj.bg};color:${branchColorObj.fg}">${escHtml(l.branch)}</span>` : ''}
+         ${l.orbit ? `<span class="isa-tag">${escHtml(l.orbit)}</span>` : ''}
          ${manualTags.map(t => `<span class="isa-tag">${escHtml(String(t))}</span>`).join('')}`;
 
       if (l.launchshare) {

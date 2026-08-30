@@ -56,16 +56,6 @@
         </div>
 
         <aside class="launch-detail-side">
-          <div class="launch-info-card">
-            <div class="launch-info-row" id="row-status" style="display:none">
-              <span class="launch-info-label">Status</span>
-              <span class="launch-info-value" id="val-status"></span>
-            </div>
-            <div class="launch-info-row" id="row-division" style="display:none">
-              <span class="launch-info-label">Division</span>
-              <span class="launch-info-value" id="val-division"></span>
-            </div>
-          </div>
           <div class="mission-tags" id="project-tags"></div>
         </aside>
       </div>
@@ -137,14 +127,6 @@
       }
 
       document.getElementById('project-body').innerHTML = mdToHtml(m.description) || '<p>No further details yet.</p>';
-
-      const setRow = (rowId, valId, value) => {
-        if (value === undefined || value === null || value === '') return;
-        document.getElementById(rowId).style.display = 'flex';
-        document.getElementById(valId).textContent = value;
-      };
-      setRow('row-status', 'val-status', m.status ? (STATUS_LABEL[m.status] || capitalize(m.status)) : '');
-      setRow('row-division', 'val-division', m.division || '');
 
       document.getElementById('project-tags').innerHTML = tagsHtml(m.tags);
 

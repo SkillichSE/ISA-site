@@ -132,32 +132,6 @@
 }
 
 .launch-detail-side { position: sticky; top: 110px; }
-.launch-info-card {
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  background: var(--panel);
-  padding: 6px 22px;
-}
-.launch-info-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 16px 0;
-}
-.launch-info-row + .launch-info-row { border-top: 1px solid var(--line); }
-.launch-info-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--muted2);
-}
-.launch-info-value {
-  font-size: 0.88rem;
-  font-weight: 700;
-  text-align: right;
-}
 .launch-ls-cta { width: 100%; margin-top: 16px; }
 
 .launch-tags {
