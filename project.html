@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project — ISA</title>
+  <title>Hardware — ISA</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="shared.css?v=6">
   <link rel="stylesheet" href="launches.css?v=2">
@@ -23,16 +23,16 @@
   <div class="launch-state" id="project-loading">
     <div class="container">
       <div class="launch-spinner"></div>
-      <p>Loading project…</p>
+      <p>Loading hardware…</p>
     </div>
   </div>
 
   <!-- Not found state -->
   <div class="launch-state" id="project-notfound" style="display:none">
     <div class="container">
-      <p class="eyebrow">PROJECTS</p>
-      <h1>Project not found.</h1>
-      <p>This project may have been removed, or the link is incorrect.</p>
+      <p class="eyebrow">HARDWARE</p>
+      <h1>Hardware not found.</h1>
+      <p>This hardware program may have been removed, or the link is incorrect.</p>
       <a href="hardware.html" class="btn-outline">← Back to hardware</a>
     </div>
   </div>
@@ -97,20 +97,20 @@
           renderProject(m);
         })
         .catch(err => {
-          console.error('project error:', err);
+          console.error('hardware error:', err);
           showNotFound();
         });
     }
 
     function renderProject(m) {
-      document.title = `${m.name || 'Project'} — ISA`;
+      document.title = `${m.name || 'Hardware'} — ISA`;
 
       document.getElementById('project-meta').innerHTML =
         `${m.status ? `<span class="mission-status ${STATUS_CLASS[m.status] || ''}">${escHtml(STATUS_LABEL[m.status] || capitalize(m.status))}</span>` : ''}
          ${m.division ? `<span class="mission-division">${escHtml(m.division)}</span>` : ''}
          ${m.tags && Array.isArray(m.tags) ? m.tags.map(t => `<span class="isa-tag">${escHtml(String(t))}</span>`).join('') : ''}`;
 
-      document.getElementById('project-title').textContent = m.name || 'Untitled Project';
+      document.getElementById('project-title').textContent = m.name || 'Untitled Hardware';
 
       const hero = document.getElementById('project-hero');
       if (m.image) {
