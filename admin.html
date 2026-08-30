@@ -257,7 +257,8 @@
   <div class="layout">
     <nav class="sidebar">
       <div class="sidebar-label">Content</div>
-      <button class="nav-btn active" onclick="nav('missions',this)"><span class="nav-icon">🚀</span> Missions</button>
+      <button class="nav-btn active" onclick="nav('missions',this)"><span class="nav-icon">🚀</span> Hardware</button>
+      <button class="nav-btn" onclick="nav('programs',this)"><span class="nav-icon">🪐</span> Missions</button>
       <button class="nav-btn" onclick="nav('careers',this)"><span class="nav-icon">💼</span> Careers</button>
       <button class="nav-btn" onclick="nav('launches',this)"><span class="nav-icon">🛰️</span> Launches</button>
       <button class="nav-btn" onclick="nav('news',this)"><span class="nav-icon">📰</span> News</button>
@@ -298,7 +299,7 @@
 <input type="file" id="img-file-input" accept="image/*">
 
 <script>
-let data = { missions:[], careers:[], launches:[], news:[] };
+let data = { missions:[], programs:[], careers:[], launches:[], news:[] };
 let page = 'missions', editId = null, editType = null;
 
 // goes through /api/admin/data now instead of hitting supabase directly from the browser
@@ -321,13 +322,14 @@ async function sbFetch(table, method='GET', body=null, filters='') {
 }
 
 async function loadAll() {
-  const [missions, careers, launches, news] = await Promise.all([
+  const [missions, programs, careers, launches, news] = await Promise.all([
     sbFetch('missions', 'GET', null, '?order=id'),
+    sbFetch('programs', 'GET', null, '?order=id'),
     sbFetch('careers',  'GET', null, '?order=id'),
     sbFetch('launches', 'GET', null, '?order=id'),
     sbFetch('news',     'GET', null, '?order=id'),
   ]);
-  data = { missions, careers, launches, news };
+  data = { missions, programs, careers, launches, news };
 }
 
 // Login / logout
@@ -358,7 +360,7 @@ document.getElementById('token-input').addEventListener('keydown', e => { if(e.k
 
 async function logout() {
   try { await fetch('/api/auth', { method: 'DELETE' }); } catch {}
-  data = { missions:[], careers:[], launches:[], news:[] };
+  data = { missions:[], programs:[], careers:[], launches:[], news:[] };
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('app').style.display='none';
   document.getElementById('token-input').value='';
@@ -393,12 +395,13 @@ function filterItems(q) {
 function render() {
   const m = document.getElementById('main');
   if (page==='missions') m.innerHTML = pageMissions();
+  else if (page==='programs') m.innerHTML = pagePrograms();
   else if (page==='careers') m.innerHTML = pageCareers();
   else if (page==='launches') m.innerHTML = pageLaunches();
   else if (page==='news') m.innerHTML = pageNews();
 }
 
-// Missions tab
+// Hardware tab (Supabase table: missions — feeds hardware.html)
 function pageMissions() {
   const statusMap = { active:'Active', development:'In Development', inactive:'Inactive' };
   const items = data.missions.length ? data.missions.map(m=>`
@@ -416,8 +419,30 @@ function pageMissions() {
         <button class="btn-edit" onclick="openEdit('missions','${m.id}')">Edit</button>
         <button class="btn-del" onclick="del('missions','${m.id}')" title="Delete">✕</button>
       </div>
-    </div>`).join('') : `<div class="empty"><div class="empty-icon">🚀</div>No missions yet.</div>`;
-  return `<div class="page-head"><div class="page-head-left"><div class="page-title">Missions</div><div class="page-desc">Programs shown on the Projects page.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search missions…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('missions')">+ Add Mission</button></div></div><div class="item-list">${items}</div>`;
+    </div>`).join('') : `<div class="empty"><div class="empty-icon">🚀</div>No hardware programs yet.</div>`;
+  return `<div class="page-head"><div class="page-head-left"><div class="page-title">Hardware</div><div class="page-desc">Programs shown on the Hardware page.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search hardware…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('missions')">+ Add Mission</button></div></div><div class="item-list">${items}</div>`;
+}
+
+// Missions tab (Supabase table: programs — feeds missions.html)
+function pagePrograms() {
+  const statusMap = { active:'Active', development:'In Development', inactive:'Inactive' };
+  const items = data.programs.length ? data.programs.map(m=>`
+    <div class="item-card">
+      <div class="item-thumb" style="background-image:url('${m.image}')"></div>
+      <div class="item-body">
+        <div class="item-top">
+          <span class="item-title">${m.name}</span>
+          <span class="badge badge-${m.status}">${statusMap[m.status]||m.status}</span>
+        </div>
+        <div class="item-meta">${m.division}</div>
+        <div class="item-desc">${esc(mdToPlain(m.description))}</div>
+      </div>
+      <div class="item-actions">
+        <button class="btn-edit" onclick="openEdit('programs','${m.id}')">Edit</button>
+        <button class="btn-del" onclick="del('programs','${m.id}')" title="Delete">✕</button>
+      </div>
+    </div>`).join('') : `<div class="empty"><div class="empty-icon">🪐</div>No missions yet.</div>`;
+  return `<div class="page-head"><div class="page-head-left"><div class="page-title">Missions</div><div class="page-desc">Content shown on the Missions page.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search missions…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('programs')">+ Add Mission</button></div></div><div class="item-list">${items}</div>`;
 }
 
 // Careers tab
@@ -456,7 +481,7 @@ function pageLaunches() {
           ${l.published ? '<span class="badge badge-active">Published</span>' : '<span class="badge badge-inactive">Draft</span>'}
           ${l.launchshare ? '<a href="/launchshare/" target="_blank" class="badge badge-launchshare" style="text-decoration:none" title="Open the Launchshare page">Launchshare ↗</a>' : ''}
         </div>
-        <div class="item-meta">${l.orbit} · ${dateLabel}${l.date ? ' UTC' : ''}${l.mission_id ? ' · Mission: ' + l.mission_id : ''}${l.launchshare && l.launchshare_volume ? ' · ' + l.launchshare_volume + ' blocks' : ''}</div>
+        <div class="item-meta">${l.orbit} · ${dateLabel}${l.date ? ' UTC' : ''}${l.branch ? ' · ' + l.branch : ''}${l.mission_id ? ' · Mission: ' + l.mission_id : ''}${l.launchshare && l.launchshare_volume ? ' · ' + l.launchshare_volume + ' blocks' : ''}</div>
         <div class="item-desc">${esc(mdToPlain(l.description))}</div>
       </div>
       <div class="item-actions">
@@ -494,7 +519,7 @@ function pageNews() {
 // Edit modal
 function openNew(type) { editId=null; editType=type; openModal(`New ${label(type)}`, buildForm(type, null)); }
 function openEdit(type, id) { editId=id; editType=type; openModal(`Edit ${label(type)}`, buildForm(type, data[type].find(x=>x.id===id))); }
-function label(t) { return {missions:'Mission',careers:'Position',launches:'Launch',news:'News Post'}[t]; }
+function label(t) { return {missions:'Mission',programs:'Mission',careers:'Position',launches:'Launch',news:'News Post'}[t]; }
 
 let formDirty = false;
 function openModal(title, body) {
@@ -717,6 +742,13 @@ function buildForm(type, item) {
     ${ta('description','Description',v('description'))}
     ${field('tags','Tags',Array.isArray(v('tags'))?v('tags',[]).join(', '):v('tags'),'Comma-separated')}
     ${imgField('image','Image',v('image'))}`;
+  if (type==='programs') return `
+    <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. artemis-relay')}${sel('status','Status',v('status','active'),['active','development','inactive'])}</div>
+    ${field('name','Mission Name',v('name'))}
+    ${field('division','Division',v('division'),'e.g. Deep Space Research')}
+    ${ta('description','Description',v('description'))}
+    ${field('tags','Tags',Array.isArray(v('tags'))?v('tags',[]).join(', '):v('tags'),'Comma-separated')}
+    ${imgField('image','Image',v('image'))}`;
   if (type==='careers') return `
     <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. gnc-engineer')}${sel('type','Type',v('type','Volunteer'),['Volunteer','Part-time','Full-time'])}</div>
     ${field('title','Job Title',v('title'))}
@@ -727,6 +759,7 @@ function buildForm(type, item) {
     <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. launch-003')}${sel('published','Published',v('published')?'true':'false',['true','false'])}</div>
     ${field('name','Mission Name',v('name'))}
     <div class="form-row-2">${field('mission_id','Mission ID',v('mission_id'),'Optional - which mission this belongs to')}${sel('orbit','Orbit',v('orbit','LEO'),['LEO','MEO','GEO','SSO','HEO'])}</div>
+    ${field('branch','Branch',v('branch'),'e.g. Launch Systems — colors the badge on the launch page automatically')}
     ${field('date','Launch Time (UTC)',toUTCDatetimeInput(v('date')),'UTC time','datetime-local')}
     <div class="form-hint">Status (Open / Upcoming / In Progress) is set automatically based on this time. Once the launch time passes it shows as "In Progress" on the site — use the Finish button on the launch card to mark it Completed.</div>
     ${field('tags','Tags',Array.isArray(v('tags'))?v('tags',[]).join(', '):v('tags'),'Comma-separated, will appear on isaCard() badge')}
@@ -747,7 +780,7 @@ function buildForm(type, item) {
     ${field('tags','Additional Tags',Array.isArray(v('tags'))?v('tags',[]).join(', '):v('tags'),'Comma-separated, will appear on isaCard() badge')}
     ${ta('body','Summary / Body',v('body'))}
     ${imgField('image','Image',v('image'))}
-    ${field('link','Read More Link',v('link','projects.html'),'Relative or absolute URL')}`;
+    ${field('link','Read More Link',v('link','hardware.html'),'Relative or absolute URL')}`;
 }
 
 function toggleLaunchshareVolume() {
@@ -768,6 +801,7 @@ function updateLaunchshareCapacityPreview() {
 
 function getForm(type) {
   if (type==='missions') return { id:g('id'),name:g('name'),division:g('division'),status:g('status'),description:g('description'),tags:arr('tags'),image:g('image') };
+  if (type==='programs') return { id:g('id'),name:g('name'),division:g('division'),status:g('status'),description:g('description'),tags:arr('tags'),image:g('image') };
   if (type==='careers') return { id:g('id'),title:g('title'),program:g('program'),type:g('type'),description:g('description'),skills:arr('skills') };
   if (type==='launches') {
     const launchDate = fromUTCDatetimeInput(g('date'));
@@ -777,7 +811,7 @@ function getForm(type) {
       : computeLaunchStatus({ date:launchDate });
     const lsVolume = parseInt(g('launchshare_volume')) || 0;
     const launchshare = document.getElementById('f-launchshare').checked && lsVolume > 0;
-    return { id:g('id'),name:g('name'),mission_id:g('mission_id'),orbit:g('orbit'),
+    return { id:g('id'),name:g('name'),mission_id:g('mission_id'),orbit:g('orbit'),branch:g('branch'),
       status, date:launchDate,description:g('description'),image:g('image'),published:g('published')==='true',
       tags:arr('tags'), launchshare, launchshare_volume: launchshare ? lsVolume : null };
   }

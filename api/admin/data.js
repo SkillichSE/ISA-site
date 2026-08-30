@@ -1,6 +1,6 @@
 const { isAuthenticated } = require('../auth');
 
-const ALLOWED_TABLES = new Set(['missions', 'careers', 'launches', 'news']);
+const ALLOWED_TABLES = new Set(['missions', 'programs', 'careers', 'launches', 'news']);
 const ALLOWED_METHODS = new Set(['GET', 'POST', 'PATCH', 'DELETE']);
 
 function getSupabaseConfig() {

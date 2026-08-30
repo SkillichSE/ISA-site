@@ -160,6 +160,23 @@
 }
 .launch-ls-cta { width: 100%; margin-top: 16px; }
 
+.launch-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+.launch-tags:empty { display: none; margin-top: 0; }
+.branch-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+}
+
 /* --- RESPONSIVE --- */
 @media (max-width: 900px) {
   .launch-detail-grid { grid-template-columns: 1fr; }

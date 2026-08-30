@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hardware — ISA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared.css?v=6">
+  <link rel="stylesheet" href="hardware.css">
+  <link rel="icon" type="image/png" href="ISSSSSSSAAAA.png">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+  <script src="markdown.js"></script>
+</head>
+<body>
+  <div id="nav-placeholder"></div>
+
+  <div class="page-hero">
+    <div class="hero-media-slideshow" data-hero-media></div>
+    <div class="page-hero-overlay"></div>
+    <div class="container">
+      <p class="eyebrow">PROJECTS</p>
+      <h1>Missions &<br>Research.</h1>
+      <p>Five active programs spanning launch systems, deep space research, orbital infrastructure, propulsion, and satellite systems.</p>
+    </div>
+  </div>
+
+  <section class="section-missions">
+    <div class="container">
+      <div class="missions-grid" id="missions-list"></div>
+    </div>
+  </section>
+
+  <section class="section-join-cta">
+    <div class="container">
+      <div class="join-cta-inner">
+        <div>
+          <p class="eyebrow">GET INVOLVED</p>
+          <h2>Want to contribute<br>to a mission?</h2>
+          <p>All ISA projects are community-driven. Join Discord and ask about open positions in any program.</p>
+        </div>
+        <div class="join-cta-actions">
+          <a href="https://discord.gg/CMDSKwTBnm" target="_blank" class="btn-discord">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+            Join Discord
+          </a>
+          <a href="careers.html" class="btn-outline">Open positions →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="footer-placeholder"></div>
+
+  <script src="shared.js?v=2"></script>
+  <script>
+    const SB_URL = 'https://fqvghuvmgswegirgitom.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxdmdodXZtZ3N3ZWdpcmdpdG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTI4MTAsImV4cCI6MjA5NjY4ODgxMH0.7tKrak3ANnnhp4pISK2ythPdCt557vMACUhpQsqWn0s';
+
+    const STATUS_LABEL = { active: 'Active', development: 'In Development', inactive: 'Inactive' };
+    const STATUS_CLASS = { active: 'status-active', development: 'status-development', inactive: 'status-inactive' };
+
+    function escHtml(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function capitalize(s) {
+      s = String(s || '');
+      return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+
+    function tagsHtml(tags) {
+      return (tags || []).map(t => `<span>${escHtml(t)}</span>`).join('');
+    }
+
+    fetch(`${SB_URL}/rest/v1/missions?order=id`, {
+      headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+    })
+      .then(r => r.json())
+      .then(missions => {
+        if (!Array.isArray(missions) || !missions.length) {
+          document.getElementById('missions-list').innerHTML = '<p style="color:var(--muted);padding:40px 0">No missions yet.</p>';
+          return;
+        }
+        const newIds = isaGetNewIds('missions', missions.map(m => m.id));
+        document.getElementById('missions-list').innerHTML = missions.map(m => `
+          <a class="mission-card reveal-target" href="project.html?id=${encodeURIComponent(m.id)}">
+            ${newIds.has(Number(m.id)) ? '<span class="isa-new-badge">New</span>' : ''}
+            <div class="mission-card-img${m.image ? '' : ' none'}" style="${m.image ? `background-image:url('${escHtml(m.image)}')` : ''}"></div>
+            <div class="mission-card-body">
+              <div class="mission-meta">
+                <span class="mission-status ${STATUS_CLASS[m.status] || ''}">${escHtml(STATUS_LABEL[m.status] || capitalize(m.status))}</span>
+                <span class="mission-division">${escHtml(m.division)}</span>
+              </div>
+              <h2 class="mission-title">${escHtml(m.name)}</h2>
+              <p class="mission-desc">${escHtml(mdToPlain(m.description))}</p>
+              <div class="mission-tags">${tagsHtml(m.tags)}</div>
+              <span class="mission-read">Learn more →</span>
+            </div>
+          </a>`).join('');
+      })
+      .catch(() => {
+        document.getElementById('missions-list').innerHTML = '<p style="color:#e05555;padding:40px 0">Failed to load missions.</p>';
+      });
+  </script>
+</body>
+</html>

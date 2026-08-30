@@ -41,7 +41,6 @@
       <img class="launch-hero-bg-img" id="launch-hero-img" alt="">
       <div class="launch-hero-overlay"></div>
       <div class="container launch-hero-inner">
-        <a href="launches.html" class="launch-back">← All launches</a>
         <div class="launch-meta" id="launch-detail-meta"></div>
         <h1 id="launch-detail-title"></h1>
         <div class="launch-hero-sub">
@@ -71,7 +70,13 @@
               <span class="launch-info-label">Status</span>
               <span class="launch-info-value" id="val-status"></span>
             </div>
+            <div class="launch-info-row" id="row-branch" style="display:none">
+              <span class="launch-info-label">Branch</span>
+              <span class="launch-info-value" id="val-branch"></span>
+            </div>
           </div>
+
+          <div class="launch-tags" id="launch-detail-tags"></div>
 
           <a href="launchshare/index.html" class="btn-white launch-ls-cta" id="launch-ls-cta" style="display:none">Book this Launchshare slot →</a>
         </aside>
@@ -88,6 +93,25 @@
 
     function escHtml(str) {
       return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Branch badges are colored automatically — same branch name always
+    // gets the same color, picked deterministically from a fixed palette
+    // (a simple string hash % palette length), so no one has to assign
+    // colors by hand when a new branch shows up.
+    const BRANCH_PALETTE = [
+      { bg: 'rgba(91,110,245,0.14)',  fg: '#5b6ef5' },  // blue
+      { bg: 'rgba(45,212,191,0.14)',  fg: '#2dd4bf' },  // teal
+      { bg: 'rgba(240,168,48,0.14)',  fg: '#f0a830' },  // amber
+      { bg: 'rgba(226,107,245,0.14)', fg: '#e26bf5' },  // purple
+      { bg: 'rgba(62,207,142,0.14)',  fg: '#3ecf8e' },  // green
+      { bg: 'rgba(224,85,85,0.14)',   fg: '#e05555' },  // red
+    ];
+    function branchColor(branch) {
+      const s = String(branch || '');
+      let hash = 0;
+      for (let i = 0; i < s.length; i++) hash = (hash * 31 + s.charCodeAt(i)) >>> 0;
+      return BRANCH_PALETTE[hash % BRANCH_PALETTE.length];
     }
 
     function statusClass(s) {
@@ -191,8 +215,7 @@
             ? `<span class="launch-status ${statusClass(eff)}" data-countdown="${escHtml(l.date)}">${cd}</span>`
             : `<span class="launch-status ${statusClass(eff)}">${escHtml(statusLabel(eff) || 'scheduled')}</span>`}
          ${l.mission_id ? `<span class="launch-mission-badge">${escHtml(String(l.mission_id))}</span>` : ''}
-         ${l.launchshare ? `<span class="launch-launchshare-badge">Launchshare</span>` : ''}
-         ${l.tags && Array.isArray(l.tags) ? l.tags.map(t => `<span class="isa-tag">${escHtml(String(t))}</span>`).join('') : ''}`;
+         ${l.launchshare ? `<span class="launch-launchshare-badge">Launchshare</span>` : ''}`;
 
       document.getElementById('launch-detail-title').textContent = l.name || 'Unnamed Launch';
       document.getElementById('launch-detail-datebig').textContent = fullDateStr(l.date);
@@ -213,6 +236,13 @@
       setRow('row-mission', 'val-mission', l.mission_id ? String(l.mission_id) : '');
       setRow('row-orbit', 'val-orbit', l.orbit || '');
       setRow('row-status', 'val-status', statusLabel(eff));
+      setRow('row-branch', 'val-branch', l.branch || '');
+
+      const branchColorObj = l.branch ? branchColor(l.branch) : null;
+      const manualTags = (l.tags && Array.isArray(l.tags)) ? l.tags : [];
+      document.getElementById('launch-detail-tags').innerHTML =
+        `${branchColorObj ? `<span class="branch-tag" style="background:${branchColorObj.bg};color:${branchColorObj.fg}">${escHtml(l.branch)}</span>` : ''}
+         ${manualTags.map(t => `<span class="isa-tag">${escHtml(String(t))}</span>`).join('')}`;
 
       if (l.launchshare) {
         document.getElementById('launch-ls-cta').style.display = 'inline-flex';

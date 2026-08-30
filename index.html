@@ -43,7 +43,7 @@
         </div>
         <div class="stat-card reveal-target">
           <div class="stat-num" id="stat-projects">—</div>
-          <div class="stat-lbl">Projects</div>
+          <div class="stat-lbl">Hardware</div>
         </div>
         <div class="stat-card reveal-target">
           <div class="stat-num"><span class="discord-online-count">—</span></div>
@@ -66,7 +66,7 @@
         
       </div>
       <div class="projects-cta">
-        <a href="projects.html" class="btn-outline">All projects →</a>
+        <a href="hardware.html" class="btn-outline">All hardware →</a>
       </div>
     </div>
   </section>
@@ -183,7 +183,7 @@
       const sizeClass = (i) => i < 2 ? 'project-large' : 'project-small';
       const newIds = isaGetNewIds('missions', missions.map(m => m.id));
       document.getElementById('projects-grid').innerHTML = missions.map((m, i) => `
-        <a class="project-card ${sizeClass(i)} reveal-target" href="projects.html" style="background-image:url('${escHtml(m.image || '')}')">
+        <a class="project-card ${sizeClass(i)} reveal-target" href="hardware.html" style="background-image:url('${escHtml(m.image || '')}')">
           <div class="project-overlay"></div>
           ${newIds.has(Number(m.id)) ? '<span class="isa-new-badge">New</span>' : ''}
           <div class="project-info">

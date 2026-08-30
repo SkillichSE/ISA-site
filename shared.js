@@ -40,6 +40,7 @@ async function injectInclude(placeholderId, url) {
   }
 
   initNavLaunches();
+  initNavOpportunities();
   initNavNewDots();
   initLogoCursorEgg();
 
@@ -123,7 +124,8 @@ function isaPeekHasNew(category, ids) {
 // has something new the visitor hasn't opened yet. Skips the section
 // matching the current page, since you're already looking at it there.
 const NAV_NEW_SECTIONS = [
-  { table: 'missions', selector: '[data-nav-new-for="missions"]', selfPaths: ['/', '/index.html', '/projects.html'] },
+  { table: 'missions', selector: '[data-nav-new-for="missions"]', selfPaths: ['/', '/index.html', '/hardware.html'] },
+  { table: 'programs', selector: '[data-nav-new-for="programs"]', selfPaths: ['/missions.html'] },
   { table: 'launches', selector: '[data-nav-new-for="launches"]', selfPaths: ['/launches.html'] },
   { table: 'news',     selector: '[data-nav-new-for="news"]',     selfPaths: ['/news.html'] },
 ];
@@ -281,6 +283,62 @@ function initNavLaunches() {
 
   loadNavLaunches(listEl);
   setInterval(() => loadNavLaunches(listEl), 300000);
+}
+
+// Careers / Astronauts / Launchshare, grouped under a single "Opportunities"
+// hover/click dropdown — same open/close behavior as the Upcoming Launches
+// widget above, just without any data fetching (the panel content is static
+// markup already in nav.html).
+function initNavOpportunities() {
+  const widget = document.getElementById('nav-opportunities');
+  const toggle = document.getElementById('nav-opportunities-toggle');
+  const panel  = document.getElementById('nav-opportunities-panel');
+  if (!widget || !toggle || !panel) return;
+
+  let closeTimer = null;
+
+  function openPanel() {
+    if (closeTimer) {
+      clearTimeout(closeTimer);
+      closeTimer = null;
+    }
+    widget.classList.add('open');
+    toggle.setAttribute('aria-expanded', 'true');
+  }
+
+  function closePanel() {
+    widget.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+
+  function scheduleClose() {
+    if (closeTimer) clearTimeout(closeTimer);
+    closeTimer = setTimeout(() => {
+      closeTimer = null;
+      closePanel();
+    }, 150);
+  }
+
+  function cancelClose() {
+    if (closeTimer) {
+      clearTimeout(closeTimer);
+      closeTimer = null;
+    }
+  }
+
+  widget.addEventListener('pointerenter', () => openPanel());
+  widget.addEventListener('pointerleave', scheduleClose);
+  panel.addEventListener('pointerenter', cancelClose);
+  panel.addEventListener('pointerleave', scheduleClose);
+  toggle.addEventListener('click', () => {
+    widget.classList.contains('open') ? closePanel() : openPanel();
+  });
+  document.addEventListener('click', (e) => {
+    if (!widget.contains(e.target)) closePanel();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closePanel();
+  });
 }
 
 function initLogoCursorEgg() {
@@ -925,7 +983,7 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
 // pulled from across the whole site. Drop an empty
 //   <div class="hero-media-slideshow" data-hero-media></div>
 // inside any .hero / .page-hero section to opt it in (see index.html,
-// careers.html, news.html, projects.html, launches.html). Launchshare's
+// careers.html, news.html, hardware.html, launches.html). Launchshare's
 // page has its own dedicated background video and does not use this.
 //
 // Media pool:
@@ -957,7 +1015,7 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
 
   async function fetchHeroPhotoPool() {
     const headers = { apikey: LAUNCH_SB_KEY, Authorization: `Bearer ${LAUNCH_SB_KEY}` };
-    const tables = ['missions', 'launches', 'news'];
+    const tables = ['missions', 'programs', 'launches', 'news'];
     try {
       const results = await Promise.all(tables.map(t =>
         fetch(`${LAUNCH_SB_URL}/rest/v1/${t}?select=image`, { headers })
