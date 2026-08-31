@@ -27,6 +27,11 @@ function mdToHtml(text) {
       // just hide them instead so the rest of the content still looks clean.
       wrapper.querySelectorAll('img').forEach(img => {
         img.loading = 'lazy';
+        // Many hosts (Discord CDN, image hosts, etc.) block requests whose
+        // Referer header points at a different site ("hotlink protection"),
+        // which is why an image works when opened directly in a tab but
+        // fails to load when embedded here. Dropping the referrer avoids that.
+        img.referrerPolicy = 'no-referrer';
         img.addEventListener('error', () => { img.style.display = 'none'; }, { once: true });
       });
       return wrapper.innerHTML;
