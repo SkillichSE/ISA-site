@@ -23,6 +23,12 @@ function mdToHtml(text) {
       const wrapper = document.createElement('div');
       wrapper.innerHTML = clean;
       wrapper.querySelectorAll('a[target="_blank"]').forEach(a => a.setAttribute('rel', 'noopener noreferrer'));
+      // Broken/unreachable image URLs shouldn't show the browser's ugly broken-icon + alt text;
+      // just hide them instead so the rest of the content still looks clean.
+      wrapper.querySelectorAll('img').forEach(img => {
+        img.loading = 'lazy';
+        img.addEventListener('error', () => { img.style.display = 'none'; }, { once: true });
+      });
       return wrapper.innerHTML;
     }
   } catch (e) {
