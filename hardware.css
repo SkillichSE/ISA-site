@@ -2,16 +2,56 @@
   padding: 80px 0 120px;
   border-bottom: 1px solid var(--line);
 }
+.hardware-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 36px;
+}
 .hardware-filters {
   display: flex;
   flex-wrap: nowrap;
   gap: 10px;
-  margin-bottom: 36px;
   overflow-x: auto;
   scrollbar-width: none;
+  min-width: 0;
 }
 .hardware-filters::-webkit-scrollbar {
   display: none;
+}
+.hardware-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  color: var(--muted2);
+  background: var(--panel);
+  border: 1px solid var(--line2);
+  border-radius: 999px;
+  padding: 8px 14px;
+  transition: border-color 0.18s;
+}
+.hardware-search:focus-within {
+  border-color: var(--accent-light);
+  color: var(--accent-light);
+}
+.hardware-search input {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 500;
+  width: 150px;
+  transition: width 0.18s;
+}
+.hardware-search input:focus {
+  width: 190px;
+}
+.hardware-search input::placeholder {
+  color: var(--muted2);
 }
 .filter-pill {
   flex-shrink: 0;
@@ -94,6 +134,10 @@
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
+}
+.mission-meta .meta-tags-inline {
+  min-width: 0;
+  max-width: 100%;
 }
 .mission-status {
   font-size: 0.8rem;
@@ -286,4 +330,10 @@
 @media (max-width: 768px) {
   .join-cta-inner { grid-template-columns: 1fr; gap: 32px; }
   .mission-modal-body { padding: 24px 20px 32px; }
+}
+@media (max-width: 640px) {
+  .hardware-controls { flex-wrap: wrap; }
+  .hardware-search { width: 100%; }
+  .hardware-search input { width: 100%; }
+  .hardware-search input:focus { width: 100%; }
 }

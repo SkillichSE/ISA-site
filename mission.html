@@ -107,7 +107,7 @@
       document.getElementById('project-meta').innerHTML =
         `${m.status ? `<span class="mission-status ${STATUS_CLASS[m.status] || ''}">${escHtml(STATUS_LABEL[m.status] || capitalize(m.status))}</span>` : ''}
          ${m.division ? `<span class="mission-division">${escHtml(m.division)}</span>` : ''}
-         ${m.tags && Array.isArray(m.tags) ? m.tags.map(t => `<span class="isa-tag">${escHtml(String(t))}</span>`).join('') : ''}`;
+         ${m.tags && Array.isArray(m.tags) && m.tags.length ? `<span class="mission-tags meta-tags-inline">${m.tags.map(t => `<span class="isa-tag">${escHtml(String(t))}</span>`).join('')}</span>` : ''}`;
 
       document.getElementById('project-title').textContent = m.name || 'Untitled Mission';
 

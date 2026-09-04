@@ -27,7 +27,13 @@
 
   <section class="section-missions">
     <div class="container">
-      <div class="hardware-filters" id="hardware-filters"></div>
+      <div class="hardware-controls">
+        <div class="hardware-filters" id="hardware-filters"></div>
+        <div class="hardware-search">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="hardware-search-input" placeholder="Search hardware…" autocomplete="off">
+        </div>
+      </div>
       <div class="missions-grid" id="missions-list"></div>
     </div>
   </section>
@@ -79,9 +85,21 @@
 
     let allMissions = [];
     let activeFilter = 'All';
+    let searchQuery = '';
 
     function hasTag(mission, tag) {
       return Array.isArray(mission.tags) && mission.tags.some(t => String(t).toLowerCase() === tag.toLowerCase());
+    }
+
+    function matchesSearch(mission, q) {
+      if (!q) return true;
+      const haystack = [
+        mission.name,
+        mission.division,
+        mission.description,
+        ...(Array.isArray(mission.tags) ? mission.tags : [])
+      ].filter(Boolean).join(' ').toLowerCase();
+      return haystack.includes(q);
     }
 
     function renderFilters() {
@@ -105,10 +123,12 @@
     }
 
     function renderMissions() {
-      const list = activeFilter === 'All' ? allMissions : allMissions.filter(m => hasTag(m, activeFilter));
+      const q = searchQuery.trim().toLowerCase();
+      const byTag = activeFilter === 'All' ? allMissions : allMissions.filter(m => hasTag(m, activeFilter));
+      const list = byTag.filter(m => matchesSearch(m, q));
 
       if (!list.length) {
-        document.getElementById('missions-list').innerHTML = '<p style="color:var(--muted);padding:40px 0">No hardware matches this tag yet.</p>';
+        document.getElementById('missions-list').innerHTML = '<p style="color:var(--muted);padding:40px 0">No hardware matches your search.</p>';
         return;
       }
 
@@ -142,6 +162,12 @@
         allMissions = missions;
         renderFilters();
         renderMissions();
+
+        const searchInput = document.getElementById('hardware-search-input');
+        searchInput.addEventListener('input', () => {
+          searchQuery = searchInput.value;
+          renderMissions();
+        });
       })
       .catch(() => {
         document.getElementById('missions-list').innerHTML = '<p style="color:#e05555;padding:40px 0">Failed to load missions.</p>';
