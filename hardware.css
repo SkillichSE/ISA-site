@@ -39,13 +39,13 @@
   transition: color 0.18s, background 0.18s;
 }
 .filter-pill.active {
-  color: #2dd4bf;
-  border-color: rgba(45,212,191,0.5);
-  background: rgba(45,212,191,0.1);
+  color: var(--accent-light);
+  border-color: rgba(59,130,246,0.5);
+  background: rgba(59,130,246,0.1);
 }
 .filter-pill.active .filter-count {
-  color: #2dd4bf;
-  background: rgba(45,212,191,0.16);
+  color: var(--accent-light);
+  background: rgba(59,130,246,0.16);
 }
 .missions-grid {
   display: grid;
