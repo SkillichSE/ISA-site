@@ -71,19 +71,14 @@
   flex: 1;
 }
 .mission-tags {
-  display: none;
+  display: flex;
   flex-wrap: wrap;
   gap: 6px;
   margin-top: 4px;
 }
-.mission-tags span {
+.mission-tags .isa-tag {
   font-size: 0.68rem;
-  font-weight: 600;
-  color: var(--muted2);
-  border: 1px solid var(--line2);
-  border-radius: 6px;
-  padding: 3px 8px;
-  letter-spacing: 0.3px;
+  padding: 3px 9px;
 }
 .mission-read {
   font-size: 0.78rem;

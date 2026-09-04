@@ -27,6 +27,7 @@
 
   <section class="section-missions">
     <div class="container">
+      <div class="hardware-filters" id="hardware-filters"></div>
       <div class="missions-grid" id="missions-list"></div>
     </div>
   </section>
@@ -70,7 +71,63 @@
     }
 
     function tagsHtml(tags) {
-      return (tags || []).map(t => `<span>${escHtml(t)}</span>`).join('');
+      return (tags || []).map(t => `<span class="isa-tag">${escHtml(t)}</span>`).join('');
+    }
+
+    // Tags available as filters on this page — order controls display order.
+    const FILTER_TAGS = ['Rocket', 'Orbital Station', 'Satellite'];
+
+    let allMissions = [];
+    let activeFilter = 'All';
+
+    function hasTag(mission, tag) {
+      return Array.isArray(mission.tags) && mission.tags.some(t => String(t).toLowerCase() === tag.toLowerCase());
+    }
+
+    function renderFilters() {
+      const counts = FILTER_TAGS.map(tag => allMissions.filter(m => hasTag(m, tag)).length);
+      const pills = [
+        { label: 'All', count: allMissions.length }
+      ].concat(FILTER_TAGS.map((tag, i) => ({ label: tag, count: counts[i] })));
+
+      document.getElementById('hardware-filters').innerHTML = pills.map(p => `
+        <button type="button" class="filter-pill${activeFilter === p.label ? ' active' : ''}" data-filter="${escHtml(p.label)}">
+          ${escHtml(p.label)}<span class="filter-count">${p.count}</span>
+        </button>`).join('');
+
+      document.querySelectorAll('.filter-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeFilter = btn.dataset.filter;
+          renderFilters();
+          renderMissions();
+        });
+      });
+    }
+
+    function renderMissions() {
+      const list = activeFilter === 'All' ? allMissions : allMissions.filter(m => hasTag(m, activeFilter));
+
+      if (!list.length) {
+        document.getElementById('missions-list').innerHTML = '<p style="color:var(--muted);padding:40px 0">No hardware matches this tag yet.</p>';
+        return;
+      }
+
+      const newIds = isaGetNewIds('missions', allMissions.map(m => m.id));
+      document.getElementById('missions-list').innerHTML = list.map(m => `
+        <a class="mission-card reveal-target" href="project.html?id=${encodeURIComponent(m.id)}">
+          ${newIds.has(Number(m.id)) ? '<span class="isa-new-badge">New</span>' : ''}
+          <div class="mission-card-img${m.image ? '' : ' none'}" style="${m.image ? `background-image:url('${escHtml(m.image)}')` : ''}"></div>
+          <div class="mission-card-body">
+            <div class="mission-meta">
+              <span class="mission-status ${STATUS_CLASS[m.status] || ''}">${escHtml(STATUS_LABEL[m.status] || capitalize(m.status))}</span>
+              <span class="mission-division">${escHtml(m.division)}</span>
+            </div>
+            <h2 class="mission-title">${escHtml(m.name)}</h2>
+            <p class="mission-desc">${escHtml(mdToPlain(m.description))}</p>
+            <div class="mission-tags">${tagsHtml(m.tags)}</div>
+            <span class="mission-read">Learn more →</span>
+          </div>
+        </a>`).join('');
     }
 
     fetch(`${SB_URL}/rest/v1/missions?order=id`, {
@@ -82,22 +139,9 @@
           document.getElementById('missions-list').innerHTML = '<p style="color:var(--muted);padding:40px 0">No missions yet.</p>';
           return;
         }
-        const newIds = isaGetNewIds('missions', missions.map(m => m.id));
-        document.getElementById('missions-list').innerHTML = missions.map(m => `
-          <a class="mission-card reveal-target" href="project.html?id=${encodeURIComponent(m.id)}">
-            ${newIds.has(Number(m.id)) ? '<span class="isa-new-badge">New</span>' : ''}
-            <div class="mission-card-img${m.image ? '' : ' none'}" style="${m.image ? `background-image:url('${escHtml(m.image)}')` : ''}"></div>
-            <div class="mission-card-body">
-              <div class="mission-meta">
-                <span class="mission-status ${STATUS_CLASS[m.status] || ''}">${escHtml(STATUS_LABEL[m.status] || capitalize(m.status))}</span>
-                <span class="mission-division">${escHtml(m.division)}</span>
-              </div>
-              <h2 class="mission-title">${escHtml(m.name)}</h2>
-              <p class="mission-desc">${escHtml(mdToPlain(m.description))}</p>
-              <div class="mission-tags">${tagsHtml(m.tags)}</div>
-              <span class="mission-read">Learn more →</span>
-            </div>
-          </a>`).join('');
+        allMissions = missions;
+        renderFilters();
+        renderMissions();
       })
       .catch(() => {
         document.getElementById('missions-list').innerHTML = '<p style="color:#e05555;padding:40px 0">Failed to load missions.</p>';

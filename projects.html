@@ -70,7 +70,7 @@
     }
 
     function tagsHtml(tags) {
-      return (tags || []).map(t => `<span>${escHtml(t)}</span>`).join('');
+      return (tags || []).map(t => `<span class="isa-tag">${escHtml(t)}</span>`).join('');
     }
 
     fetch(`${SB_URL}/rest/v1/missions?order=id`, {
