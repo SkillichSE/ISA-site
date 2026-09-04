@@ -326,7 +326,7 @@ async function loadAll() {
     sbFetch('missions', 'GET', null, '?order=id'),
     sbFetch('programs', 'GET', null, '?order=id'),
     sbFetch('careers',  'GET', null, '?order=id'),
-    sbFetch('launches', 'GET', null, '?order=id'),
+    sbFetch('launches', 'GET', null, '?order=date'),
     sbFetch('news',     'GET', null, '?order=id'),
   ]);
   data = { missions, programs, careers, launches, news };
