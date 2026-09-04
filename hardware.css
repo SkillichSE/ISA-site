@@ -117,13 +117,20 @@
 }
 .mission-tags {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 6px;
   margin-top: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.mission-tags::-webkit-scrollbar {
+  display: none;
 }
 .mission-tags .isa-tag {
   font-size: 0.68rem;
   padding: 3px 9px;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .mission-read {
   font-size: 0.78rem;
