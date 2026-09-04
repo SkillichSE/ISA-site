@@ -4,9 +4,17 @@
 }
 .hardware-filters {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 10px;
   margin-bottom: 36px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.hardware-filters::-webkit-scrollbar {
+  display: none;
+}
+.filter-pill {
+  flex-shrink: 0;
 }
 .filter-pill {
   display: inline-flex;
