@@ -321,6 +321,19 @@ async function sbFetch(table, method='GET', body=null, filters='') {
   return true;
 }
 
+// Sort client-side rather than trusting the server's ORDER BY: the "date"
+// column has held a mix of formats/blanks over time, so a plain SQL sort
+// can leave an undated or oddly-formatted launch stranded in the middle of
+// the list. Parsing here guarantees a true chronological order and always
+// pushes launches with no valid date to the very end.
+function sortLaunchesByDate(launches) {
+  return [...launches].sort((a, b) => {
+    const ta = a.date ? new Date(a.date).getTime() : NaN;
+    const tb = b.date ? new Date(b.date).getTime() : NaN;
+    return (isNaN(ta) ? Infinity : ta) - (isNaN(tb) ? Infinity : tb);
+  });
+}
+
 async function loadAll() {
   const [missions, programs, careers, launches, news] = await Promise.all([
     sbFetch('missions', 'GET', null, '?order=id'),
@@ -329,7 +342,7 @@ async function loadAll() {
     sbFetch('launches', 'GET', null, '?order=date'),
     sbFetch('news',     'GET', null, '?order=id'),
   ]);
-  data = { missions, programs, careers, launches, news };
+  data = { missions, programs, careers, launches: sortLaunchesByDate(launches), news };
 }
 
 // Login / logout

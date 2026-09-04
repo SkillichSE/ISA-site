@@ -105,6 +105,19 @@
 
     let _launches = [];
 
+    // Sort client-side rather than trusting the server's ORDER BY: the
+    // "date" column has held a mix of formats/blanks over time, so a plain
+    // SQL sort can put an undated or oddly-formatted launch in the middle
+    // of the list. Parsing here guarantees a true chronological order and
+    // always pushes launches with no valid date to the very end.
+    function sortLaunchesByDate(launches) {
+      return [...launches].sort((a, b) => {
+        const ta = a.date ? new Date(a.date).getTime() : NaN;
+        const tb = b.date ? new Date(b.date).getTime() : NaN;
+        return (isNaN(ta) ? Infinity : ta) - (isNaN(tb) ? Infinity : tb);
+      });
+    }
+
     fetch(`${SB_URL}/rest/v1/launches?order=date`, {
       headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
     })
@@ -112,7 +125,7 @@
       .then(launches => {
         const listEl  = document.getElementById('launches-list');
         const emptyEl = document.getElementById('launches-empty');
-        const published = (Array.isArray(launches) ? launches : []).filter(l => l.published);
+        const published = sortLaunchesByDate((Array.isArray(launches) ? launches : []).filter(l => l.published));
 
         if (!published.length) { emptyEl.style.display = 'block'; return; }
         _launches = published;
