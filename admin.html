@@ -618,6 +618,38 @@ async function uploadImage(input, fieldId) {
   btn.disabled = false; btn.textContent = '↑ Upload';
   input.value = '';
 }
+async function importFromDiscord() {
+  const urlInput = document.getElementById('discord-import-url');
+  const btn = document.getElementById('discord-import-btn');
+  const url = urlInput.value.trim();
+  if (!url) { toast('Paste a Discord message link first', 'error'); return; }
+
+  btn.disabled = true; btn.textContent = 'Fetching…';
+  try {
+    const res = await fetch('/api/admin/discord-fetch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
+    });
+    if (res.status === 401) { logout(); throw new Error('Session expired. Please sign in again.'); }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) throw new Error(data.error || 'Import failed');
+
+    document.getElementById('f-title').value = data.title;
+    document.getElementById('f-date').value = data.date;
+    document.getElementById('f-body').value = data.body;
+    if (data.image) {
+      document.getElementById('f-image').value = data.image;
+      updateImgPreview('image');
+    }
+    formDirty = true;
+    toast('Imported ✓ — review before saving', 'success');
+  } catch (e) {
+    toast('Import error: ' + e.message, 'error');
+  }
+  btn.disabled = false; btn.textContent = 'Fetch';
+}
+
 function ta(id, lbl, val='') {
   return `<div class="form-row md-field">
     <div class="md-field-head">
@@ -787,6 +819,13 @@ function buildForm(type, item) {
       <div class="form-hint" id="launchshare-capacity-preview"></div>
     </div>`;
   if (type==='news') return `
+    <div class="form-row"><label>Import from Discord message</label>
+      <div class="img-input-row">
+        <input type="text" id="discord-import-url" placeholder="https://discord.com/channels/.../.../...">
+        <button type="button" class="btn-upload-img" id="discord-import-btn" onclick="importFromDiscord()">Fetch</button>
+      </div>
+      <div class="form-hint">Paste a message link — fills in title, body, image and date below. Review before saving.</div>
+    </div>
     <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. atlas-review-2026')}${sel('tag','Tag',v('tag','Mission Update'),['Mission Update','Community','Research','Engineering','Launchshare'])}</div>
     ${field('title','Title',v('title'))}
     ${field('date','Date',v('date'),'e.g. Jun 2, 2026')}

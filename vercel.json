@@ -21,6 +21,9 @@
     },
     "api/discord-news-sync.js": {
       "maxDuration": 30
+    },
+    "api/admin/discord-fetch.js": {
+      "maxDuration": 10
     }
   }
 }
