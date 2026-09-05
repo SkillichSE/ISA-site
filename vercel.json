@@ -18,6 +18,9 @@
     },
     "api/admin/upload.js": {
       "maxDuration": 15
+    },
+    "api/discord-news-sync.js": {
+      "maxDuration": 30
     }
   }
 }
