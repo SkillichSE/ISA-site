@@ -162,7 +162,7 @@
                   : `<span class="launch-status ${statusClass(eff)}">${escHtml(statusLabel(eff) || 'scheduled')}</span>`}
                 ${l.mission_id ? `<span class="launch-mission-badge">${escHtml(String(l.mission_id))}</span>` : ''}
               </div>
-              <h3 class="launch-title">${escHtml(l.name || 'Unnamed Launch')}</h3>
+              <h3 class="launch-title">${escHtml(mdToPlain(l.name) || 'Unnamed Launch')}</h3>
               ${timeStr ? `<p class="launch-time">${escHtml(timeStr)}</p>` : ''}
               ${l.description ? `<p class="launch-desc">${escHtml(mdToPlain(l.description))}</p>` : ''}
               <span class="launch-read">Details →</span>

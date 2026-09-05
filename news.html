@@ -109,7 +109,7 @@
                 <span class="news-tag">${escHtml(featured.tag)}</span>
                 <span class="news-date">${formatNiceDate(featured.date)}</span>
               </div>
-              <h2>${escHtml(featured.title)}</h2>
+              <h2>${escHtml(mdToPlain(featured.title))}</h2>
               <p>${escHtml(mdToPlain(featured.body))}</p>
               <span class="news-read">Read full story →</span>
             </div>
@@ -127,7 +127,7 @@
                 <span class="news-tag">${escHtml(n.tag)}</span>
                 <span class="news-date">${formatNiceDate(n.date)}</span>
               </div>
-              <h3>${escHtml(n.title)}</h3>
+              <h3>${escHtml(mdToPlain(n.title))}</h3>
               <p>${escHtml(mdToPlain(n.body))}</p>
               <span class="news-read">Read more →</span>
             </div>

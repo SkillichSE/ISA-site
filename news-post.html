@@ -111,14 +111,14 @@
     }
 
     function renderPost(n) {
-      document.title = `${n.title || 'News'} — ISA`;
+      document.title = `${mdToPlain(n.title) || 'News'} — ISA`;
 
       document.getElementById('news-detail-meta').innerHTML =
         `${n.tag ? `<span class="news-tag">${escHtml(n.tag)}</span>` : ''}
          ${n.tags && Array.isArray(n.tags) ? n.tags.map(t => `<span class="isa-tag">${escHtml(String(t))}</span>`).join('') : ''}
          ${n.date ? `<span class="news-date">${formatNiceDate(n.date)}</span>` : ''}`;
 
-      document.getElementById('news-detail-title').textContent = n.title || 'Untitled';
+      document.getElementById('news-detail-title').textContent = mdToPlain(n.title) || 'Untitled';
 
       document.getElementById('news-detail-body').innerHTML = mdToHtml(n.body) || '<p>No further details yet.</p>';
 

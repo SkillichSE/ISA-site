@@ -184,7 +184,7 @@
     }
 
     function renderLaunch(l) {
-      document.title = `${l.name || 'Launch'} — ISA`;
+      document.title = `${mdToPlain(l.name) || 'Launch'} — ISA`;
 
       const eff = liveStatus(l);
       const cd = (eff !== 'completed' && eff !== 'scrubbed') ? countdownStr(l.date) : null;
@@ -202,7 +202,7 @@
          ${l.orbit ? `<span class="isa-tag">${escHtml(l.orbit)}</span>` : ''}
          ${manualTags.map(t => `<span class="isa-tag">${escHtml(String(t))}</span>`).join('')}`;
 
-      document.getElementById('launch-detail-title').textContent = l.name || 'Unnamed Launch';
+      document.getElementById('launch-detail-title').textContent = mdToPlain(l.name) || 'Unnamed Launch';
       document.getElementById('launch-detail-datebig').textContent = fullDateStr(l.date);
       document.getElementById('launch-detail-time').textContent = timeRangeStr(l.date);
 

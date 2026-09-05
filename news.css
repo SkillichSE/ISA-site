@@ -172,7 +172,7 @@
 .news-body-text ul, .news-body-text ol { margin: 0 0 14px; padding-left: 22px; }
 .news-body-text li { margin-bottom: 6px; }
 .news-body-text a { color: var(--accent-light); text-decoration: underline; }
-.news-body-text small { display: block; opacity: 0.65; font-size: 0.85em; margin: 2px 0; }
+.news-body-text small { opacity: 0.65; font-size: 0.85em; }
 .news-body-text blockquote {
   border-left: 2px solid var(--line2);
   padding-left: 14px;
