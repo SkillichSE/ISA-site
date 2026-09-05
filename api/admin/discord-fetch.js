@@ -39,6 +39,7 @@ module.exports = async function handler(req, res) {
 
     return res.status(200).json({
       ok: true,
+      id: `discord-${parsed.messageId}`,
       title: buildTitle(cleanText),
       body: cleanText,
       image: image ? image.url : '',

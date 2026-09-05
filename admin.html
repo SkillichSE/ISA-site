@@ -635,6 +635,7 @@ async function importFromDiscord() {
     const data = await res.json().catch(() => ({}));
     if (!res.ok || !data.ok) throw new Error(data.error || 'Import failed');
 
+    document.getElementById('f-id').value = data.id;
     document.getElementById('f-title').value = data.title;
     document.getElementById('f-date').value = data.date;
     document.getElementById('f-body').value = data.body;
