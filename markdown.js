@@ -13,7 +13,7 @@ function escHtmlMd(str) {
 // Generic markdown renderers (marked.js) don't know this syntax and leave it
 // as literal text, so we swap it for a plain, readable string in the
 // visitor's own local time zone before markdown ever sees it.
-const DISCORD_TIMESTAMP_RE = /<t:(-?\d+)(?::([tTdDfFR]))?>/g;
+const DISCORD_TIMESTAMP_RE = /<t:(-?\d+)(?::([tTdDfFRsS]))?>/g;
 
 function formatDiscordRelative(diffMs) {
   const units = [
@@ -35,6 +35,12 @@ function formatDiscordRelative(diffMs) {
   return 'just now';
 }
 
+function formatCompactDate(date) {
+  const parts = new Intl.DateTimeFormat('en-US', { day: '2-digit', month: 'short', year: '2-digit' }).formatToParts(date);
+  const get = (type) => parts.find((p) => p.type === type)?.value || '';
+  return `${get('day')}-${get('month')}-${get('year')}`;
+}
+
 function formatDiscordTimestamp(unixSeconds, style) {
   const date = new Date(Number(unixSeconds) * 1000);
   if (Number.isNaN(date.getTime())) return null;
@@ -42,6 +48,8 @@ function formatDiscordTimestamp(unixSeconds, style) {
   if (style === 'R') return formatDiscordRelative(date.getTime() - Date.now());
 
   const time = { hour: 'numeric', minute: '2-digit' };
+  const time24 = { hour: '2-digit', minute: '2-digit', hour12: false };
+  const time24Sec = { ...time24, second: '2-digit' };
   const timeSec = { ...time, second: '2-digit' };
   const dateLong = { day: 'numeric', month: 'long', year: 'numeric' };
   const dateShort = { day: '2-digit', month: '2-digit', year: 'numeric' };
@@ -54,6 +62,12 @@ function formatDiscordTimestamp(unixSeconds, style) {
     case 'D': return new Intl.DateTimeFormat('en-US', dateLong).format(date);
     case 'F':
       return `${new Intl.DateTimeFormat('en-US', dateLongWithDay).format(date)} \u2022 ${new Intl.DateTimeFormat('en-US', time).format(date)}`;
+    case 's':
+      // Newer, lesser-documented Discord style: short date + short (24h) time.
+      return `${formatCompactDate(date)} ${new Intl.DateTimeFormat('en-GB', time24).format(date)}`;
+    case 'S':
+      // Newer, lesser-documented Discord style: short date + time with seconds.
+      return `${formatCompactDate(date)} ${new Intl.DateTimeFormat('en-GB', time24Sec).format(date)}`;
     case 'f':
     default:
       return `${new Intl.DateTimeFormat('en-US', dateLong).format(date)} \u2022 ${new Intl.DateTimeFormat('en-US', time).format(date)}`;
