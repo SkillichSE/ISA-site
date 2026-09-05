@@ -8,6 +8,7 @@ const {
   toIsoDate,
   parseMessageUrl,
   discordFetch,
+  authorTag,
 } = require('../../lib/discord-message-utils');
 
 module.exports = async function handler(req, res) {
@@ -44,6 +45,7 @@ module.exports = async function handler(req, res) {
       body: cleanText,
       image: image ? image.url : '',
       date: toIsoDate(message.timestamp),
+      tag: authorTag(message) || '',
     });
   } catch (error) {
     return res.status(error.status || 500).json({

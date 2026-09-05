@@ -639,6 +639,7 @@ async function importFromDiscord() {
     document.getElementById('f-title').value = data.title;
     document.getElementById('f-date').value = data.date;
     document.getElementById('f-body').value = data.body;
+    if (data.tag) document.getElementById('f-tag').value = data.tag;
     if (data.image) {
       document.getElementById('f-image').value = data.image;
       updateImgPreview('image');
@@ -827,7 +828,7 @@ function buildForm(type, item) {
       </div>
       <div class="form-hint">Paste a message link — fills in title, body, image and date below. Review before saving.</div>
     </div>
-    <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. atlas-review-2026')}${sel('tag','Tag',v('tag','Mission Update'),['Mission Update','Community','Research','Engineering','Launchshare'])}</div>
+    <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. atlas-review-2026')}${sel('tag','Tag',v('tag','Mission Update'),['Mission Update','Community','Research','Engineering','Launchshare','Kazakhstan','Main ISA'])}</div>
     ${field('title','Title',v('title'))}
     ${field('date','Date',v('date'),'e.g. Jun 2, 2026')}
     ${field('tags','Additional Tags',Array.isArray(v('tags'))?v('tags',[]).join(', '):v('tags'),'Comma-separated, will appear on isaCard() badge')}
