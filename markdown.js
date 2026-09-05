@@ -25,7 +25,7 @@ function formatDiscordRelative(diffMs) {
     ['minute', 60000],
     ['second', 1000],
   ];
-  const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });
+  const rtf = new Intl.RelativeTimeFormat('en-US', { numeric: 'auto' });
   for (const [unit, ms] of units) {
     const value = diffMs / ms;
     if (Math.abs(value) >= 1 || unit === 'second') {
@@ -48,15 +48,15 @@ function formatDiscordTimestamp(unixSeconds, style) {
   const dateLongWithDay = { weekday: 'long', ...dateLong };
 
   switch (style) {
-    case 't': return new Intl.DateTimeFormat(undefined, time).format(date);
-    case 'T': return new Intl.DateTimeFormat(undefined, timeSec).format(date);
-    case 'd': return new Intl.DateTimeFormat(undefined, dateShort).format(date);
-    case 'D': return new Intl.DateTimeFormat(undefined, dateLong).format(date);
+    case 't': return new Intl.DateTimeFormat('en-US', time).format(date);
+    case 'T': return new Intl.DateTimeFormat('en-US', timeSec).format(date);
+    case 'd': return new Intl.DateTimeFormat('en-US', dateShort).format(date);
+    case 'D': return new Intl.DateTimeFormat('en-US', dateLong).format(date);
     case 'F':
-      return `${new Intl.DateTimeFormat(undefined, dateLongWithDay).format(date)} \u2022 ${new Intl.DateTimeFormat(undefined, time).format(date)}`;
+      return `${new Intl.DateTimeFormat('en-US', dateLongWithDay).format(date)} \u2022 ${new Intl.DateTimeFormat('en-US', time).format(date)}`;
     case 'f':
     default:
-      return `${new Intl.DateTimeFormat(undefined, dateLong).format(date)} \u2022 ${new Intl.DateTimeFormat(undefined, time).format(date)}`;
+      return `${new Intl.DateTimeFormat('en-US', dateLong).format(date)} \u2022 ${new Intl.DateTimeFormat('en-US', time).format(date)}`;
   }
 }
 
