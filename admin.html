@@ -140,9 +140,9 @@
 
     .form-row { margin-bottom:16px; }
     .form-row label { display:block; font-size:11px; font-weight:600; color:var(--text-3); text-transform:uppercase; letter-spacing:.07em; margin-bottom:7px; }
-    .form-row input, .form-row textarea, .form-row select { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:var(--r-sm); padding:10px 12px; color:var(--text); font-family:inherit; font-size:13px; outline:none; transition:border-color .2s,box-shadow .2s; }
+    .form-row input, .form-row textarea, .form-row select { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:var(--r-sm); padding:10px 12px; color:var(--text); font-family:inherit; font-size:14px; outline:none; transition:border-color .2s,box-shadow .2s; }
     .form-row input:focus,.form-row textarea:focus,.form-row select:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); }
-    .form-row textarea { resize:vertical; min-height:88px; line-height:1.6; }
+    .form-row textarea { resize:vertical; min-height:88px; line-height:1.7; }
     .form-row select option { background:var(--surface2); }
     .form-hint { font-size:11px; color:var(--text-3); margin-top:5px; }
     .form-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
@@ -193,10 +193,10 @@
     .md-toolbar { display:flex; gap:3px; background:var(--surface2); border:1px solid var(--border); border-bottom:none; border-radius:7px 7px 0 0; padding:5px 6px; flex-wrap:wrap; }
     .md-toolbar button { background:none; border:none; color:var(--text-2); font-family:inherit; font-size:12px; width:26px; height:24px; border-radius:5px; cursor:pointer; transition:all .15s; display:flex; align-items:center; justify-content:center; }
     .md-toolbar button:hover { background:var(--surface3); color:var(--text); }
-    .md-field textarea { border-radius:0 0 var(--r-sm) var(--r-sm); border-top:none; font-family:'SF Mono',Consolas,Menlo,monospace; font-size:12.5px; }
+    .md-field textarea { border-radius:0 0 var(--r-sm) var(--r-sm); border-top:none; font-family:inherit; font-size:15px; line-height:1.8; min-height:260px; color:#ffffff; }
     .md-field textarea:focus { border-color:var(--border); box-shadow:none; }
     .md-field-head + .md-toolbar { margin-top:0; }
-    .md-preview { display:none; min-height:88px; max-height:280px; overflow-y:auto; background:var(--surface2); border:1px solid var(--border); border-radius:0 0 var(--r-sm) var(--r-sm); border-top:none; padding:12px 14px; font-size:13px; line-height:1.65; color:var(--text-2); }
+    .md-preview { display:none; min-height:88px; max-height:280px; overflow-y:auto; background:var(--surface2); border:1px solid var(--border); border-radius:0 0 var(--r-sm) var(--r-sm); border-top:none; padding:12px 14px; font-size:14.5px; line-height:1.75; color:var(--text-2); }
     .md-preview.visible { display:block; }
     .md-field textarea.hidden { display:none; }
     .md-preview:empty::after { content:'Nothing to preview yet.'; color:var(--text-3); }
@@ -821,12 +821,12 @@ function buildForm(type, item) {
       <div class="form-hint" id="launchshare-capacity-preview"></div>
     </div>`;
   if (type==='news') return `
-    <div class="form-row"><label>Import from Discord message</label>
+    <div class="form-row"><label>Import from a Discord message</label>
       <div class="img-input-row">
-        <input type="text" id="discord-import-url" placeholder="https://discord.com/channels/.../.../...">
+        <input type="text" id="discord-import-url" placeholder="Paste the Discord message link here">
         <button type="button" class="btn-upload-img" id="discord-import-btn" onclick="importFromDiscord()">Fetch</button>
       </div>
-      <div class="form-hint">Paste a message link — fills in title, body, image and date below. Review before saving.</div>
+      <div class="form-hint">Right-click a message in Discord → Copy Message Link, paste it above, then hit Fetch. It will fill in the title, date, image and text below automatically — check everything looks right before you save.</div>
     </div>
     <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. atlas-review-2026')}${sel('tag','Tag',v('tag','Mission Update'),['Mission Update','Community','Research','Engineering','Launchshare','Kazakhstan','Main ISA'])}</div>
     ${field('title','Title',v('title'))}
