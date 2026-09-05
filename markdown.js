@@ -67,14 +67,36 @@ function convertDiscordTimestamps(text) {
   });
 }
 
+// Raw Discord user/role/channel mentions and @everyone/@here, in case text
+// was typed or pasted directly (e.g. into the launches admin form) without
+// going through the Discord-import cleanup pipeline.
+function stripDiscordMentions(text) {
+  return String(text || '')
+    .replace(/<@!?\d+>/g, '')
+    .replace(/<@&\d+>/g, '')
+    .replace(/<#\d+>/g, '')
+    .replace(/@everyone/gi, '')
+    .replace(/@here/gi, '')
+    .replace(/[ \t]{2,}/g, ' ');
+}
+
+// Discord "subtext" lines (a line starting with "-# ") render as small,
+// muted text in Discord. Standard markdown has no equivalent syntax, so
+// left alone it just shows the literal "-#". We turn each such line into
+// <small>...</small> (an inline tag, so marked still processes any bold/
+// italic/links inside it normally).
+function convertDiscordSubtext(text) {
+  return String(text || '').replace(/^-#[ \t]?(.*)$/gm, '<small>$1</small>');
+}
+
 // Full markdown -> sanitized HTML (used for modal / detail views)
 function mdToHtml(text) {
   if (!text) return '';
   try {
     if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
-      const raw = marked.parse(convertDiscordTimestamps(String(text)), { breaks: true, gfm: true });
+      const raw = marked.parse(convertDiscordSubtext(stripDiscordMentions(convertDiscordTimestamps(String(text)))), { breaks: true, gfm: true });
       const clean = DOMPurify.sanitize(raw, {
-        ALLOWED_TAGS: ['p','br','strong','em','b','i','a','ul','ol','li','blockquote','code','pre','h1','h2','h3','h4','hr','img','del','table','thead','tbody','tr','th','td'],
+        ALLOWED_TAGS: ['p','br','strong','em','b','i','a','ul','ol','li','blockquote','code','pre','h1','h2','h3','h4','hr','img','del','table','thead','tbody','tr','th','td','small'],
         ALLOWED_ATTR: ['href','target','rel','src','alt','title']
       });
       // force noopener on target=_blank links, tabnabbing otherwise
@@ -104,7 +126,8 @@ function mdToHtml(text) {
 // Markdown -> plain text, for short truncated previews (cards/lists)
 function mdToPlain(text) {
   if (!text) return '';
-  return convertDiscordTimestamps(String(text))
+  return stripDiscordMentions(convertDiscordTimestamps(String(text)))
+    .replace(/^-#[ \t]?/gm, '')
     .replace(/!\[.*?\]\(.*?\)/g, '')
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
     .replace(/(\*\*|__)(.*?)\1/g, '$2')
