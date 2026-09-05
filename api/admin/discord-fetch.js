@@ -3,6 +3,7 @@ const {
   apiError,
   cleanToken,
   stripMentions,
+  convertDiscordTimestamps,
   firstImageAttachment,
   buildTitle,
   toIsoDate,
@@ -32,7 +33,7 @@ module.exports = async function handler(req, res) {
     const message = await discordFetch(`/channels/${parsed.channelId}/messages/${parsed.messageId}`, token);
 
     const image = firstImageAttachment(message);
-    const cleanText = stripMentions(message.content || '');
+    const cleanText = convertDiscordTimestamps(stripMentions(message.content || ''));
 
     if (!cleanText) {
       throw apiError('That message has no text after removing mentions — nothing to import.', 422);
