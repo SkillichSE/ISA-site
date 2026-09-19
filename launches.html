@@ -110,12 +110,33 @@
     // SQL sort can put an undated or oddly-formatted launch in the middle
     // of the list. Parsing here guarantees a true chronological order and
     // always pushes launches with no valid date to the very end.
+    //
+    // Completed/scrubbed launches are also kept out of the main chronological
+    // run: every upcoming (or in-progress) launch is shown first, soonest
+    // first, and only after those does the completed/scrubbed history follow,
+    // most recently completed first.
     function sortLaunchesByDate(launches) {
-      return [...launches].sort((a, b) => {
+      const isFinished = (l) => {
+        const s = liveStatus(l);
+        return s === 'completed' || s === 'scrubbed';
+      };
+
+      const upcoming = launches.filter((l) => !isFinished(l));
+      const finished = launches.filter(isFinished);
+
+      upcoming.sort((a, b) => {
         const ta = a.date ? new Date(a.date).getTime() : NaN;
         const tb = b.date ? new Date(b.date).getTime() : NaN;
         return (isNaN(ta) ? Infinity : ta) - (isNaN(tb) ? Infinity : tb);
       });
+
+      finished.sort((a, b) => {
+        const ta = a.date ? new Date(a.date).getTime() : -Infinity;
+        const tb = b.date ? new Date(b.date).getTime() : -Infinity;
+        return tb - ta;
+      });
+
+      return [...upcoming, ...finished];
     }
 
     fetch(`${SB_URL}/rest/v1/launches?order=date`, {

@@ -22,6 +22,9 @@
     "api/discord-news-sync.js": {
       "maxDuration": 30
     },
+    "api/admin/rehost-news-images.js": {
+      "maxDuration": 60
+    },
     "api/admin/discord-fetch.js": {
       "maxDuration": 10
     }
