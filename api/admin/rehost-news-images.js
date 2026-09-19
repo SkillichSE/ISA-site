@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const { rehostExistingNewsImages } = require('../lib/rehost-news-images');
+const { rehostExistingNewsImages } = require('../../lib/rehost-news-images');
 
 // Reuses the same secret as the scheduled Discord news sync — no need to
 // configure a separate one just for this one-off backfill.
