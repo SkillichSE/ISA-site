@@ -1,44 +1,31 @@
-const crypto = require('crypto');
-const { runDiscordNewsSync } = require('../lib/discord-news-sync');
+name: Discord News Sync
 
-function isAuthorized(req) {
-  const secret = String(process.env.NEWS_SYNC_SECRET || '').trim();
-  if (!secret) return { ok: false, reason: 'NEWS_SYNC_SECRET is not configured on the server.' };
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch: {}
 
-  const header = req.headers.authorization || '';
-  // Strip a leading "Bearer " once or twice, in case the secret itself was
-  // accidentally saved with "Bearer " already baked into its value.
-  const provided = header
-    .replace(/^Bearer\s+/i, '')
-    .replace(/^Bearer\s+/i, '')
-    .trim();
-  if (!provided) return { ok: false, reason: 'No Authorization header was provided.' };
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger sync endpoint
+        run: |
+          set +e
+          http_code=$(curl -sS -o /tmp/response.txt -w "%{http_code}" -X POST "${{ secrets.NEWS_SYNC_URL }}" \
+            -H "Authorization: Bearer ${{ secrets.NEWS_SYNC_SECRET }}")
+          curl_exit=$?
+          echo "HTTP status: $http_code"
+          echo "Response body:"
+          cat /tmp/response.txt
+          echo
 
-  const a = Buffer.from(provided);
-  const b = Buffer.from(secret);
-  const matches = a.length === b.length && crypto.timingSafeEqual(a, b);
-  return matches
-    ? { ok: true }
-    : { ok: false, reason: 'The provided credential does not match NEWS_SYNC_SECRET.' };
-}
+          if [ "$curl_exit" -ne 0 ]; then
+            echo "curl itself failed (exit $curl_exit) — check that NEWS_SYNC_URL is a valid, reachable URL."
+            exit 1
+          fi
 
-module.exports = async function handler(req, res) {
-  if (req.method !== 'POST' && req.method !== 'GET') {
-    return res.status(405).json({ ok: false, error: 'Method not allowed' });
-  }
-
-  const auth = isAuthorized(req);
-  if (!auth.ok) {
-    return res.status(401).json({ ok: false, error: auth.reason });
-  }
-
-  try {
-    const results = await runDiscordNewsSync(process.env);
-    return res.status(200).json({ ok: true, results });
-  } catch (error) {
-    return res.status(error.status || 500).json({
-      ok: false,
-      error: error.message || 'Sync failed.',
-    });
-  }
-};
+          if [ "$http_code" -lt 200 ] || [ "$http_code" -ge 300 ]; then
+            echo "Sync endpoint returned HTTP $http_code."
+            exit 1
+          fi
