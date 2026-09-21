@@ -11,5 +11,21 @@ jobs:
     steps:
       - name: Trigger sync endpoint
         run: |
-          curl -sf -X POST "${{ secrets.NEWS_SYNC_URL }}" \
-            -H "Authorization: Bearer ${{ secrets.NEWS_SYNC_SECRET }}"
+          set +e
+          http_code=$(curl -sS -o /tmp/response.txt -w "%{http_code}" -X POST "${{ secrets.NEWS_SYNC_URL }}" \
+            -H "Authorization: Bearer ${{ secrets.NEWS_SYNC_SECRET }}")
+          curl_exit=$?
+          echo "HTTP status: $http_code"
+          echo "Response body:"
+          cat /tmp/response.txt
+          echo
+
+          if [ "$curl_exit" -ne 0 ]; then
+            echo "curl itself failed (exit $curl_exit) — check that NEWS_SYNC_URL is a valid, reachable URL."
+            exit 1
+          fi
+
+          if [ "$http_code" -lt 200 ] || [ "$http_code" -ge 300 ]; then
+            echo "Sync endpoint returned HTTP $http_code."
+            exit 1
+          fi
