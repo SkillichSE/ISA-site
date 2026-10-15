@@ -9,7 +9,7 @@
 }
 .career-card {
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 16px;
   background: var(--panel);
   display: flex;
   flex-direction: column;
@@ -215,10 +215,10 @@
 .culture-card {
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 16px;
   padding: 32px 28px;
 }
-.culture-card h3 { font-size: 1rem; font-weight: 800; margin-bottom: 10px; }
+.culture-card h3 { font-size: 1.1rem; font-weight: 900; margin-bottom: 10px; }
 .culture-card p  { font-size: 0.85rem; color: var(--muted); line-height: 1.65; }
 
 /* --- RESPONSIVE --- */

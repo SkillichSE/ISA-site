@@ -182,15 +182,24 @@ function updateNavCountdowns() {
 }
 setInterval(updateNavCountdowns, 1000);
 
+function setNavLaunchesVisible(listEl, on) {
+  const widget = listEl && listEl.closest('#nav-launches');
+  if (!widget) return;
+  widget.hidden = !on;
+  if (!on) widget.classList.remove('open');
+}
+
 function renderNavLaunches(listEl, launches) {
   if (!launches.length) {
-    listEl.innerHTML = '<div class="nav-launches-empty">No upcoming launches.</div>';
+    listEl.innerHTML = '';
+    setNavLaunchesVisible(listEl, false);
     return;
   }
+  setNavLaunchesVisible(listEl, true);
   listEl.innerHTML = launches.map(l => {
     const date = l.date ? new Date(l.date) : null;
     const dateStr = date ? date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'TBD';
-    let timeStr = date ? date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '';
+    let timeStr = date ? date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
     let tzStr = '';
     if (date) {
       try {
@@ -201,19 +210,22 @@ function renderNavLaunches(listEl, launches) {
     const glyph = l.image
       ? `<span class="nav-launch-glyph nav-launch-glyph-img" style="background-image:url('${navEscHtml(l.image)}')"></span>`
       : `<span class="nav-launch-glyph">🚀</span>`;
-    const cd = (l.status === 'scheduled' || l.status === 'upcoming') ? navCountdownStr(l.date) : null;
+    const msLeft = l.date ? new Date(l.date).getTime() - Date.now() : NaN;
+    const soon = !isNaN(msLeft) && msLeft >= 0 && msLeft < 86400000;
+    const cd = ((l.status === 'scheduled' || l.status === 'upcoming') && soon) ? navCountdownStr(l.date) : null;
+    const showBadge = cd || (l.status && !['scheduled', 'upcoming'].includes(l.status));
     const href = l.id ? `/launch.html?id=${encodeURIComponent(l.id)}` : '/launches.html';
     return `
       <a class="nav-launch-item" href="${href}">
         ${glyph}
         <span class="nav-launch-info">
           <span class="nav-launch-name">${navEscHtml(l.name || 'Unnamed Launch')}</span>
-          <span class="nav-launch-date">${dateStr}${timeStr ? ` · ${timeStr}` : ''}</span>
+          <span class="nav-launch-date">${dateStr}${timeStr ? ` ${timeStr}` : ''}</span>
           ${tzStr ? `<span class="nav-launch-tz">${navEscHtml(tzStr)}</span>` : ''}
         </span>
         ${cd
           ? `<span class="nav-launch-status ${navLaunchStatusClass(l.status)}" data-nav-countdown="${navEscHtml(l.date)}">${cd}</span>`
-          : `<span class="nav-launch-status ${navLaunchStatusClass(l.status)}">${navEscHtml(l.status || 'scheduled')}</span>`}
+          : (showBadge ? `<span class="nav-launch-status ${navLaunchStatusClass(l.status)}">${navEscHtml(l.status)}</span>` : '')}
       </a>`;
   }).join('');
 }
@@ -228,7 +240,8 @@ async function loadNavLaunches(listEl) {
     renderNavLaunches(listEl, Array.isArray(launches) ? launches : []);
   } catch (e) {
     console.warn('nav launches failed to load', e);
-    listEl.innerHTML = '<div class="nav-launches-empty">Unable to load launches.</div>';
+    listEl.innerHTML = '';
+    setNavLaunchesVisible(listEl, false);
   }
 }
 

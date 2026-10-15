@@ -265,6 +265,7 @@ body {
 
 /* --- NAV: UPCOMING LAUNCHES DROPDOWN --- */
 .nav-launches { position: relative; }
+.nav-launches[hidden] { display: none; }
 .nav-launches-toggle {
   display: flex;
   align-items: center;

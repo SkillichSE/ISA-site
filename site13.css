@@ -15,7 +15,7 @@
   font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 20px;
   background: rgba(59,130,246,0.12); color: var(--accent-light);
 }
-.s13-title { font-size: 1.2rem; font-weight: 900; letter-spacing: -0.3px; line-height: 1.25; }
+.s13-title { font-size: 1.1rem; font-weight: 900; letter-spacing: -0.3px; line-height: 1.25; }
 .s13-text { font-size: 0.9rem; color: var(--muted); line-height: 1.7; }
 .s13-text p + p { margin-top: 10px; }
 .s13-text a { color: var(--accent-light); }
