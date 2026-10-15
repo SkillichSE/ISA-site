@@ -257,7 +257,7 @@
           if (!isStarship && !rows.length) return;
 
           const show = (id, on) => { document.getElementById(id).style.display = on ? '' : 'none'; };
-          document.getElementById('sx-sections').style.display = 'block';
+          document.getElementById('sx-sections').style.display = '';
 
           // Road updates: only upcoming closures (today or later), soonest first
           show('sx-road', isStarship || road.length);

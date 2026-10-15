@@ -104,36 +104,36 @@
       hw.forEach(m => {
         if (!m.image) return;
         const isS = starship && m.id === starship.id;
-        out.push({ cat: isS ? 'Starship' : 'Hardware', img: m.image, title: m.name,
-          meta: [m.division, m.status].filter(Boolean).join(' · '), desc: plain(m.description),
+        out.push({ cat: isS ? 'Starship' : 'Hardware', img: m.image, title: plain(m.name), rawTitle: m.name,
+          meta: [m.division, m.status].filter(Boolean).join(' · '), desc: plain(m.description), raw: m.description,
           href: `project.html?id=${encodeURIComponent(m.id)}`, ts: 0 });
       });
       programs.forEach(m => {
         if (!m.image) return;
-        out.push({ cat: 'Missions', img: m.image, title: m.name,
-          meta: [m.division, m.status].filter(Boolean).join(' · '), desc: plain(m.description),
+        out.push({ cat: 'Missions', img: m.image, title: plain(m.name), rawTitle: m.name,
+          meta: [m.division, m.status].filter(Boolean).join(' · '), desc: plain(m.description), raw: m.description,
           href: `mission.html?id=${encodeURIComponent(m.id)}`, ts: 0 });
       });
       launches.forEach(l => {
         if (!l.image || l.published === false) return;
         const d = l.date ? new Date(l.date) : null;
-        out.push({ cat: 'Launches', img: l.image, title: l.name,
+        out.push({ cat: 'Launches', img: l.image, title: plain(l.name), rawTitle: l.name,
           meta: [l.orbit, d && !isNaN(d) ? d.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' }) : ''].filter(Boolean).join(' · '),
-          desc: plain(l.description), href: `launch.html?id=${encodeURIComponent(l.id)}`, ts: d && !isNaN(d) ? d.getTime() : 0 });
+          desc: plain(l.description), raw: l.description, href: `launch.html?id=${encodeURIComponent(l.id)}`, ts: d && !isNaN(d) ? d.getTime() : 0 });
       });
       news.forEach(n => {
         if (!n.image) return;
         const d = parseDate(n.date);
-        out.push({ cat: 'News', img: n.image, title: n.title,
-          meta: [n.tag, niceDate(n.date)].filter(Boolean).join(' · '), desc: plain(n.body),
+        out.push({ cat: 'News', img: n.image, title: plain(n.title), rawTitle: n.title,
+          meta: [n.tag, niceDate(n.date)].filter(Boolean).join(' · '), desc: plain(n.body), raw: n.body,
           href: `news-post.html?id=${encodeURIComponent(n.id)}`, ts: d ? d.getTime() : 0 });
       });
       updates.forEach(u => {
         if (!u.image) return;
         const d = parseDate(u.date);
         const kinds = { road:'Road Update', video:'Video Update', faa:'FAA Update', hardware:'Hardware Tracker' };
-        out.push({ cat: 'Starship', img: u.image, title: u.title,
-          meta: [kinds[u.kind] || 'Update', u.tag, niceDate(u.date)].filter(Boolean).join(' · '), desc: plain(u.body),
+        out.push({ cat: 'Starship', img: u.image, title: plain(u.title), rawTitle: u.title,
+          meta: [kinds[u.kind] || 'Update', u.tag, niceDate(u.date)].filter(Boolean).join(' · '), desc: plain(u.body), raw: u.body,
           href: starship ? `project.html?id=${encodeURIComponent(starship.id)}` : 'project.html?id=starship', ts: d ? d.getTime() : 0 });
       });
 
@@ -167,7 +167,7 @@
           <img src="${esc(p.img)}" alt="${esc(p.title)}" loading="lazy">
           <span class="gallery-badge">${esc(p.cat)}</span>
           <span class="gallery-cap">
-            <span class="gallery-cap-title">${esc(p.title)}</span>
+            <span class="gallery-cap-title">${typeof mdInline === 'function' ? mdInline(p.rawTitle) : esc(p.title)}</span>
             <span class="gallery-cap-meta">${esc(p.meta)}</span>
           </span>
         </button>`).join('');
@@ -183,9 +183,9 @@
       document.getElementById('lb-img').src = p.img;
       document.getElementById('lb-img').alt = p.title || '';
       document.getElementById('lb-meta').textContent = `${p.cat}${p.meta ? ' · ' + p.meta : ''}`;
-      document.getElementById('lb-title').textContent = p.title || '';
+      document.getElementById('lb-title').innerHTML = (typeof mdInline === 'function' ? mdInline(p.rawTitle) : esc(p.title)) || '';
       const d = document.getElementById('lb-desc');
-      d.textContent = p.desc || ''; d.style.display = p.desc ? '' : 'none';
+      d.innerHTML = (typeof mdToHtml === 'function' ? mdToHtml(p.raw) : esc(p.desc)) || ''; d.style.display = p.desc ? '' : 'none';
       document.getElementById('lb-link').href = p.href;
       lb.classList.add('open');
       document.body.style.overflow = 'hidden';
