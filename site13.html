@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Site 13 — ISA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared.css?v=6">
+  <link rel="stylesheet" href="hardware.css">
+  <link rel="stylesheet" href="site13.css">
+  <link rel="icon" type="image/png" href="ISSSSSSSAAAA.png">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+  <script src="markdown.js"></script>
+</head>
+<body>
+  <div id="nav-placeholder"></div>
+
+  <div class="page-hero">
+    <div class="hero-media-slideshow" data-hero-media></div>
+    <div class="page-hero-overlay"></div>
+    <div class="container">
+      <p class="eyebrow">SITE 13</p>
+      <h1>FAA<br>Updates.</h1>
+      <p>Licenses, airspace notices and regulatory news affecting Starship and other launch operations — updated by the ISA team.</p>
+    </div>
+  </div>
+
+  <section class="section-missions">
+    <div class="container">
+      <div class="hardware-controls">
+        <div class="hardware-filters" id="s13-filters"></div>
+        <div class="hardware-search">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="s13-search" placeholder="Search updates…" autocomplete="off">
+        </div>
+      </div>
+      <div class="s13-list" id="s13-list"><p class="s13-empty">Loading…</p></div>
+    </div>
+  </section>
+
+  <div id="footer-placeholder"></div>
+
+  <script src="shared.js?v=2"></script>
+  <script>
+    // LAUNCH_SB_URL / LAUNCH_SB_KEY come from shared.js
+    function esc(s) {
+      return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function safeUrl(u) { return /^https?:\/\//i.test(u || '') ? u : ''; }
+    function fmtDate(d) {
+      const t = new Date(/^\d{4}-\d{2}-\d{2}$/.test(d || '') ? d + 'T00:00:00Z' : d);
+      return isNaN(t) ? esc(d) : t.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric', timeZone:'UTC' });
+    }
+    function bodyHtml(text) {
+      const html = mdToHtml(text || '');
+      return window.DOMPurify ? DOMPurify.sanitize(html) : esc(text);
+    }
+
+    let all = [], activeTag = 'All', query = '';
+
+    function renderFilters() {
+      const tags = [...new Set(all.map(u => u.tag).filter(Boolean))];
+      const pills = [{ label: 'All', count: all.length }].concat(
+        tags.map(t => ({ label: t, count: all.filter(u => u.tag === t).length }))
+      );
+      const el = document.getElementById('s13-filters');
+      el.innerHTML = pills.map(p => `
+        <button type="button" class="filter-pill${activeTag === p.label ? ' active' : ''}" data-tag="${esc(p.label)}">
+          ${esc(p.label)}<span class="filter-count">${p.count}</span>
+        </button>`).join('');
+      el.querySelectorAll('.filter-pill').forEach(b => b.addEventListener('click', () => {
+        activeTag = b.dataset.tag; renderFilters(); renderList();
+      }));
+    }
+
+    function renderList() {
+      const q = query.trim().toLowerCase();
+      const list = all
+        .filter(u => activeTag === 'All' || u.tag === activeTag)
+        .filter(u => !q || [u.title, u.body, u.tag].filter(Boolean).join(' ').toLowerCase().includes(q));
+      const box = document.getElementById('s13-list');
+      if (!list.length) {
+        box.innerHTML = `<p class="s13-empty">${all.length ? 'No updates match your search.' : 'No FAA updates yet.'}</p>`;
+        return;
+      }
+      box.innerHTML = list.map(u => {
+        const link = safeUrl(u.link), img = safeUrl(u.image);
+        return `
+        <article class="s13-card reveal-target">
+          ${img ? `<div class="s13-card-img" style="background-image:url('${esc(img)}')"></div>` : ''}
+          <div class="s13-card-body">
+            <div class="s13-meta">${u.tag ? `<span class="s13-tag">${esc(u.tag)}</span>` : ''}<span>${fmtDate(u.date)}</span></div>
+            <h2 class="s13-title">${esc(u.title)}</h2>
+            <div class="s13-text">${bodyHtml(u.body)}</div>
+            ${link ? `<a class="s13-link" href="${esc(link)}" target="_blank" rel="noopener">Source →</a>` : ''}
+          </div>
+        </article>`;
+      }).join('');
+    }
+
+    fetch(`${LAUNCH_SB_URL}/rest/v1/site13_updates?order=date.desc`, {
+      headers: { apikey: LAUNCH_SB_KEY, Authorization: `Bearer ${LAUNCH_SB_KEY}` }
+    })
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(rows => {
+        all = Array.isArray(rows) ? rows : [];
+        renderFilters();
+        renderList();
+        document.getElementById('s13-search').addEventListener('input', e => { query = e.target.value; renderList(); });
+      })
+      .catch(() => {
+        document.getElementById('s13-list').innerHTML = '<p class="s13-empty" style="color:#e05555">Failed to load updates.</p>';
+      });
+  </script>
+</body>
+</html>

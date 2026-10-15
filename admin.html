@@ -263,6 +263,7 @@
       <button class="nav-btn" onclick="nav('careers',this)"><span class="nav-icon">💼</span> Careers</button>
       <button class="nav-btn" onclick="nav('launches',this)"><span class="nav-icon">🛰️</span> Launches</button>
       <button class="nav-btn" onclick="nav('news',this)"><span class="nav-icon">📰</span> News</button>
+      <button class="nav-btn" onclick="nav('site13_updates',this)"><span class="nav-icon">🛰️</span> Site 13</button>
 
       <div class="sidebar-bottom">
         <div class="sidebar-info">Changes save instantly to Supabase. No deploys needed.</div>
@@ -300,7 +301,7 @@
 <input type="file" id="img-file-input" accept="image/*">
 
 <script>
-let data = { missions:[], programs:[], careers:[], launches:[], news:[] };
+let data = { missions:[], programs:[], careers:[], launches:[], news:[], site13_updates:[] };
 let page = 'missions', editId = null, editType = null;
 
 // goes through /api/admin/data now instead of hitting supabase directly from the browser
@@ -336,14 +337,16 @@ function sortLaunchesByDate(launches) {
 }
 
 async function loadAll() {
-  const [missions, programs, careers, launches, news] = await Promise.all([
+  const [missions, programs, careers, launches, news, site13_updates] = await Promise.all([
     sbFetch('missions', 'GET', null, '?order=id'),
     sbFetch('programs', 'GET', null, '?order=id'),
     sbFetch('careers',  'GET', null, '?order=id'),
     sbFetch('launches', 'GET', null, '?order=date'),
     sbFetch('news',     'GET', null, '?order=id'),
+    // table may not exist until site13.sql has been run; don't break the whole admin over it
+    sbFetch('site13_updates', 'GET', null, '?order=date').catch(() => []),
   ]);
-  data = { missions, programs, careers, launches: sortLaunchesByDate(launches), news };
+  data = { missions, programs, careers, launches: sortLaunchesByDate(launches), news, site13_updates: [...site13_updates].reverse() };
 }
 
 // Login / logout
@@ -374,7 +377,7 @@ document.getElementById('token-input').addEventListener('keydown', e => { if(e.k
 
 async function logout() {
   try { await fetch('/api/auth', { method: 'DELETE' }); } catch {}
-  data = { missions:[], programs:[], careers:[], launches:[], news:[] };
+  data = { missions:[], programs:[], careers:[], launches:[], news:[], site13_updates:[] };
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('app').style.display='none';
   document.getElementById('token-input').value='';
@@ -413,6 +416,7 @@ function render() {
   else if (page==='careers') m.innerHTML = pageCareers();
   else if (page==='launches') m.innerHTML = pageLaunches();
   else if (page==='news') m.innerHTML = pageNews();
+  else if (page==='site13_updates') m.innerHTML = pageSite13();
 }
 
 // Hardware tab (Supabase table: missions — feeds hardware.html)
@@ -530,10 +534,31 @@ function pageNews() {
   return `<div class="page-head"><div class="page-head-left"><div class="page-title">News</div><div class="page-desc">Updates shown on the News page.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search posts…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('news')">+ Add Post</button></div></div><div class="item-list">${items}</div>`;
 }
 
+// Site 13 tab (Supabase table: site13_updates — feeds site13.html)
+function pageSite13() {
+  const items = data.site13_updates.length ? data.site13_updates.map(n=>`
+    <div class="item-card">
+      <div class="item-thumb" style="background-image:url('${esc(n.image||'')}');background-color:var(--surface3)"></div>
+      <div class="item-body">
+        <div class="item-top">
+          <span class="item-title">${esc(n.title||'')}</span>
+          <span class="badge badge-development">${esc(n.tag||'—')}</span>
+        </div>
+        <div class="item-meta">${esc(n.date||'')}</div>
+        <div class="item-desc">${esc(mdToPlain(n.body||''))}</div>
+      </div>
+      <div class="item-actions">
+        <button class="btn-edit" onclick="openEdit('site13_updates','${esc(n.id)}')">Edit</button>
+        <button class="btn-del" onclick="del('site13_updates','${esc(n.id)}')" title="Delete">✕</button>
+      </div>
+    </div>`).join('') : `<div class="empty"><div class="empty-icon">🛰️</div>No FAA updates yet.</div>`;
+  return `<div class="page-head"><div class="page-head-left"><div class="page-title">Site 13</div><div class="page-desc">FAA updates shown on the Site 13 page.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search updates…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('site13_updates')">+ Add Update</button></div></div><div class="item-list">${items}</div>`;
+}
+
 // Edit modal
 function openNew(type) { editId=null; editType=type; openModal(`New ${label(type)}`, buildForm(type, null)); }
 function openEdit(type, id) { editId=id; editType=type; openModal(`Edit ${label(type)}`, buildForm(type, data[type].find(x=>x.id===id))); }
-function label(t) { return {missions:'Mission',programs:'Mission',careers:'Position',launches:'Launch',news:'News Post'}[t]; }
+function label(t) { return {missions:'Mission',programs:'Mission',careers:'Position',launches:'Launch',news:'News Post',site13_updates:'FAA Update'}[t]; }
 
 let formDirty = false;
 function openModal(title, body) {
@@ -821,6 +846,13 @@ function buildForm(type, item) {
       <input type="number" id="f-launchshare_volume" value="${esc(String(v('launchshare_volume','')))}" min="0" oninput="updateLaunchshareCapacityPreview()">
       <div class="form-hint" id="launchshare-capacity-preview"></div>
     </div>`;
+  if (type==='site13_updates') return `
+    <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. faa-ift-12-license-2026-10')}${sel('tag','Type',v('tag','FAA Update'),['FAA Update','License','Environmental','Airspace','Other'])}</div>
+    ${field('title','Title',v('title'))}
+    ${field('date','Date',v('date'),'Used for sorting (newest first)','date')}
+    ${ta('body','Details',v('body'))}
+    ${imgField('image','Image (optional)',v('image'))}
+    ${field('link','Source Link',v('link'),'e.g. link to the FAA page or tweet')}`;
   if (type==='news') return `
     <div class="form-row"><label>Import from a Discord message</label>
       <div class="img-input-row">
@@ -870,6 +902,7 @@ function getForm(type) {
       status, date:launchDate,description:g('description'),image:g('image'),published:g('published')==='true',
       tags:arr('tags'), launchshare, launchshare_volume: launchshare ? lsVolume : null };
   }
+  if (type==='site13_updates') return { id:g('id'),tag:g('tag'),title:g('title'),date:g('date'),body:g('body'),image:g('image'),link:g('link') };
   if (type==='news') return { id:g('id'),tag:g('tag'),title:g('title'),date:g('date'),body:g('body'),image:g('image'),link:g('link'),tags:arr('tags') };
 }
 
