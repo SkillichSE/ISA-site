@@ -41,6 +41,7 @@ async function injectInclude(placeholderId, url) {
 
   initNavLaunches();
   initNavOpportunities();
+  initNavStarship();
   initNavNewDots();
   initLogoCursorEgg();
 
@@ -49,7 +50,7 @@ async function injectInclude(placeholderId, url) {
     const href = a.getAttribute('href');
     if (!href || href.startsWith('http') || href.startsWith('#')) return;
     const targetPath = new URL(href, window.location.href).pathname.replace(/\/$/, '/index.html');
-    if (targetPath === currentPath) a.classList.add('active');
+    if (targetPath === currentPath && !a.id) a.classList.add('active');
   });
 
   // footer.html has just been injected above, so footer-link population
@@ -1139,4 +1140,32 @@ function isaFindStarship(list) {
   return list.find(isaIsStarship)
     || list.find(m => /starship/i.test(String(m.id || '') + ' ' + String(m.name || '')) && !/super\s*heavy|booster/i.test(String(m.name || '')))
     || null;
+}
+
+
+// ---------------------------------------------------------------------
+// Starship nav link: points at the real Starship hardware page. The id is
+// resolved from the missions table (isaFindStarship); the static href in
+// nav.html (?id=starship) is the fallback if the lookup fails.
+// ---------------------------------------------------------------------
+async function initNavStarship() {
+  const link = document.getElementById('nav-starship');
+  if (!link) return;
+  const markActive = () => {
+    const p = window.location.pathname;
+    if (!/\/project(\.html)?$/.test(p)) return;
+    const cur = new URLSearchParams(window.location.search).get('id');
+    const mine = new URL(link.href, window.location.href).searchParams.get('id');
+    if (cur && mine && cur === mine) link.classList.add('active');
+  };
+  try {
+    const headers = { apikey: LAUNCH_SB_KEY, Authorization: `Bearer ${LAUNCH_SB_KEY}` };
+    const rows = await fetch(`${LAUNCH_SB_URL}/rest/v1/missions?select=id,name`, { headers })
+      .then(r => r.ok ? r.json() : []);
+    const m = isaFindStarship(rows);
+    if (m && m.id !== undefined && m.id !== null) {
+      link.href = `/project.html?id=${encodeURIComponent(m.id)}`;
+    }
+  } catch (e) {}
+  markActive();
 }
