@@ -63,3 +63,6 @@ a.sx-hw-card:hover { border-color: var(--line2); transform: translateY(-3px); }
 .faa-tag.status-scrapped, .faa-tag.status-destroyed { background: rgba(239,68,68,0.12); color: #ef4444; }
 .faa-tag.status-expended { background: rgba(249,115,22,0.12); color: #f97316; }
 .faa-tag.status-retired { background: rgba(96,165,250,0.12); color: #60a5fa; }
+.mission-status.status-scrapped, .mission-status.status-destroyed { background: rgba(239,68,68,0.12); color: #ef4444; }
+.mission-status.status-expended { background: rgba(249,115,22,0.12); color: #f97316; }
+.mission-status.status-retired { background: rgba(96,165,250,0.12); color: #60a5fa; }

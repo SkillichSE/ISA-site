@@ -6,37 +6,43 @@
   <title>Hardware — ISA</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="shared.css?v=6">
+  <link rel="stylesheet" href="launches.css?v=2">
+  <link rel="stylesheet" href="launch.css?v=1">
   <link rel="stylesheet" href="hardware.css">
+  <link rel="stylesheet" href="news.css">
   <link rel="stylesheet" href="project.css">
   <link rel="icon" type="image/png" href="ISSSSSSSAAAA.png">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
   <script src="markdown.js"></script>
-  <style>
-    .he-wrap { max-width: 900px; margin: 0 auto; padding: 120px 24px 80px; }
-    .he-back { display: inline-block; margin-bottom: 22px; color: var(--muted); text-decoration: none; font-size: 0.9rem; font-weight: 600; }
-    .he-back:hover { color: #fff; }
-    .he-img { width: 100%; height: auto; display: block; border-radius: 16px; border: 1px solid var(--line); margin-bottom: 26px; }
-    .he-title { font-size: 2rem; font-weight: 900; letter-spacing: -0.5px; margin: 10px 0 18px; line-height: 1.2; }
-    .he-link { display: inline-block; margin-top: 22px; color: var(--accent-light); font-weight: 700; text-decoration: none; }
-    .he-state { text-align: center; padding: 180px 24px; color: var(--muted); }
-  </style>
 </head>
 <body>
   <div id="nav-placeholder"></div>
-  <div class="he-state" id="he-loading">Loading…</div>
-  <div class="he-state" id="he-missing" style="display:none">
-    <h1>Entry not found.</h1><p>It may have been removed, or the link is incorrect.</p>
-    <a class="he-back" href="hardware.html">← Back to hardware</a>
+  <div class="launch-state" id="he-loading"><div class="container"><div class="launch-spinner"></div><p>Loading hardware…</p></div></div>
+  <div class="launch-state" id="he-missing" style="display:none"><div class="container">
+    <p class="eyebrow">HARDWARE</p><h1>Entry not found.</h1><p>It may have been removed, or the link is incorrect.</p>
+    <a href="hardware.html" class="btn-outline">← Back to hardware</a>
+  </div></div>
+  <div id="he-main" style="display:none">
+    <div class="launch-hero" id="he-hero">
+      <img class="launch-hero-bg-img" id="he-img" alt="">
+      <div class="launch-hero-overlay"></div>
+      <div class="container launch-hero-inner">
+        <div class="mission-meta" id="he-meta"></div>
+        <h1 id="he-title"></h1>
+      </div>
+    </div>
+    <section class="section-launch-detail">
+      <div class="container">
+        <div class="launch-detail-main">
+          <div class="news-body-text" id="he-body"></div>
+          <p style="margin-top:24px"><a class="btn-outline" id="he-src" target="_blank" rel="noopener noreferrer" style="display:none">Source →</a>
+          <a class="btn-outline" id="he-back" href="hardware.html">← Back</a></p>
+        </div>
+      </div>
+    </section>
   </div>
-  <div class="he-wrap" id="he-main" style="display:none">
-    <a class="he-back" id="he-back" href="hardware.html">← Back to Starship</a>
-    <img class="he-img" id="he-img" alt="" style="display:none">
-    <div class="faa-meta" id="he-meta"></div>
-    <h1 class="he-title" id="he-title"></h1>
-    <div class="faa-text" id="he-body"></div>
-    <a class="he-link" id="he-src" target="_blank" rel="noopener noreferrer" style="display:none">Source →</a>
-  </div>
+
   <div id="footer-placeholder"></div>
 
   <script src="shared.js?v=3"></script>
@@ -60,13 +66,13 @@
         if (!u) return missing();
         document.title = `${mdToPlain(u.title) || 'Hardware'} — ISA`;
         const img = safeUrl(u.image);
-        if (img) { $('he-img').src = img; $('he-img').style.display = 'block'; }
-        $('he-meta').innerHTML = `${u.tag ? `<span class="faa-tag ${ST[String(u.tag).toLowerCase()] || ''}">${esc(u.tag)}</span>` : ''}${u.flight ? `<span class="faa-tag">${esc(u.flight)}</span>` : ''}${u.date ? `<span>${fmtDate(u.date)}</span>` : ''}`;
+        if (img) { $('he-img').src = img; $('he-hero').classList.add('has-image'); }
+        $('he-meta').innerHTML = `${u.tag ? `<span class="mission-status ${ST[String(u.tag).toLowerCase()] || ''}">${esc(u.tag)}</span>` : ''}${u.date ? `<span class="mission-division">${fmtDate(u.date)}</span>` : ''}${u.flight ? `<span class="mission-tags meta-tags-inline"><span class="isa-tag">${esc(u.flight)}</span></span>` : ''}`;
         $('he-title').innerHTML = mdInline(u.title);
         const html = mdToHtml(u.body || '');
-        $('he-body').innerHTML = window.DOMPurify ? DOMPurify.sanitize(html) : esc(u.body);
+        $('he-body').innerHTML = (window.DOMPurify ? DOMPurify.sanitize(html) : esc(u.body)) || '<p>No further details yet.</p>';
         const link = safeUrl(u.link);
-        if (link) { $('he-src').href = link; $('he-src').style.display = 'inline-block'; }
+        if (link) { $('he-src').href = link; $('he-src').style.display = ''; }
         if (u.project_id) $('he-back').href = `project.html?id=${encodeURIComponent(u.project_id)}`;
         $('he-loading').style.display = 'none'; $('he-main').style.display = 'block';
       }).catch(missing);
