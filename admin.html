@@ -263,7 +263,7 @@
       <button class="nav-btn" onclick="nav('careers',this)"><span class="nav-icon">💼</span> Careers</button>
       <button class="nav-btn" onclick="nav('launches',this)"><span class="nav-icon">🛰️</span> Launches</button>
       <button class="nav-btn" onclick="nav('news',this)"><span class="nav-icon">📰</span> News</button>
-      <button class="nav-btn" onclick="nav('site13_updates',this)"><span class="nav-icon">🛰️</span> Site 13</button>
+      <button class="nav-btn" onclick="nav('site13_updates',this)"><span class="nav-icon">🛰️</span> FAA Updates</button>
 
       <div class="sidebar-bottom">
         <div class="sidebar-info">Changes save instantly to Supabase. No deploys needed.</div>
@@ -534,7 +534,7 @@ function pageNews() {
   return `<div class="page-head"><div class="page-head-left"><div class="page-title">News</div><div class="page-desc">Updates shown on the News page.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search posts…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('news')">+ Add Post</button></div></div><div class="item-list">${items}</div>`;
 }
 
-// Site 13 tab (Supabase table: site13_updates — feeds site13.html)
+// FAA Updates tab (Supabase table: site13_updates — shown on the project page, e.g. project.html?id=Starship)
 function pageSite13() {
   const items = data.site13_updates.length ? data.site13_updates.map(n=>`
     <div class="item-card">
@@ -544,7 +544,7 @@ function pageSite13() {
           <span class="item-title">${esc(n.title||'')}</span>
           <span class="badge badge-development">${esc(n.tag||'—')}</span>
         </div>
-        <div class="item-meta">${esc(n.date||'')}</div>
+        <div class="item-meta">${esc(n.date||'')} · ${esc(n.project_id||'')}</div>
         <div class="item-desc">${esc(mdToPlain(n.body||''))}</div>
       </div>
       <div class="item-actions">
@@ -552,7 +552,7 @@ function pageSite13() {
         <button class="btn-del" onclick="del('site13_updates','${esc(n.id)}')" title="Delete">✕</button>
       </div>
     </div>`).join('') : `<div class="empty"><div class="empty-icon">🛰️</div>No FAA updates yet.</div>`;
-  return `<div class="page-head"><div class="page-head-left"><div class="page-title">Site 13</div><div class="page-desc">FAA updates shown on the Site 13 page.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search updates…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('site13_updates')">+ Add Update</button></div></div><div class="item-list">${items}</div>`;
+  return `<div class="page-head"><div class="page-head-left"><div class="page-title">FAA Updates</div><div class="page-desc">Shown in the FAA Updates section of the hardware page they are assigned to (Starship by default).</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search updates…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('site13_updates')">+ Add Update</button></div></div><div class="item-list">${items}</div>`;
 }
 
 // Edit modal
@@ -848,6 +848,7 @@ function buildForm(type, item) {
     </div>`;
   if (type==='site13_updates') return `
     <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. faa-ift-12-license-2026-10')}${sel('tag','Type',v('tag','FAA Update'),['FAA Update','License','Environmental','Airspace','Other'])}</div>
+    ${field('project_id','Hardware Page ID',v('project_id','Starship'),'ID of the hardware page this shows on — Starship for project.html?id=Starship')}
     ${field('title','Title',v('title'))}
     ${field('date','Date',v('date'),'Used for sorting (newest first)','date')}
     ${ta('body','Details',v('body'))}
@@ -902,7 +903,7 @@ function getForm(type) {
       status, date:launchDate,description:g('description'),image:g('image'),published:g('published')==='true',
       tags:arr('tags'), launchshare, launchshare_volume: launchshare ? lsVolume : null };
   }
-  if (type==='site13_updates') return { id:g('id'),tag:g('tag'),title:g('title'),date:g('date'),body:g('body'),image:g('image'),link:g('link') };
+  if (type==='site13_updates') return { id:g('id'),project_id:g('project_id')||'Starship',tag:g('tag'),title:g('title'),date:g('date'),body:g('body'),image:g('image'),link:g('link') };
   if (type==='news') return { id:g('id'),tag:g('tag'),title:g('title'),date:g('date'),body:g('body'),image:g('image'),link:g('link'),tags:arr('tags') };
 }
 

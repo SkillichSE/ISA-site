@@ -3,3 +3,22 @@
   font-size: 0.98rem;
 }
 .launch-hero .mission-meta { margin-bottom: 18px; }
+
+/* --- FAA UPDATES (section on the hardware page, e.g. Starship) --- */
+.faa-updates { margin-top: 64px; max-width: 860px; }
+.faa-updates-title { font-size: 1.5rem; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 20px; }
+.faa-list { display: flex; flex-direction: column; gap: 16px; }
+.faa-card { border: 1px solid var(--line); border-radius: 16px; background: var(--panel); overflow: hidden; transition: border-color 0.2s; }
+.faa-card:hover { border-color: var(--line2); }
+.faa-card-img { width: 100%; height: 220px; background-size: cover; background-position: center; }
+.faa-card-body { padding: 22px 24px; display: flex; flex-direction: column; gap: 10px; }
+.faa-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 0.78rem; color: var(--muted2); font-weight: 500; }
+.faa-tag { font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 20px; background: rgba(59,130,246,0.12); color: var(--accent-light); }
+.faa-title { font-size: 1.1rem; font-weight: 900; letter-spacing: -0.3px; line-height: 1.25; }
+.faa-text { font-size: 0.9rem; color: var(--muted); line-height: 1.7; }
+.faa-text p + p { margin-top: 10px; }
+.faa-text a, .faa-link { color: var(--accent-light); }
+.faa-link { font-size: 0.8rem; font-weight: 600; text-decoration: none; }
+.faa-link:hover { text-decoration: underline; }
+.faa-more { margin-top: 18px; cursor: pointer; font-family: inherit; }
+@media (max-width: 700px) { .faa-card-img { height: 170px; } }

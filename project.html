@@ -53,6 +53,12 @@
         <div class="launch-detail-main">
           <div class="news-body-text" id="project-body"></div>
         </div>
+
+        <div class="faa-updates" id="faa-updates" style="display:none">
+          <h2 class="faa-updates-title">FAA Updates</h2>
+          <div class="faa-list" id="faa-list"></div>
+          <button type="button" class="btn-outline faa-more" id="faa-more" style="display:none">Show older updates</button>
+        </div>
       </div>
     </section>
   </div>
@@ -121,6 +127,53 @@
 
       document.getElementById('project-loading').style.display = 'none';
       document.getElementById('project-detail').style.display = 'block';
+
+      loadFaaUpdates(m.id);
+    }
+
+    // ---- FAA updates (admin tab "FAA Updates" → table site13_updates) ----
+    const FAA_VISIBLE = 5;
+
+    function safeUrl(u) { return /^https?:\/\//i.test(u || '') ? u : ''; }
+
+    function fmtDate(d) {
+      const t = new Date(/^\d{4}-\d{2}-\d{2}$/.test(d || '') ? d + 'T00:00:00Z' : d);
+      return isNaN(t) ? escHtml(d) : t.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+    }
+
+    function faaCard(u) {
+      const link = safeUrl(u.link), img = safeUrl(u.image);
+      return `
+        <article class="faa-card">
+          ${img ? `<div class="faa-card-img" style="background-image:url('${escHtml(img)}')"></div>` : ''}
+          <div class="faa-card-body">
+            <div class="faa-meta">${u.tag ? `<span class="faa-tag">${escHtml(u.tag)}</span>` : ''}<span>${fmtDate(u.date)}</span></div>
+            <h3 class="faa-title">${escHtml(u.title)}</h3>
+            <div class="faa-text">${mdToHtml(u.body)}</div>
+            ${link ? `<a class="faa-link" href="${escHtml(link)}" target="_blank" rel="noopener noreferrer">Source →</a>` : ''}
+          </div>
+        </article>`;
+    }
+
+    function loadFaaUpdates(projectId) {
+      fetch(`${SB_URL}/rest/v1/site13_updates?project_id=eq.${encodeURIComponent(projectId)}&order=date.desc`, {
+        headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+      })
+        .then(r => r.ok ? r.json() : [])
+        .then(rows => {
+          if (!Array.isArray(rows) || !rows.length) return;   // no updates → section stays hidden
+          const list = document.getElementById('faa-list');
+          const more = document.getElementById('faa-more');
+          let shown = FAA_VISIBLE;
+          const draw = () => {
+            list.innerHTML = rows.slice(0, shown).map(faaCard).join('');
+            more.style.display = rows.length > shown ? '' : 'none';
+          };
+          more.addEventListener('click', () => { shown = rows.length; draw(); });
+          draw();
+          document.getElementById('faa-updates').style.display = 'block';
+        })
+        .catch(() => {});   // table missing / offline: just don't show the section
     }
   </script>
 </body>
