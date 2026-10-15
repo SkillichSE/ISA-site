@@ -263,7 +263,7 @@
       <button class="nav-btn" onclick="nav('careers',this)"><span class="nav-icon">💼</span> Careers</button>
       <button class="nav-btn" onclick="nav('launches',this)"><span class="nav-icon">🛰️</span> Launches</button>
       <button class="nav-btn" onclick="nav('news',this)"><span class="nav-icon">📰</span> News</button>
-      <button class="nav-btn" onclick="nav('site13_updates',this)"><span class="nav-icon">🛰️</span> FAA Updates</button>
+      <button class="nav-btn" onclick="nav('site13_updates',this)"><span class="nav-icon">🚀</span> Starship Updates</button>
 
       <div class="sidebar-bottom">
         <div class="sidebar-info">Changes save instantly to Supabase. No deploys needed.</div>
@@ -343,7 +343,7 @@ async function loadAll() {
     sbFetch('careers',  'GET', null, '?order=id'),
     sbFetch('launches', 'GET', null, '?order=date'),
     sbFetch('news',     'GET', null, '?order=id'),
-    // table may not exist until site13.sql has been run; don't break the whole admin over it
+    // table/kind column may not exist until scripts/starship-sections.sql has been run; don't break the whole admin over it
     sbFetch('site13_updates', 'GET', null, '?order=date').catch(() => []),
   ]);
   data = { missions, programs, careers, launches: sortLaunchesByDate(launches), news, site13_updates: [...site13_updates].reverse() };
@@ -534,7 +534,20 @@ function pageNews() {
   return `<div class="page-head"><div class="page-head-left"><div class="page-title">News</div><div class="page-desc">Updates shown on the News page.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search posts…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('news')">+ Add Post</button></div></div><div class="item-list">${items}</div>`;
 }
 
-// FAA Updates tab (Supabase table: site13_updates — shown on the project page, e.g. project.html?id=Starship)
+// Starship Updates tab (Supabase table: site13_updates — sections on the Starship hardware page)
+const S13_KINDS = { faa:'FAA Update', road:'Road Update', video:'Video Update', hardware:'Hardware' };
+const S13_TAGS = {
+  faa:['FAA Update','License','Environmental','Airspace','Other'],
+  road:['Closure','Transport','Test'],
+  video:['Starbase','Flight Test','Static Fire','Other'],
+  hardware:['Full Stacks','Boosters','Ships','Suborbital Ships','Other']
+};
+const S13_HINTS = {
+  faa:'Shows under FAA Updates. Date is used for sorting (newest first).',
+  road:'Shows under Road Updates until the date passes. Put the closure date here and times in the details.',
+  video:'Paste a YouTube link in Source Link — it becomes a playable thumbnail. Image is optional.',
+  hardware:'Shows in the Hardware tracker. Type picks the filter (Full Stacks / Boosters / Ships / Suborbital Ships / Other). Title e.g. "Booster 19", details = current status.'
+};
 function pageSite13() {
   const items = data.site13_updates.length ? data.site13_updates.map(n=>`
     <div class="item-card">
@@ -542,23 +555,32 @@ function pageSite13() {
       <div class="item-body">
         <div class="item-top">
           <span class="item-title">${esc(n.title||'')}</span>
-          <span class="badge badge-development">${esc(n.tag||'—')}</span>
+          <span class="badge badge-development">${esc(S13_KINDS[n.kind||'faa']||'FAA Update')}</span>
         </div>
-        <div class="item-meta">${esc(n.date||'')} · ${esc(n.project_id||'')}</div>
+        <div class="item-meta">${esc(n.tag||'—')} · ${esc(n.date||'')} · ${esc(n.project_id||'')}</div>
         <div class="item-desc">${esc(mdToPlain(n.body||''))}</div>
       </div>
       <div class="item-actions">
         <button class="btn-edit" onclick="openEdit('site13_updates','${esc(n.id)}')">Edit</button>
         <button class="btn-del" onclick="del('site13_updates','${esc(n.id)}')" title="Delete">✕</button>
       </div>
-    </div>`).join('') : `<div class="empty"><div class="empty-icon">🛰️</div>No FAA updates yet.</div>`;
-  return `<div class="page-head"><div class="page-head-left"><div class="page-title">FAA Updates</div><div class="page-desc">Shown in the FAA Updates section of the hardware page they are assigned to (Starship by default).</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search updates…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('site13_updates')">+ Add Update</button></div></div><div class="item-list">${items}</div>`;
+    </div>`).join('') : `<div class="empty"><div class="empty-icon">🚀</div>No Starship updates yet.</div>`;
+  return `<div class="page-head"><div class="page-head-left"><div class="page-title">Starship Updates</div><div class="page-desc">Road, Video, FAA and Hardware entries shown on the Starship hardware page.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search updates…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('site13_updates')">+ Add Update</button></div></div><div class="item-list">${items}</div>`;
+}
+
+// keeps the Type suggestions + hint in sync with the selected section
+function s13KindChanged() {
+  const k = (document.getElementById('f-kind')||{}).value || 'faa';
+  const dl = document.getElementById('s13-tag-list');
+  if (dl) dl.innerHTML = (S13_TAGS[k]||[]).map(t=>`<option value="${esc(t)}">`).join('');
+  const h = document.getElementById('s13-kind-hint');
+  if (h) h.textContent = S13_HINTS[k] || '';
 }
 
 // Edit modal
 function openNew(type) { editId=null; editType=type; openModal(`New ${label(type)}`, buildForm(type, null)); }
 function openEdit(type, id) { editId=id; editType=type; openModal(`Edit ${label(type)}`, buildForm(type, data[type].find(x=>x.id===id))); }
-function label(t) { return {missions:'Mission',programs:'Mission',careers:'Position',launches:'Launch',news:'News Post',site13_updates:'FAA Update'}[t]; }
+function label(t) { return {missions:'Mission',programs:'Mission',careers:'Position',launches:'Launch',news:'News Post',site13_updates:'Starship Update'}[t]; }
 
 let formDirty = false;
 function openModal(title, body) {
@@ -846,14 +868,26 @@ function buildForm(type, item) {
       <input type="number" id="f-launchshare_volume" value="${esc(String(v('launchshare_volume','')))}" min="0" oninput="updateLaunchshareCapacityPreview()">
       <div class="form-hint" id="launchshare-capacity-preview"></div>
     </div>`;
-  if (type==='site13_updates') return `
-    <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. faa-ift-12-license-2026-10')}${sel('tag','Type',v('tag','FAA Update'),['FAA Update','License','Environmental','Airspace','Other'])}</div>
-    ${field('project_id','Hardware Page ID',v('project_id','Starship'),'ID of the hardware page this shows on — Starship for project.html?id=Starship')}
+  if (type==='site13_updates') {
+    const kind = v('kind','faa');
+    const starship = data.missions.find(m=>/^starship$/i.test(String(m.id).trim())||/^starship$/i.test(String(m.name||'').trim()))
+      || data.missions.find(m=>/starship/i.test(String(m.id)+' '+String(m.name||'')) && !/super\s*heavy|booster/i.test(String(m.name||'')));
+    const pid = v('project_id', starship ? starship.id : 'Starship');
+    const pOpts = data.missions.map(m=>`<option value="${esc(String(m.id))}"${String(m.id)===String(pid)?' selected':''}>${esc(m.name||m.id)}</option>`).join('')
+      || `<option value="${esc(pid)}" selected>${esc(pid)}</option>`;
+    setTimeout(s13KindChanged, 0);
+    return `
+    <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. booster-19-static-fire')}
+      <div class="form-row"><label>Section</label><select id="f-kind" onchange="s13KindChanged()">${Object.entries(S13_KINDS).map(([k,l])=>`<option value="${k}"${k===kind?' selected':''}>${l}</option>`).join('')}</select></div></div>
+    <div class="form-hint" id="s13-kind-hint" style="margin:-6px 0 14px"></div>
+    <div class="form-row"><label>Hardware Page</label><select id="f-project_id">${pOpts}</select><div class="form-hint">Which hardware page this shows on — Starship by default.</div></div>
+    <div class="form-row"><label>Type</label><input type="text" id="f-tag" list="s13-tag-list" value="${esc(String(v('tag')))}" autocomplete="off"><datalist id="s13-tag-list"></datalist></div>
     ${field('title','Title',v('title'))}
-    ${field('date','Date',v('date'),'Used for sorting (newest first)','date')}
+    ${field('date','Date',v('date'),'Used for sorting and, for Road Updates, to decide when it disappears','date')}
     ${ta('body','Details',v('body'))}
     ${imgField('image','Image (optional)',v('image'))}
-    ${field('link','Source Link',v('link'),'e.g. link to the FAA page or tweet')}`;
+    ${field('link','Source Link',v('link'),'FAA page, tweet, YouTube link (Video), etc.')}`;
+  }
   if (type==='news') return `
     <div class="form-row"><label>Import from a Discord message</label>
       <div class="img-input-row">
@@ -903,7 +937,7 @@ function getForm(type) {
       status, date:launchDate,description:g('description'),image:g('image'),published:g('published')==='true',
       tags:arr('tags'), launchshare, launchshare_volume: launchshare ? lsVolume : null };
   }
-  if (type==='site13_updates') return { id:g('id'),project_id:g('project_id')||'Starship',tag:g('tag'),title:g('title'),date:g('date'),body:g('body'),image:g('image'),link:g('link') };
+  if (type==='site13_updates') return { id:g('id'),project_id:g('project_id')||'Starship',kind:g('kind')||'faa',tag:g('tag'),title:g('title'),date:g('date'),body:g('body'),image:g('image'),link:g('link') };
   if (type==='news') return { id:g('id'),tag:g('tag'),title:g('title'),date:g('date'),body:g('body'),image:g('image'),link:g('link'),tags:arr('tags') };
 }
 

@@ -59,7 +59,7 @@
 
   <div id="footer-placeholder"></div>
 
-  <script src="shared.js?v=2"></script>
+  <script src="shared.js?v=3"></script>
   <script>
     const SB_URL = 'https://fqvghuvmgswegirgitom.supabase.co';
     const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxdmdodXZtZ3N3ZWdpcmdpdG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTI4MTAsImV4cCI6MjA5NjY4ODgxMH0.7tKrak3ANnnhp4pISK2ythPdCt557vMACUhpQsqWn0s';
@@ -125,7 +125,13 @@
     function renderMissions() {
       const q = searchQuery.trim().toLowerCase();
       const byTag = activeFilter === 'All' ? allMissions : allMissions.filter(m => hasTag(m, activeFilter));
-      const list = byTag.filter(m => matchesSearch(m, q));
+      const filtered = byTag.filter(m => matchesSearch(m, q));
+      // Starship is always pinned to the top of the list (stable order for the rest).
+      const pinnedId = (isaFindStarship(allMissions) || {}).id;
+      const list = pinnedId === undefined ? filtered : [
+        ...filtered.filter(m => m.id === pinnedId),
+        ...filtered.filter(m => m.id !== pinnedId)
+      ];
 
       if (!list.length) {
         document.getElementById('missions-list').innerHTML = '<p style="color:var(--muted);padding:40px 0">No hardware matches your search.</p>';
@@ -134,8 +140,8 @@
 
       const newIds = isaGetNewIds('missions', allMissions.map(m => m.id));
       document.getElementById('missions-list').innerHTML = list.map(m => `
-        <a class="mission-card reveal-target" href="project.html?id=${encodeURIComponent(m.id)}">
-          ${newIds.has(Number(m.id)) ? '<span class="isa-new-badge">New</span>' : ''}
+        <a class="mission-card reveal-target${m.id === pinnedId ? ' pinned' : ''}" href="project.html?id=${encodeURIComponent(m.id)}">
+          ${m.id === pinnedId ? '<span class="pinned-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M16 9V4h1a1 1 0 0 0 0-2H7a1 1 0 0 0 0 2h1v5a3 3 0 0 1-2 2.83V13h5v7l1 2 1-2v-7h5v-1.17A3 3 0 0 1 16 9z"/></svg>Pinned</span>' : (newIds.has(Number(m.id)) ? '<span class="isa-new-badge">New</span>' : '')}
           <div class="mission-card-img${m.image ? '' : ' none'}" style="${m.image ? `background-image:url('${escHtml(m.image)}')` : ''}"></div>
           <div class="mission-card-body">
             <div class="mission-meta">

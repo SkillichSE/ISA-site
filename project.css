@@ -4,9 +4,19 @@
 }
 .launch-hero .mission-meta { margin-bottom: 18px; }
 
-/* --- FAA UPDATES (section on the hardware page, e.g. Starship) --- */
-.faa-updates { margin-top: 64px; max-width: 860px; }
-.faa-updates-title { font-size: 1.5rem; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 20px; }
+/* --- STARSHIP SECTIONS (Road / Video / FAA / Hardware on the hardware page) --- */
+.sx-sections { margin-top: 64px; display: flex; flex-direction: column; gap: 64px; }
+.sx-title { display: flex; align-items: center; gap: 10px; font-size: 1.5rem; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 8px; }
+.sx-title svg { color: var(--accent-light); flex-shrink: 0; }
+.sx-sub { font-size: 0.82rem; color: var(--muted2); margin-bottom: 20px; }
+.sx-section > .sx-title + .faa-list,
+.sx-section > .sx-title + .sx-video-grid,
+.sx-section > .sx-title + .hardware-controls { margin-top: 16px; }
+.sx-empty { color: var(--muted); font-size: 0.88rem; text-align: center; padding: 28px 0; grid-column: 1 / -1; }
+.sx-more { margin-top: 18px; cursor: pointer; font-family: inherit; }
+
+.faa-updates, .sx-road-list, .sx-section > .faa-list { max-width: 860px; }
+.sx-road-list { display: flex; flex-direction: column; gap: 16px; }
 .faa-list { display: flex; flex-direction: column; gap: 16px; }
 .faa-card { border: 1px solid var(--line); border-radius: 16px; background: var(--panel); overflow: hidden; transition: border-color 0.2s; }
 .faa-card:hover { border-color: var(--line2); }
@@ -14,11 +24,37 @@
 .faa-card-body { padding: 22px 24px; display: flex; flex-direction: column; gap: 10px; }
 .faa-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 0.78rem; color: var(--muted2); font-weight: 500; }
 .faa-tag { font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 20px; background: rgba(59,130,246,0.12); color: var(--accent-light); }
+.sx-tag-warn { background: rgba(251,191,36,0.12); color: #fbbf24; }
 .faa-title { font-size: 1.1rem; font-weight: 900; letter-spacing: -0.3px; line-height: 1.25; }
 .faa-text { font-size: 0.9rem; color: var(--muted); line-height: 1.7; }
 .faa-text p + p { margin-top: 10px; }
 .faa-text a, .faa-link { color: var(--accent-light); }
 .faa-link { font-size: 0.8rem; font-weight: 600; text-decoration: none; }
 .faa-link:hover { text-decoration: underline; }
-.faa-more { margin-top: 18px; cursor: pointer; font-family: inherit; }
-@media (max-width: 700px) { .faa-card-img { height: 170px; } }
+
+.sx-video-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.sx-video-card { border: 1px solid var(--line); border-radius: 16px; background: var(--panel); overflow: hidden; display: flex; flex-direction: column; transition: border-color 0.2s; }
+.sx-video-card:hover { border-color: var(--line2); }
+.sx-video-thumb, .sx-video-frame { display: block; position: relative; width: 100%; aspect-ratio: 16 / 9; background: var(--panel2) center / cover no-repeat; border: 0; padding: 0; cursor: pointer; }
+.sx-video-frame { cursor: default; }
+.sx-video-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.sx-play { position: absolute; top: 50%; left: 50%; width: 54px; height: 54px; margin: -27px 0 0 -27px; border-radius: 50%; background: rgba(10,10,10,0.7); border: 1px solid rgba(255,255,255,0.25); transition: transform 0.18s, background 0.18s; }
+.sx-play::after { content: ''; position: absolute; top: 50%; left: 50%; margin: -9px 0 0 -6px; border-style: solid; border-width: 9px 0 9px 15px; border-color: transparent transparent transparent #fff; }
+.sx-video-thumb:hover .sx-play { transform: scale(1.08); background: var(--accent); }
+.sx-video-body { padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 8px; }
+
+.sx-hw-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.sx-hw-card { border: 1px solid var(--line); border-radius: 16px; background: var(--panel); overflow: hidden; display: flex; flex-direction: column; color: inherit; text-decoration: none; transition: border-color 0.2s, transform 0.22s; }
+a.sx-hw-card:hover { border-color: var(--line2); transform: translateY(-3px); }
+.sx-hw-img { width: 100%; height: 150px; background: var(--panel2) center / cover no-repeat; }
+.sx-hw-img.none { display: none; }
+.sx-hw-body { padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 8px; }
+
+@media (max-width: 900px) { .sx-hw-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 700px) {
+  .faa-card-img { height: 170px; }
+  .sx-video-grid, .sx-hw-grid { grid-template-columns: 1fr; }
+  .sx-sections .hardware-controls { flex-direction: column; align-items: stretch; }
+  .sx-sections .hardware-search input, .sx-sections .hardware-search input:focus { width: 100%; }
+  .sx-sections .hardware-search { flex: 1; }
+}

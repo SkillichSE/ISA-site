@@ -1122,3 +1122,21 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     initHeroMediaSlideshows();
   }
 })();
+
+// ---------------------------------------------------------------------
+// Starship is pinned: first card on hardware.html and the only hardware
+// page with the extra Road / Video / FAA / Hardware sections.
+// Matches id "starship" or name "Starship" first, then any name containing it.
+// ---------------------------------------------------------------------
+function isaIsStarship(m) {
+  if (!m) return false;
+  const id = String(m.id || '').trim().toLowerCase();
+  const name = String(m.name || '').trim().toLowerCase();
+  return id === 'starship' || name === 'starship';
+}
+function isaFindStarship(list) {
+  list = Array.isArray(list) ? list : [];
+  return list.find(isaIsStarship)
+    || list.find(m => /starship/i.test(String(m.id || '') + ' ' + String(m.name || '')) && !/super\s*heavy|booster/i.test(String(m.name || '')))
+    || null;
+}

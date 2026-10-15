@@ -54,10 +54,38 @@
           <div class="news-body-text" id="project-body"></div>
         </div>
 
-        <div class="faa-updates" id="faa-updates" style="display:none">
-          <h2 class="faa-updates-title">FAA Updates</h2>
-          <div class="faa-list" id="faa-list"></div>
-          <button type="button" class="btn-outline faa-more" id="faa-more" style="display:none">Show older updates</button>
+        <div class="sx-sections" id="sx-sections" style="display:none">
+
+          <section class="sx-section" id="sx-road" style="display:none">
+            <h2 class="sx-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20 8 4"/><path d="M20 20 16 4"/><path d="M12 5v2"/><path d="M12 11v2"/><path d="M12 17v2"/></svg>Road Updates</h2>
+            <p class="sx-sub">Closures can indicate a planned Starship test or transport</p>
+            <div class="sx-road-list" id="sx-road-list"></div>
+          </section>
+
+          <section class="sx-section" id="sx-video" style="display:none">
+            <h2 class="sx-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor"/></svg>Video Updates</h2>
+            <div class="sx-video-grid" id="sx-video-list"></div>
+            <button type="button" class="btn-outline sx-more" id="sx-video-more" style="display:none">Show older videos</button>
+          </section>
+
+          <section class="sx-section faa-updates" id="faa-updates" style="display:none">
+            <h2 class="sx-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 6v6c0 5 3.4 8.4 8 10 4.6-1.6 8-5 8-10V6l-8-4z"/><path d="m9 12 2 2 4-4"/></svg>FAA Updates</h2>
+            <div class="faa-list" id="faa-list"></div>
+            <button type="button" class="btn-outline sx-more" id="faa-more" style="display:none">Show older updates</button>
+          </section>
+
+          <section class="sx-section" id="sx-hw" style="display:none">
+            <h2 class="sx-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/></svg>Hardware</h2>
+            <div class="hardware-controls">
+              <div class="hardware-filters" id="sx-hw-filters"></div>
+              <div class="hardware-search">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="sx-hw-search" placeholder="Search…" autocomplete="off">
+              </div>
+            </div>
+            <div class="sx-hw-grid" id="sx-hw-list"></div>
+          </section>
+
         </div>
       </div>
     </section>
@@ -65,7 +93,7 @@
 
   <div id="footer-placeholder"></div>
 
-  <script src="shared.js?v=2"></script>
+  <script src="shared.js?v=3"></script>
   <script>
     const SB_URL = 'https://fqvghuvmgswegirgitom.supabase.co';
     const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxdmdodXZtZ3N3ZWdpcmdpdG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTI4MTAsImV4cCI6MjA5NjY4ODgxMH0.7tKrak3ANnnhp4pISK2ythPdCt557vMACUhpQsqWn0s';
@@ -128,17 +156,32 @@
       document.getElementById('project-loading').style.display = 'none';
       document.getElementById('project-detail').style.display = 'block';
 
-      loadFaaUpdates(m.id);
+      loadStarshipSections(m);
     }
 
-    // ---- FAA updates (admin tab "FAA Updates" → table site13_updates) ----
-    const FAA_VISIBLE = 5;
+    // ---- Starship sections ----
+    // Admin tab "Starship Updates" → table site13_updates. Each row has a `kind`:
+    //   faa (default) | road | video | hardware
+    // Starship always shows all four sections; other hardware pages only show
+    // a section if they actually have rows of that kind.
+    const FAA_VISIBLE = 5, VIDEO_VISIBLE = 4;
+    const HW_CATEGORIES = ['Full Stacks', 'Boosters', 'Ships', 'Suborbital Ships', 'Other'];
 
     function safeUrl(u) { return /^https?:\/\//i.test(u || '') ? u : ''; }
 
     function fmtDate(d) {
       const t = new Date(/^\d{4}-\d{2}-\d{2}$/.test(d || '') ? d + 'T00:00:00Z' : d);
       return isNaN(t) ? escHtml(d) : t.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+    }
+
+    function youtubeId(u) {
+      const m = String(u || '').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|live\/|shorts\/))([\w-]{11})/i);
+      return m ? m[1] : '';
+    }
+
+    function bodyHtml(t) {
+      const html = mdToHtml(t || '');
+      return window.DOMPurify ? DOMPurify.sanitize(html) : escHtml(t);
     }
 
     function faaCard(u) {
@@ -149,31 +192,130 @@
           <div class="faa-card-body">
             <div class="faa-meta">${u.tag ? `<span class="faa-tag">${escHtml(u.tag)}</span>` : ''}<span>${fmtDate(u.date)}</span></div>
             <h3 class="faa-title">${escHtml(u.title)}</h3>
-            <div class="faa-text">${mdToHtml(u.body)}</div>
+            <div class="faa-text">${bodyHtml(u.body)}</div>
             ${link ? `<a class="faa-link" href="${escHtml(link)}" target="_blank" rel="noopener noreferrer">Source →</a>` : ''}
           </div>
         </article>`;
     }
 
-    function loadFaaUpdates(projectId) {
-      fetch(`${SB_URL}/rest/v1/site13_updates?project_id=eq.${encodeURIComponent(projectId)}&order=date.desc`, {
+    function roadCard(u) {
+      const link = safeUrl(u.link);
+      return `
+        <article class="faa-card sx-road-card">
+          <div class="faa-card-body">
+            <div class="faa-meta"><span class="faa-tag sx-tag-warn">${escHtml(u.tag || 'Closure')}</span><span>${fmtDate(u.date)}</span></div>
+            <h3 class="faa-title">${escHtml(u.title)}</h3>
+            <div class="faa-text">${bodyHtml(u.body)}</div>
+            ${link ? `<a class="faa-link" href="${escHtml(link)}" target="_blank" rel="noopener noreferrer">Details →</a>` : ''}
+          </div>
+        </article>`;
+    }
+
+    function videoCard(u) {
+      const link = safeUrl(u.link), yt = youtubeId(link);
+      const thumb = safeUrl(u.image) || (yt ? `https://i.ytimg.com/vi/${yt}/hqdefault.jpg` : '');
+      const media = yt
+        ? `<button type="button" class="sx-video-thumb" data-yt="${yt}" aria-label="Play video" style="${thumb ? `background-image:url('${escHtml(thumb)}')` : ''}"><span class="sx-play"></span></button>`
+        : (link ? `<a class="sx-video-thumb" href="${escHtml(link)}" target="_blank" rel="noopener noreferrer" style="${thumb ? `background-image:url('${escHtml(thumb)}')` : ''}"><span class="sx-play"></span></a>` : '');
+      return `
+        <article class="sx-video-card">
+          ${media}
+          <div class="sx-video-body">
+            <div class="faa-meta">${u.tag ? `<span class="faa-tag">${escHtml(u.tag)}</span>` : ''}<span>${fmtDate(u.date)}</span></div>
+            <h3 class="faa-title">${escHtml(u.title)}</h3>
+            ${u.body ? `<div class="faa-text">${bodyHtml(u.body)}</div>` : ''}
+          </div>
+        </article>`;
+    }
+
+    function hwCard(u) {
+      const link = safeUrl(u.link), img = safeUrl(u.image);
+      const inner = `
+          <div class="sx-hw-img${img ? '' : ' none'}" style="${img ? `background-image:url('${escHtml(img)}')` : ''}"></div>
+          <div class="sx-hw-body">
+            <div class="faa-meta">${u.tag ? `<span class="faa-tag">${escHtml(u.tag)}</span>` : ''}${u.date ? `<span>${fmtDate(u.date)}</span>` : ''}</div>
+            <h3 class="faa-title">${escHtml(u.title)}</h3>
+            <div class="faa-text">${bodyHtml(u.body)}</div>
+          </div>`;
+      return link
+        ? `<a class="sx-hw-card" href="${escHtml(link)}" target="_blank" rel="noopener noreferrer">${inner}</a>`
+        : `<div class="sx-hw-card">${inner}</div>`;
+    }
+
+    function loadStarshipSections(m) {
+      const isStarship = typeof isaIsStarship === 'function' && (isaIsStarship(m) || /^starship$/i.test(String(m.name || '').trim()));
+      fetch(`${SB_URL}/rest/v1/site13_updates?project_id=eq.${encodeURIComponent(m.id)}&order=date.desc`, {
         headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
       })
         .then(r => r.ok ? r.json() : [])
+        .catch(() => [])
         .then(rows => {
-          if (!Array.isArray(rows) || !rows.length) return;   // no updates → section stays hidden
-          const list = document.getElementById('faa-list');
-          const more = document.getElementById('faa-more');
-          let shown = FAA_VISIBLE;
-          const draw = () => {
-            list.innerHTML = rows.slice(0, shown).map(faaCard).join('');
-            more.style.display = rows.length > shown ? '' : 'none';
+          rows = Array.isArray(rows) ? rows : [];
+          const kindOf = u => String(u.kind || 'faa').toLowerCase();
+          const by = k => rows.filter(u => kindOf(u) === k);
+          const faa = by('faa'), road = by('road'), video = by('video'), hw = by('hardware');
+          if (!isStarship && !rows.length) return;
+
+          const show = (id, on) => { document.getElementById(id).style.display = on ? '' : 'none'; };
+          document.getElementById('sx-sections').style.display = 'block';
+
+          // Road updates: only upcoming closures (today or later), soonest first
+          show('sx-road', isStarship || road.length);
+          const today = new Date().toISOString().slice(0, 10);
+          const upcoming = road.filter(u => String(u.date || '').slice(0, 10) >= today)
+            .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+          document.getElementById('sx-road-list').innerHTML = upcoming.length
+            ? upcoming.map(roadCard).join('')
+            : '<p class="sx-empty">No Upcoming Closures.</p>';
+
+          // Video updates
+          show('sx-video', isStarship || video.length);
+          const vList = document.getElementById('sx-video-list'), vMore = document.getElementById('sx-video-more');
+          let vShown = VIDEO_VISIBLE;
+          const drawVideos = () => {
+            vList.innerHTML = video.length ? video.slice(0, vShown).map(videoCard).join('') : '<p class="sx-empty">No videos yet.</p>';
+            vMore.style.display = video.length > vShown ? '' : 'none';
           };
-          more.addEventListener('click', () => { shown = rows.length; draw(); });
-          draw();
-          document.getElementById('faa-updates').style.display = 'block';
-        })
-        .catch(() => {});   // table missing / offline: just don't show the section
+          vMore.addEventListener('click', () => { vShown = video.length; drawVideos(); });
+          vList.addEventListener('click', e => {
+            const b = e.target.closest('.sx-video-thumb[data-yt]');
+            if (!b) return;
+            b.outerHTML = `<div class="sx-video-frame"><iframe src="https://www.youtube-nocookie.com/embed/${b.dataset.yt}?autoplay=1&rel=0" title="Video" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe></div>`;
+          });
+          drawVideos();
+
+          // FAA updates
+          show('faa-updates', isStarship || faa.length);
+          const fList = document.getElementById('faa-list'), fMore = document.getElementById('faa-more');
+          let fShown = FAA_VISIBLE;
+          const drawFaa = () => {
+            fList.innerHTML = faa.length ? faa.slice(0, fShown).map(faaCard).join('') : '<p class="sx-empty">No FAA updates yet.</p>';
+            fMore.style.display = faa.length > fShown ? '' : 'none';
+          };
+          fMore.addEventListener('click', () => { fShown = faa.length; drawFaa(); });
+          drawFaa();
+
+          // Hardware tracker (filters + search)
+          show('sx-hw', isStarship || hw.length);
+          let hwFilter = 'All', hwQuery = '';
+          const cats = [...HW_CATEGORIES];
+          hw.forEach(u => { if (u.tag && !cats.includes(u.tag)) cats.push(u.tag); });
+          const drawHw = () => {
+            const pills = [{ label: 'All', count: hw.length }].concat(cats.map(c => ({ label: c, count: hw.filter(u => u.tag === c).length })));
+            const fEl = document.getElementById('sx-hw-filters');
+            fEl.innerHTML = pills.map(p => `
+              <button type="button" class="filter-pill${hwFilter === p.label ? ' active' : ''}" data-f="${escHtml(p.label)}">${escHtml(p.label)}<span class="filter-count">${p.count}</span></button>`).join('');
+            fEl.querySelectorAll('.filter-pill').forEach(b => b.addEventListener('click', () => { hwFilter = b.dataset.f; drawHw(); }));
+            const q = hwQuery.trim().toLowerCase();
+            const list = hw.filter(u => hwFilter === 'All' || u.tag === hwFilter)
+              .filter(u => !q || [u.title, u.body, u.tag].filter(Boolean).join(' ').toLowerCase().includes(q));
+            document.getElementById('sx-hw-list').innerHTML = list.length
+              ? list.map(hwCard).join('')
+              : `<p class="sx-empty">${hw.length ? 'Nothing matches your search.' : 'No hardware tracked yet.'}</p>`;
+          };
+          document.getElementById('sx-hw-search').addEventListener('input', e => { hwQuery = e.target.value; drawHw(); });
+          drawHw();
+        });
     }
   </script>
 </body>

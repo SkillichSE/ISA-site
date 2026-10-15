@@ -337,3 +337,14 @@
   .hardware-search input { width: 100%; }
   .hardware-search input:focus { width: 100%; }
 }
+/* --- PINNED (Starship is always first) --- */
+.mission-card.pinned { border-color: rgba(59,130,246,0.45); }
+.mission-card.pinned:hover { border-color: var(--accent-light); }
+.pinned-badge {
+  position: absolute; top: 10px; right: 10px; z-index: 3;
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(10,10,10,0.72); backdrop-filter: blur(6px);
+  border: 1px solid rgba(59,130,246,0.5); color: var(--accent-light);
+  font-size: 0.62rem; font-weight: 800; letter-spacing: 0.6px;
+  padding: 4px 9px; border-radius: 20px; text-transform: uppercase;
+}
