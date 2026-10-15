@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gallery — ISA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared.css?v=6">
+  <link rel="stylesheet" href="hardware.css">
+  <link rel="stylesheet" href="gallery.css">
+  <link rel="icon" type="image/png" href="ISSSSSSSAAAA.png">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+  <script src="markdown.js"></script>
+</head>
+<body>
+  <div id="nav-placeholder"></div>
+
+  <div class="page-hero">
+    <div class="hero-media-slideshow" data-hero-media></div>
+    <div class="page-hero-overlay"></div>
+    <div class="container">
+      <p class="eyebrow">GALLERY</p>
+      <h1>Every photo,<br>one place.</h1>
+      <p>All the photos from across ISA — hardware, missions, launches, news and Starship — with the story behind each one.</p>
+    </div>
+  </div>
+
+  <section class="section-gallery">
+    <div class="container">
+      <div class="gallery-toolbar">
+        <div class="gallery-filters" id="gallery-filters"></div>
+        <div class="gallery-search"><input type="text" id="gallery-search" placeholder="Search photos…" autocomplete="off"></div>
+      </div>
+      <div class="gallery-grid" id="gallery-grid"><p class="gallery-empty">Loading…</p></div>
+    </div>
+  </section>
+
+  <div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Photo viewer">
+    <button class="lb-btn lb-close" id="lb-close" aria-label="Close">✕</button>
+    <button class="lb-btn lb-prev" id="lb-prev" aria-label="Previous">‹</button>
+    <button class="lb-btn lb-next" id="lb-next" aria-label="Next">›</button>
+    <div class="lb-inner">
+      <img class="lb-img" id="lb-img" alt="">
+      <div class="lb-info">
+        <div class="lb-meta" id="lb-meta"></div>
+        <div class="lb-title" id="lb-title"></div>
+        <div class="lb-desc" id="lb-desc"></div>
+        <a class="lb-link" id="lb-link" href="#">View page →</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="footer-placeholder"></div>
+
+  <script>
+    const SB_URL = 'https://fqvghuvmgswegirgitom.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxdmdodXZtZ3N3ZWdpcmdpdG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTI4MTAsImV4cCI6MjA5NjY4ODgxMH0.7tKrak3ANnnhp4pISK2ythPdCt557vMACUhpQsqWn0s';
+    const H = { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` };
+
+    const CATS = ['Hardware', 'Starship', 'Missions', 'Launches', 'News'];
+    let photos = [];      // every photo on the site
+    let view = [];        // currently filtered list
+    let activeCat = 'All';
+    let query = '';
+    let current = -1;
+
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    const plain = s => (typeof mdToPlain === 'function' ? mdToPlain(s || '') : String(s || ''));
+
+    function parseDate(str) {
+      if (!str) return null;
+      const s = String(str).trim();
+      let m = s.match(/^(\d{1,2})[.\/](\d{1,2})[.\/](\d{4})$/);
+      if (m) return new Date(+m[3], +m[2] - 1, +m[1]);
+      const d = new Date(s);
+      return isNaN(d.getTime()) ? null : d;
+    }
+    function niceDate(str) {
+      const d = parseDate(str);
+      return d ? d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : (str || '');
+    }
+    const get = async (t, q) => {
+      try {
+        const r = await fetch(`${SB_URL}/rest/v1/${t}?${q}`, { headers: H });
+        const j = r.ok ? await r.json() : [];
+        return Array.isArray(j) ? j : [];
+      } catch (e) { return []; }
+    };
+
+    async function load() {
+      const [hw, programs, launches, news, updates] = await Promise.all([
+        get('missions', 'order=id'),
+        get('programs', 'order=id'),
+        get('launches', 'order=date.desc'),
+        get('news', 'order=id.desc'),
+        get('site13_updates', 'order=date.desc'),
+      ]);
+      const out = [];
+      const starship = (typeof isaFindStarship === 'function') ? isaFindStarship(hw) : null;
+
+      hw.forEach(m => {
+        if (!m.image) return;
+        const isS = starship && m.id === starship.id;
+        out.push({ cat: isS ? 'Starship' : 'Hardware', img: m.image, title: m.name,
+          meta: [m.division, m.status].filter(Boolean).join(' · '), desc: plain(m.description),
+          href: `project.html?id=${encodeURIComponent(m.id)}`, ts: 0 });
+      });
+      programs.forEach(m => {
+        if (!m.image) return;
+        out.push({ cat: 'Missions', img: m.image, title: m.name,
+          meta: [m.division, m.status].filter(Boolean).join(' · '), desc: plain(m.description),
+          href: `mission.html?id=${encodeURIComponent(m.id)}`, ts: 0 });
+      });
+      launches.forEach(l => {
+        if (!l.image || l.published === false) return;
+        const d = l.date ? new Date(l.date) : null;
+        out.push({ cat: 'Launches', img: l.image, title: l.name,
+          meta: [l.orbit, d && !isNaN(d) ? d.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' }) : ''].filter(Boolean).join(' · '),
+          desc: plain(l.description), href: `launch.html?id=${encodeURIComponent(l.id)}`, ts: d && !isNaN(d) ? d.getTime() : 0 });
+      });
+      news.forEach(n => {
+        if (!n.image) return;
+        const d = parseDate(n.date);
+        out.push({ cat: 'News', img: n.image, title: n.title,
+          meta: [n.tag, niceDate(n.date)].filter(Boolean).join(' · '), desc: plain(n.body),
+          href: `news-post.html?id=${encodeURIComponent(n.id)}`, ts: d ? d.getTime() : 0 });
+      });
+      updates.forEach(u => {
+        if (!u.image) return;
+        const d = parseDate(u.date);
+        const kinds = { road:'Road Update', video:'Video Update', faa:'FAA Update', hardware:'Hardware Tracker' };
+        out.push({ cat: 'Starship', img: u.image, title: u.title,
+          meta: [kinds[u.kind] || 'Update', u.tag, niceDate(u.date)].filter(Boolean).join(' · '), desc: plain(u.body),
+          href: starship ? `project.html?id=${encodeURIComponent(starship.id)}` : 'project.html?id=starship', ts: d ? d.getTime() : 0 });
+      });
+
+      // same image used twice (e.g. card + news post) shows once
+      const seen = new Set();
+      photos = out.filter(p => { if (seen.has(p.img)) return false; seen.add(p.img); return true; });
+      photos.sort((a, b) => b.ts - a.ts);
+      renderFilters();
+      apply();
+    }
+
+    function renderFilters() {
+      const pills = [['All', photos.length]].concat(CATS.map(c => [c, photos.filter(p => p.cat === c).length]))
+        .filter(([c, n]) => c === 'All' || n > 0);
+      const box = document.getElementById('gallery-filters');
+      box.innerHTML = pills.map(([c, n]) =>
+        `<button type="button" class="filter-pill${c === activeCat ? ' active' : ''}" data-cat="${esc(c)}">${esc(c)}<span class="filter-count">${n}</span></button>`).join('');
+      box.querySelectorAll('.filter-pill').forEach(b => b.addEventListener('click', () => {
+        activeCat = b.dataset.cat; renderFilters(); apply();
+      }));
+    }
+
+    function apply() {
+      const q = query.trim().toLowerCase();
+      view = photos.filter(p => (activeCat === 'All' || p.cat === activeCat) &&
+        (!q || `${p.title} ${p.meta} ${p.desc} ${p.cat}`.toLowerCase().includes(q)));
+      const grid = document.getElementById('gallery-grid');
+      if (!view.length) { grid.innerHTML = '<p class="gallery-empty">No photos found.</p>'; return; }
+      grid.innerHTML = view.map((p, i) => `
+        <button type="button" class="gallery-item" data-i="${i}">
+          <img src="${esc(p.img)}" alt="${esc(p.title)}" loading="lazy">
+          <span class="gallery-badge">${esc(p.cat)}</span>
+          <span class="gallery-cap">
+            <span class="gallery-cap-title">${esc(p.title)}</span>
+            <span class="gallery-cap-meta">${esc(p.meta)}</span>
+          </span>
+        </button>`).join('');
+      grid.querySelectorAll('.gallery-item').forEach(b => b.addEventListener('click', () => openLb(+b.dataset.i)));
+    }
+
+    // lightbox
+    const lb = document.getElementById('lb');
+    function openLb(i) {
+      if (!view.length) return;
+      current = (i + view.length) % view.length;
+      const p = view[current];
+      document.getElementById('lb-img').src = p.img;
+      document.getElementById('lb-img').alt = p.title || '';
+      document.getElementById('lb-meta').textContent = `${p.cat}${p.meta ? ' · ' + p.meta : ''}`;
+      document.getElementById('lb-title').textContent = p.title || '';
+      const d = document.getElementById('lb-desc');
+      d.textContent = p.desc || ''; d.style.display = p.desc ? '' : 'none';
+      document.getElementById('lb-link').href = p.href;
+      lb.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeLb() { lb.classList.remove('open'); document.body.style.overflow = ''; }
+    document.getElementById('lb-close').addEventListener('click', closeLb);
+    document.getElementById('lb-prev').addEventListener('click', () => openLb(current - 1));
+    document.getElementById('lb-next').addEventListener('click', () => openLb(current + 1));
+    lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
+    document.addEventListener('keydown', e => {
+      if (!lb.classList.contains('open')) return;
+      if (e.key === 'Escape') closeLb();
+      else if (e.key === 'ArrowLeft') openLb(current - 1);
+      else if (e.key === 'ArrowRight') openLb(current + 1);
+    });
+    document.getElementById('gallery-search').addEventListener('input', e => { query = e.target.value; apply(); });
+
+    document.addEventListener('DOMContentLoaded', load);
+  </script>
+  <script src="shared.js?v=3"></script>
+</body>
+</html>
