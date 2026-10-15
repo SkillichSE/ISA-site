@@ -235,7 +235,7 @@
       const inner = `
           <div class="sx-hw-img${img ? '' : ' none'}" style="${img ? `background-image:url('${escHtml(img)}')` : ''}"></div>
           <div class="sx-hw-body">
-            <div class="faa-meta">${u.tag ? `<span class="faa-tag ${stCls}">${escHtml(u.tag)}</span>` : ''}${u.flight ? `<span class="faa-tag">${escHtml(u.flight)}</span>` : ''}${u.date ? `<span>${fmtDate(u.date)}</span>` : ''}</div>
+            <div class="faa-meta">${u.tag ? `<span class="faa-tag ${stCls}">${escHtml(u.tag)}</span>` : ''}${u.flight ? `<span class="faa-tag">${escHtml(u.flight)}</span>` : ''}</div>
             <h3 class="faa-title">${mdInline(u.title)}</h3>
             <div class="faa-text">${bodyHtml(u.body)}</div>
           </div>`;

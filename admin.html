@@ -620,6 +620,8 @@ function s13KindChanged() {
   const hr = document.getElementById('s13-hw-rows'), cr = document.getElementById('s13-cat-row');
   if (hr) hr.style.display = hw ? '' : 'none';
   if (cr) cr.style.display = hw ? 'none' : '';
+  const dr = document.getElementById('s13-date-row');
+  if (dr) dr.style.display = hw ? 'none' : '';
   const h = document.getElementById('s13-kind-hint');
   if (h) h.textContent = S13_HINTS[k] || '';
 }
@@ -928,7 +930,7 @@ function buildForm(type, item) {
     </div></div>
     <div class="form-row" id="s13-cat-row"><label>Category</label><input type="text" id="f-tag" list="s13-tag-list" value="${esc(String(v('tag')))}" autocomplete="off" placeholder="Pick a suggestion or type your own"><datalist id="s13-tag-list"></datalist></div>
     ${field('title','Title',v('title'))}
-    ${field('date','Date',v('date'),'Used for sorting and, for Road Updates, to decide when it disappears','date')}
+    <div id="s13-date-row">${field('date','Date',v('date'),'Used for sorting and, for Road Updates, to decide when it disappears','date')}</div>
     ${ta('body','Details',v('body'))}
     ${imgField('image','Image (optional)',v('image'))}
     ${field('link','Source Link',v('link'),'Link to the source: FAA page, tweet, or the YouTube video (for Video entries)')}`;
@@ -982,7 +984,7 @@ function getForm(type) {
       status, date:launchDate,description:g('description'),image:g('image'),published:g('published')==='true',
       tags:arr('tags'), launchshare, launchshare_volume: launchshare ? lsVolume : null };
   }
-  if (type==='site13_updates') return { id:g('id'),project_id:(editId&&(data.site13_updates.find(x=>x.id===editId)||{}).project_id)||(findStarship()?String(findStarship().id):'Starship'),kind:g('kind')||'faa',tag:(g('kind')==='hardware'?g('status13'):g('tag')),...(g('kind')==='hardware'?{flight:g('flight')}:{}),title:g('title'),date:g('date'),body:g('body'),image:g('image'),link:g('link') };
+  if (type==='site13_updates') return { id:g('id'),project_id:(editId&&(data.site13_updates.find(x=>x.id===editId)||{}).project_id)||(findStarship()?String(findStarship().id):'Starship'),kind:g('kind')||'faa',tag:(g('kind')==='hardware'?g('status13'):g('tag')),...(g('kind')==='hardware'?{flight:g('flight')}:{}),title:g('title'),date:(g('kind')==='hardware'?((editId&&(data.site13_updates.find(x=>x.id===editId)||{}).date)||new Date().toISOString().slice(0,10)):g('date')),body:g('body'),image:g('image'),link:g('link') };
   if (type==='news') return { id:g('id'),tag:g('tag'),title:g('title'),date:g('date'),body:g('body'),image:g('image'),link:g('link'),tags:arr('tags') };
 }
 

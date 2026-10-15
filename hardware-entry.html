@@ -67,7 +67,7 @@
         document.title = `${mdToPlain(u.title) || 'Hardware'} — ISA`;
         const img = safeUrl(u.image);
         if (img) { $('he-img').src = img; $('he-hero').classList.add('has-image'); }
-        $('he-meta').innerHTML = `${u.tag ? `<span class="mission-status ${ST[String(u.tag).toLowerCase()] || ''}">${esc(u.tag)}</span>` : ''}${u.date ? `<span class="mission-division">${fmtDate(u.date)}</span>` : ''}${u.flight ? `<span class="mission-tags meta-tags-inline"><span class="isa-tag">${esc(u.flight)}</span></span>` : ''}`;
+        $('he-meta').innerHTML = `${u.tag ? `<span class="mission-status ${ST[String(u.tag).toLowerCase()] || ''}">${esc(u.tag)}</span>` : ''}${u.flight ? `<span class="mission-tags meta-tags-inline"><span class="isa-tag">${esc(u.flight)}</span></span>` : ''}`;
         $('he-title').innerHTML = mdInline(u.title);
         const html = mdToHtml(u.body || '');
         $('he-body').innerHTML = (window.DOMPurify ? DOMPurify.sanitize(html) : esc(u.body)) || '<p>No further details yet.</p>';
