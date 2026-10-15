@@ -141,7 +141,7 @@
       const newIds = isaGetNewIds('missions', allMissions.map(m => m.id));
       document.getElementById('missions-list').innerHTML = list.map(m => `
         <a class="mission-card reveal-target${m.id === pinnedId ? ' pinned' : ''}" href="project.html?id=${encodeURIComponent(m.id)}">
-          ${m.id === pinnedId ? '<span class="pinned-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M16 9V4h1a1 1 0 0 0 0-2H7a1 1 0 0 0 0 2h1v5a3 3 0 0 1-2 2.83V13h5v7l1 2 1-2v-7h5v-1.17A3 3 0 0 1 16 9z"/></svg>Pinned</span>' : (newIds.has(Number(m.id)) ? '<span class="isa-new-badge">New</span>' : '')}
+          ${m.id === pinnedId ? '<span class="pinned-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M16 9V4h1a1 1 0 0 0 0-2H7a1 1 0 0 0 0 2h1v5a3 3 0 0 1-2 2.83V13h5v7l1 2 1-2v-7h5v-1.17A3 3 0 0 1 16 9z"/></svg>Featured</span>' : (newIds.has(Number(m.id)) ? '<span class="isa-new-badge">New</span>' : '')}
           <div class="mission-card-img${m.image ? '' : ' none'}" style="${m.image ? `background-image:url('${escHtml(m.image)}')` : ''}"></div>
           <div class="mission-card-body">
             <div class="mission-meta">
