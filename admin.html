@@ -111,6 +111,9 @@
     .badge { display:inline-flex; align-items:center; font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; text-transform:uppercase; letter-spacing:.04em; }
     .badge-active { background:rgba(62,207,142,0.12); color:var(--success); }
     .badge-development { background:rgba(240,168,48,0.12); color:var(--warn); }
+    .badge-scrapped,.badge-destroyed { background:rgba(239,68,68,0.12); color:#ef4444; }
+    .badge-expended { background:rgba(249,115,22,0.12); color:#f97316; }
+    .badge-retired { background:rgba(96,165,250,0.12); color:#60a5fa; }
     .badge-inactive { background:rgba(255,255,255,0.06); color:var(--text-3); }
     .badge-open { background:rgba(62,207,142,0.12); color:var(--success); }
     .badge-upcoming { background:rgba(91,110,245,0.15); color:var(--accent); }
@@ -441,7 +444,7 @@ function findStarship() {
 
 // Hardware tab (Supabase table: missions — feeds hardware.html)
 function pageMissions() {
-  const statusMap = { active:'Active', development:'In Development', inactive:'Inactive' };
+  const statusMap = { active:'Active', development:'In Development', inactive:'Inactive', scrapped:'Scrapped', destroyed:'Destroyed', expended:'Expended', retired:'Retired' };
   const ss = findStarship();
   const list = data.missions.filter(m => m !== ss);
   const items = list.length ? list.map(m=>`
@@ -465,7 +468,7 @@ function pageMissions() {
 
 // Missions tab (Supabase table: programs — feeds missions.html)
 function pagePrograms() {
-  const statusMap = { active:'Active', development:'In Development', inactive:'Inactive' };
+  const statusMap = { active:'Active', development:'In Development', inactive:'Inactive', scrapped:'Scrapped', destroyed:'Destroyed', expended:'Expended', retired:'Retired' };
   const items = data.programs.length ? data.programs.map(m=>`
     <div class="item-card">
       <div class="item-thumb" style="background-image:url('${m.image}')"></div>
@@ -573,7 +576,7 @@ const S13_HINTS = {
 };
 function pageSite13() {
   const ss = findStarship();
-  const statusMap = { active:'Active', development:'In Development', inactive:'Inactive' };
+  const statusMap = { active:'Active', development:'In Development', inactive:'Inactive', scrapped:'Scrapped', destroyed:'Destroyed', expended:'Expended', retired:'Retired' };
   const head = ss ? `
     <div class="item-card" style="margin-bottom:22px">
       <div class="item-thumb" style="background-image:url('${esc(ss.image||'')}');background-color:var(--surface3)"></div>
@@ -873,11 +876,11 @@ function formatLaunchListDate(dateIso) {
 function buildForm(type, item) {
   const v = (k,d='') => item ? (item[k]??d) : d;
   if (type==='missions') return `
-    <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. atlas')}${sel('status','Status',v('status','active'),['active','development','inactive'])}</div>
+    <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. atlas')}${sel('status','Status',v('status','active'),['active','development','inactive','scrapped','destroyed','expended','retired'])}</div>
     ${field('name','Name',v('name'))}
     ${field('division','Division',v('division'),'e.g. Launch Systems')}
     ${ta('description','Description',v('description'))}
-    ${field('tags','Tags',Array.isArray(v('tags'))?v('tags',[]).join(', '):v('tags'),'Comma-separated')}
+    ${field('tags','Tags',Array.isArray(v('tags'))?v('tags',[]).join(', '):v('tags'),'Comma-separated, e.g. Rocket, Flight 12')}
     ${imgField('image','Image',v('image'))}`;
   if (type==='programs') return `
     <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. artemis-relay')}${sel('status','Status',v('status','active'),['active','development','inactive'])}</div>

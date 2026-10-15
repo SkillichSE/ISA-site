@@ -98,8 +98,8 @@
     const SB_URL = 'https://fqvghuvmgswegirgitom.supabase.co';
     const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxdmdodXZtZ3N3ZWdpcmdpdG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTI4MTAsImV4cCI6MjA5NjY4ODgxMH0.7tKrak3ANnnhp4pISK2ythPdCt557vMACUhpQsqWn0s';
 
-    const STATUS_LABEL = { active: 'Active', development: 'In Development', inactive: 'Inactive' };
-    const STATUS_CLASS = { active: 'status-active', development: 'status-development', inactive: 'status-inactive' };
+    const STATUS_LABEL = { active: 'Active', development: 'In Development', inactive: 'Inactive', scrapped: 'Scrapped', destroyed: 'Destroyed', expended: 'Expended', retired: 'Retired' };
+    const STATUS_CLASS = { active: 'status-active', development: 'status-development', inactive: 'status-inactive', scrapped: 'status-scrapped', destroyed: 'status-destroyed', expended: 'status-expended', retired: 'status-retired' };
 
     function escHtml(str) {
       return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
