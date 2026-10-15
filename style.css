@@ -114,6 +114,10 @@
   transition: transform 0.35s ease;
 }
 .project-card:hover { transform: scale(1.012); }
+/* Starship: pinned first and framed */
+.project-card.pinned { box-shadow: 0 0 0 2px rgba(59,130,246,0.85), 0 0 28px rgba(59,130,246,0.35); }
+.project-card.pinned:hover { box-shadow: 0 0 0 2px #60a5fa, 0 0 36px rgba(96,165,250,0.5); }
+.project-pin-badge { position: absolute; top: 14px; left: 14px; z-index: 3; padding: 4px 10px; border-radius: 999px; background: rgba(59,130,246,0.9); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
 .project-large { height: 380px; }
 .project-small { height: 240px; }
 .project-card:nth-child(1) { grid-column: 1 / 2; grid-row: 1; }

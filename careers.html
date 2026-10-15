@@ -97,7 +97,7 @@
           <div class="career-card reveal-target" data-career="${i}">
             <div class="career-card-top">
               <div>
-                <h3>${escHtml(c.title)}</h3>
+                <h3>${mdInline(c.title)}</h3>
                 <div class="career-program">${escHtml(c.program)}</div>
               </div>
               <span class="career-type">${escHtml(c.type)}</span>
@@ -119,7 +119,7 @@
 
     function openModal(c) {
       document.getElementById('career-modal-type').textContent    = c.type || '';
-      document.getElementById('career-modal-title').textContent   = c.title || '';
+      document.getElementById('career-modal-title').innerHTML   = mdInline(c.title) || '';
       document.getElementById('career-modal-program').textContent = c.program || '';
       document.getElementById('career-modal-body').innerHTML    = mdToHtml(c.description);
       document.getElementById('career-modal-skills').innerHTML    = (c.skills||[]).map(s=>`<span>${escHtml(s)}</span>`).join('');

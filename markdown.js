@@ -137,6 +137,27 @@ function mdToHtml(text) {
   return escHtmlMd(text).replace(/\n/g, '<br>');
 }
 
+
+// Inline-only markdown -> sanitized HTML, for titles/headings (bold, italic,
+// code, links, strikethrough). No block elements, so it is safe inside <h2>/<h3>.
+function mdInline(text) {
+  if (!text) return '';
+  try {
+    if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
+      const raw = marked.parseInline(stripDiscordMentions(convertDiscordTimestamps(String(text))), { breaks: false, gfm: true });
+      const clean = DOMPurify.sanitize(raw, {
+        ALLOWED_TAGS: ['strong','em','b','i','a','code','del','small','br'],
+        ALLOWED_ATTR: ['href','target','rel','title']
+      });
+      const w = document.createElement('div');
+      w.innerHTML = clean;
+      w.querySelectorAll('a').forEach(a => { a.setAttribute('target', '_blank'); a.setAttribute('rel', 'noopener noreferrer'); });
+      return w.innerHTML;
+    }
+  } catch (e) { console.error('Inline markdown failed:', e); }
+  return escHtmlMd(text);
+}
+
 // Markdown -> plain text, for short truncated previews (cards/lists)
 function mdToPlain(text) {
   if (!text) return '';

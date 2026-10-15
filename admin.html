@@ -213,6 +213,14 @@
     .md-preview pre code { background:none; padding:0; }
     .md-preview img { max-width:100%; border-radius:6px; }
     .md-preview small { opacity:0.65; font-size:0.85em; }
+
+    /* Dark, thin scrollbars (textareas, modal, markdown preview) */
+    .modal, .md-preview, .form-row textarea, .md-field textarea { scrollbar-width: thin; scrollbar-color: #3a3a3a transparent; }
+    .modal::-webkit-scrollbar, .md-preview::-webkit-scrollbar, .form-row textarea::-webkit-scrollbar { width: 8px; height: 8px; }
+    .modal::-webkit-scrollbar-track, .md-preview::-webkit-scrollbar-track, .form-row textarea::-webkit-scrollbar-track { background: transparent; }
+    .modal::-webkit-scrollbar-thumb, .md-preview::-webkit-scrollbar-thumb, .form-row textarea::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 8px; }
+    .modal::-webkit-scrollbar-thumb:hover, .md-preview::-webkit-scrollbar-thumb:hover, .form-row textarea::-webkit-scrollbar-thumb:hover { background: #555; }
+    .form-row textarea::-webkit-resizer { background: transparent; }
   </style>
 </head>
 <body>

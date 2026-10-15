@@ -118,7 +118,7 @@
          ${n.tags && Array.isArray(n.tags) ? n.tags.map(t => `<span class="isa-tag">${escHtml(String(t))}</span>`).join('') : ''}
          ${n.date ? `<span class="news-date">${formatNiceDate(n.date)}</span>` : ''}`;
 
-      document.getElementById('news-detail-title').textContent = mdToPlain(n.title) || 'Untitled';
+      document.getElementById('news-detail-title').innerHTML = mdInline(n.title) || 'Untitled';
 
       document.getElementById('news-detail-body').innerHTML = mdToHtml(n.body) || '<p>No further details yet.</p>';
 

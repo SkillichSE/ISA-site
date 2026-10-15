@@ -91,7 +91,7 @@
           ${img ? `<div class="s13-card-img" style="background-image:url('${esc(img)}')"></div>` : ''}
           <div class="s13-card-body">
             <div class="s13-meta">${u.tag ? `<span class="s13-tag">${esc(u.tag)}</span>` : ''}<span>${fmtDate(u.date)}</span></div>
-            <h2 class="s13-title">${esc(u.title)}</h2>
+            <h2 class="s13-title">${mdInline(u.title)}</h2>
             <div class="s13-text">${bodyHtml(u.body)}</div>
             ${link ? `<a class="s13-link" href="${esc(link)}" target="_blank" rel="noopener">Source →</a>` : ''}
           </div>

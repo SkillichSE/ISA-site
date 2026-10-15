@@ -143,7 +143,7 @@
          ${m.division ? `<span class="mission-division">${escHtml(m.division)}</span>` : ''}
          ${m.tags && Array.isArray(m.tags) && m.tags.length ? `<span class="mission-tags meta-tags-inline">${m.tags.map(t => `<span class="isa-tag">${escHtml(String(t))}</span>`).join('')}</span>` : ''}`;
 
-      document.getElementById('project-title').textContent = m.name || 'Untitled Hardware';
+      document.getElementById('project-title').innerHTML = mdInline(m.name) || 'Untitled Hardware';
 
       const hero = document.getElementById('project-hero');
       if (m.image) {
@@ -191,7 +191,7 @@
           ${img ? `<div class="faa-card-img" style="background-image:url('${escHtml(img)}')"></div>` : ''}
           <div class="faa-card-body">
             <div class="faa-meta">${u.tag ? `<span class="faa-tag">${escHtml(u.tag)}</span>` : ''}<span>${fmtDate(u.date)}</span></div>
-            <h3 class="faa-title">${escHtml(u.title)}</h3>
+            <h3 class="faa-title">${mdInline(u.title)}</h3>
             <div class="faa-text">${bodyHtml(u.body)}</div>
             ${link ? `<a class="faa-link" href="${escHtml(link)}" target="_blank" rel="noopener noreferrer">Source →</a>` : ''}
           </div>
@@ -204,7 +204,7 @@
         <article class="faa-card sx-road-card">
           <div class="faa-card-body">
             <div class="faa-meta"><span class="faa-tag sx-tag-warn">${escHtml(u.tag || 'Closure')}</span><span>${fmtDate(u.date)}</span></div>
-            <h3 class="faa-title">${escHtml(u.title)}</h3>
+            <h3 class="faa-title">${mdInline(u.title)}</h3>
             <div class="faa-text">${bodyHtml(u.body)}</div>
             ${link ? `<a class="faa-link" href="${escHtml(link)}" target="_blank" rel="noopener noreferrer">Details →</a>` : ''}
           </div>
@@ -222,7 +222,7 @@
           ${media}
           <div class="sx-video-body">
             <div class="faa-meta">${u.tag ? `<span class="faa-tag">${escHtml(u.tag)}</span>` : ''}<span>${fmtDate(u.date)}</span></div>
-            <h3 class="faa-title">${escHtml(u.title)}</h3>
+            <h3 class="faa-title">${mdInline(u.title)}</h3>
             ${u.body ? `<div class="faa-text">${bodyHtml(u.body)}</div>` : ''}
           </div>
         </article>`;
@@ -234,7 +234,7 @@
           <div class="sx-hw-img${img ? '' : ' none'}" style="${img ? `background-image:url('${escHtml(img)}')` : ''}"></div>
           <div class="sx-hw-body">
             <div class="faa-meta">${u.tag ? `<span class="faa-tag">${escHtml(u.tag)}</span>` : ''}${u.date ? `<span>${fmtDate(u.date)}</span>` : ''}</div>
-            <h3 class="faa-title">${escHtml(u.title)}</h3>
+            <h3 class="faa-title">${mdInline(u.title)}</h3>
             <div class="faa-text">${bodyHtml(u.body)}</div>
           </div>`;
       return link
