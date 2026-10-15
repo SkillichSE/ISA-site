@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hardware — ISA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared.css?v=6">
+  <link rel="stylesheet" href="hardware.css">
+  <link rel="stylesheet" href="project.css">
+  <link rel="icon" type="image/png" href="ISSSSSSSAAAA.png">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+  <script src="markdown.js"></script>
+  <style>
+    .he-wrap { max-width: 900px; margin: 0 auto; padding: 120px 24px 80px; }
+    .he-back { display: inline-block; margin-bottom: 22px; color: var(--muted); text-decoration: none; font-size: 0.9rem; font-weight: 600; }
+    .he-back:hover { color: #fff; }
+    .he-img { width: 100%; height: auto; display: block; border-radius: 16px; border: 1px solid var(--line); margin-bottom: 26px; }
+    .he-title { font-size: 2rem; font-weight: 900; letter-spacing: -0.5px; margin: 10px 0 18px; line-height: 1.2; }
+    .he-link { display: inline-block; margin-top: 22px; color: var(--accent-light); font-weight: 700; text-decoration: none; }
+    .he-state { text-align: center; padding: 180px 24px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div id="nav-placeholder"></div>
+  <div class="he-state" id="he-loading">Loading…</div>
+  <div class="he-state" id="he-missing" style="display:none">
+    <h1>Entry not found.</h1><p>It may have been removed, or the link is incorrect.</p>
+    <a class="he-back" href="hardware.html">← Back to hardware</a>
+  </div>
+  <div class="he-wrap" id="he-main" style="display:none">
+    <a class="he-back" id="he-back" href="hardware.html">← Back to Starship</a>
+    <img class="he-img" id="he-img" alt="" style="display:none">
+    <div class="faa-meta" id="he-meta"></div>
+    <h1 class="he-title" id="he-title"></h1>
+    <div class="faa-text" id="he-body"></div>
+    <a class="he-link" id="he-src" target="_blank" rel="noopener noreferrer" style="display:none">Source →</a>
+  </div>
+  <div id="footer-placeholder"></div>
+
+  <script src="shared.js?v=3"></script>
+  <script>
+    const SB_URL = 'https://fqvghuvmgswegirgitom.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxdmdodXZtZ3N3ZWdpcmdpdG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTI4MTAsImV4cCI6MjA5NjY4ODgxMH0.7tKrak3ANnnhp4pISK2ythPdCt557vMACUhpQsqWn0s';
+    const ST = { active:'status-active', scrapped:'status-scrapped', destroyed:'status-destroyed', expended:'status-expended', retired:'status-retired' };
+    const esc = s => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const safeUrl = u => /^https?:\/\//i.test(u || '') ? u : '';
+    const $ = id => document.getElementById(id);
+    function missing() { $('he-loading').style.display = 'none'; $('he-missing').style.display = 'block'; }
+    function fmtDate(d) {
+      const t = new Date(/^\d{4}-\d{2}-\d{2}$/.test(d || '') ? d + 'T00:00:00Z' : d);
+      return isNaN(t) ? esc(d) : t.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric', timeZone:'UTC' });
+    }
+    const id = new URLSearchParams(location.search).get('id');
+    if (!id) missing(); else
+    fetch(`${SB_URL}/rest/v1/site13_updates?id=eq.${encodeURIComponent(id)}&select=*`, { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } })
+      .then(r => r.json()).then(rows => {
+        const u = Array.isArray(rows) ? rows[0] : null;
+        if (!u) return missing();
+        document.title = `${mdToPlain(u.title) || 'Hardware'} — ISA`;
+        const img = safeUrl(u.image);
+        if (img) { $('he-img').src = img; $('he-img').style.display = 'block'; }
+        $('he-meta').innerHTML = `${u.tag ? `<span class="faa-tag ${ST[String(u.tag).toLowerCase()] || ''}">${esc(u.tag)}</span>` : ''}${u.flight ? `<span class="faa-tag">${esc(u.flight)}</span>` : ''}${u.date ? `<span>${fmtDate(u.date)}</span>` : ''}`;
+        $('he-title').innerHTML = mdInline(u.title);
+        const html = mdToHtml(u.body || '');
+        $('he-body').innerHTML = window.DOMPurify ? DOMPurify.sanitize(html) : esc(u.body);
+        const link = safeUrl(u.link);
+        if (link) { $('he-src').href = link; $('he-src').style.display = 'inline-block'; }
+        if (u.project_id) $('he-back').href = `project.html?id=${encodeURIComponent(u.project_id)}`;
+        $('he-loading').style.display = 'none'; $('he-main').style.display = 'block';
+      }).catch(missing);
+  </script>
+</body>
+</html>

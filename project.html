@@ -239,9 +239,7 @@
             <h3 class="faa-title">${mdInline(u.title)}</h3>
             <div class="faa-text">${bodyHtml(u.body)}</div>
           </div>`;
-      return link
-        ? `<a class="sx-hw-card" href="${escHtml(link)}" target="_blank" rel="noopener noreferrer">${inner}</a>`
-        : `<div class="sx-hw-card">${inner}</div>`;
+      return `<a class="sx-hw-card" href="hardware-entry.html?id=${encodeURIComponent(u.id)}">${inner}</a>`;
     }
 
     function loadStarshipSections(m) {
