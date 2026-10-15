@@ -58,3 +58,8 @@ a.sx-hw-card:hover { border-color: var(--line2); transform: translateY(-3px); }
   .sx-sections .hardware-search input, .sx-sections .hardware-search input:focus { width: 100%; }
   .sx-sections .hardware-search { flex: 1; }
 }
+
+.faa-tag.status-active { background: rgba(34,197,94,0.12); color: #22c55e; }
+.faa-tag.status-scrapped, .faa-tag.status-destroyed { background: rgba(239,68,68,0.12); color: #ef4444; }
+.faa-tag.status-expended { background: rgba(249,115,22,0.12); color: #f97316; }
+.faa-tag.status-retired { background: rgba(96,165,250,0.12); color: #60a5fa; }

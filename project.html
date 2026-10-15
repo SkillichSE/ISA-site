@@ -98,8 +98,8 @@
     const SB_URL = 'https://fqvghuvmgswegirgitom.supabase.co';
     const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxdmdodXZtZ3N3ZWdpcmdpdG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTI4MTAsImV4cCI6MjA5NjY4ODgxMH0.7tKrak3ANnnhp4pISK2ythPdCt557vMACUhpQsqWn0s';
 
-    const STATUS_LABEL = { active: 'Active', development: 'In Development', inactive: 'Inactive', scrapped: 'Scrapped', destroyed: 'Destroyed', expended: 'Expended', retired: 'Retired' };
-    const STATUS_CLASS = { active: 'status-active', development: 'status-development', inactive: 'status-inactive', scrapped: 'status-scrapped', destroyed: 'status-destroyed', expended: 'status-expended', retired: 'status-retired' };
+    const STATUS_LABEL = { active: 'Active', development: 'In Development', inactive: 'Inactive' };
+    const STATUS_CLASS = { active: 'status-active', development: 'status-development', inactive: 'status-inactive' };
 
     function escHtml(str) {
       return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -165,7 +165,8 @@
     // Starship always shows all four sections; other hardware pages only show
     // a section if they actually have rows of that kind.
     const FAA_VISIBLE = 5, VIDEO_VISIBLE = 4;
-    const HW_CATEGORIES = ['Full Stacks', 'Boosters', 'Ships', 'Suborbital Ships', 'Other'];
+    const HW_CATEGORIES = ['Active', 'Scrapped', 'Destroyed', 'Expended', 'Retired'];
+    const HW_STATUS_CLASS = { active: 'status-active', scrapped: 'status-scrapped', destroyed: 'status-destroyed', expended: 'status-expended', retired: 'status-retired' };
 
     function safeUrl(u) { return /^https?:\/\//i.test(u || '') ? u : ''; }
 
@@ -229,11 +230,12 @@
     }
 
     function hwCard(u) {
+      const stCls = HW_STATUS_CLASS[String(u.tag || '').toLowerCase()] || '';
       const link = safeUrl(u.link), img = safeUrl(u.image);
       const inner = `
           <div class="sx-hw-img${img ? '' : ' none'}" style="${img ? `background-image:url('${escHtml(img)}')` : ''}"></div>
           <div class="sx-hw-body">
-            <div class="faa-meta">${u.tag ? `<span class="faa-tag">${escHtml(u.tag)}</span>` : ''}${u.date ? `<span>${fmtDate(u.date)}</span>` : ''}</div>
+            <div class="faa-meta">${u.tag ? `<span class="faa-tag ${stCls}">${escHtml(u.tag)}</span>` : ''}${u.flight ? `<span class="faa-tag">${escHtml(u.flight)}</span>` : ''}${u.date ? `<span>${fmtDate(u.date)}</span>` : ''}</div>
             <h3 class="faa-title">${mdInline(u.title)}</h3>
             <div class="faa-text">${bodyHtml(u.body)}</div>
           </div>`;
@@ -308,7 +310,7 @@
             fEl.querySelectorAll('.filter-pill').forEach(b => b.addEventListener('click', () => { hwFilter = b.dataset.f; drawHw(); }));
             const q = hwQuery.trim().toLowerCase();
             const list = hw.filter(u => hwFilter === 'All' || u.tag === hwFilter)
-              .filter(u => !q || [u.title, u.body, u.tag].filter(Boolean).join(' ').toLowerCase().includes(q));
+              .filter(u => !q || [u.title, u.body, u.tag, u.flight].filter(Boolean).join(' ').toLowerCase().includes(q));
             document.getElementById('sx-hw-list').innerHTML = list.length
               ? list.map(hwCard).join('')
               : `<p class="sx-empty">${hw.length ? 'Nothing matches your search.' : 'No hardware tracked yet.'}</p>`;

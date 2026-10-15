@@ -111,9 +111,6 @@
     .badge { display:inline-flex; align-items:center; font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; text-transform:uppercase; letter-spacing:.04em; }
     .badge-active { background:rgba(62,207,142,0.12); color:var(--success); }
     .badge-development { background:rgba(240,168,48,0.12); color:var(--warn); }
-    .badge-scrapped,.badge-destroyed { background:rgba(239,68,68,0.12); color:#ef4444; }
-    .badge-expended { background:rgba(249,115,22,0.12); color:#f97316; }
-    .badge-retired { background:rgba(96,165,250,0.12); color:#60a5fa; }
     .badge-inactive { background:rgba(255,255,255,0.06); color:var(--text-3); }
     .badge-open { background:rgba(62,207,142,0.12); color:var(--success); }
     .badge-upcoming { background:rgba(91,110,245,0.15); color:var(--accent); }
@@ -444,7 +441,7 @@ function findStarship() {
 
 // Hardware tab (Supabase table: missions — feeds hardware.html)
 function pageMissions() {
-  const statusMap = { active:'Active', development:'In Development', inactive:'Inactive', scrapped:'Scrapped', destroyed:'Destroyed', expended:'Expended', retired:'Retired' };
+  const statusMap = { active:'Active', development:'In Development', inactive:'Inactive' };
   const ss = findStarship();
   const list = data.missions.filter(m => m !== ss);
   const items = list.length ? list.map(m=>`
@@ -468,7 +465,7 @@ function pageMissions() {
 
 // Missions tab (Supabase table: programs — feeds missions.html)
 function pagePrograms() {
-  const statusMap = { active:'Active', development:'In Development', inactive:'Inactive', scrapped:'Scrapped', destroyed:'Destroyed', expended:'Expended', retired:'Retired' };
+  const statusMap = { active:'Active', development:'In Development', inactive:'Inactive' };
   const items = data.programs.length ? data.programs.map(m=>`
     <div class="item-card">
       <div class="item-thumb" style="background-image:url('${m.image}')"></div>
@@ -561,6 +558,7 @@ function pageNews() {
 
 // Starship page (own admin page): the Starship card itself (table: missions)
 // plus its Road / Video / FAA / Hardware-tracker entries (table: site13_updates).
+const S13_STATUSES = ['Active','Scrapped','Destroyed','Expended','Retired'];
 const S13_KINDS = { road:'Road Update', video:'Video Update', faa:'FAA Update', hardware:'Hardware Tracker' };
 const S13_TAGS = {
   faa:['FAA Update','License','Environmental','Airspace','Other'],
@@ -572,11 +570,11 @@ const S13_HINTS = {
   faa:'Shows under "FAA Updates" on the Starship page. Date is used for sorting (newest first).',
   road:'Shows under "Road Updates" until the date passes. Put the closure date in Date and the times in Details.',
   video:'Shows under "Video Updates". Paste a YouTube link in Source Link — it becomes a playable thumbnail. Image is optional.',
-  hardware:'Shows in the Hardware tracker on the Starship page. "Category" picks the filter. Title e.g. "Booster 19", Details = current status.'
+  hardware:'Shows in the Hardware tracker on the Starship page. Status picks the filter, Flight assigned shows as a tag. Title e.g. "Booster 19".'
 };
 function pageSite13() {
   const ss = findStarship();
-  const statusMap = { active:'Active', development:'In Development', inactive:'Inactive', scrapped:'Scrapped', destroyed:'Destroyed', expended:'Expended', retired:'Retired' };
+  const statusMap = { active:'Active', development:'In Development', inactive:'Inactive' };
   const head = ss ? `
     <div class="item-card" style="margin-bottom:22px">
       <div class="item-thumb" style="background-image:url('${esc(ss.image||'')}');background-color:var(--surface3)"></div>
@@ -618,6 +616,10 @@ function s13KindChanged() {
   const k = (document.getElementById('f-kind')||{}).value || 'faa';
   const dl = document.getElementById('s13-tag-list');
   if (dl) dl.innerHTML = (S13_TAGS[k]||[]).map(t=>`<option value="${esc(t)}">`).join('');
+  const hw = k==='hardware';
+  const hr = document.getElementById('s13-hw-rows'), cr = document.getElementById('s13-cat-row');
+  if (hr) hr.style.display = hw ? '' : 'none';
+  if (cr) cr.style.display = hw ? 'none' : '';
   const h = document.getElementById('s13-kind-hint');
   if (h) h.textContent = S13_HINTS[k] || '';
 }
@@ -876,11 +878,11 @@ function formatLaunchListDate(dateIso) {
 function buildForm(type, item) {
   const v = (k,d='') => item ? (item[k]??d) : d;
   if (type==='missions') return `
-    <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. atlas')}${sel('status','Status',v('status','active'),['active','development','inactive','scrapped','destroyed','expended','retired'])}</div>
+    <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. atlas')}${sel('status','Status',v('status','active'),['active','development','inactive'])}</div>
     ${field('name','Name',v('name'))}
     ${field('division','Division',v('division'),'e.g. Launch Systems')}
     ${ta('description','Description',v('description'))}
-    ${field('tags','Tags',Array.isArray(v('tags'))?v('tags',[]).join(', '):v('tags'),'Comma-separated, e.g. Rocket, Flight 12')}
+    ${field('tags','Tags',Array.isArray(v('tags'))?v('tags',[]).join(', '):v('tags'),'Comma-separated')}
     ${imgField('image','Image',v('image'))}`;
   if (type==='programs') return `
     <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. artemis-relay')}${sel('status','Status',v('status','active'),['active','development','inactive'])}</div>
@@ -920,7 +922,11 @@ function buildForm(type, item) {
     <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. booster-19-static-fire')}
       <div class="form-row"><label>Section on Starship page</label><select id="f-kind" onchange="s13KindChanged()">${Object.entries(S13_KINDS).map(([k,l])=>`<option value="${k}"${k===kind?' selected':''}>${l}</option>`).join('')}</select></div></div>
     <div class="form-hint" id="s13-kind-hint" style="margin:-6px 0 14px"></div>
-    <div class="form-row"><label>Category</label><input type="text" id="f-tag" list="s13-tag-list" value="${esc(String(v('tag')))}" autocomplete="off" placeholder="Pick a suggestion or type your own"><datalist id="s13-tag-list"></datalist></div>
+    <div class="form-row" id="s13-hw-rows" style="display:none"><div class="form-row-2">
+      <div class="form-row"><label>Status</label><select id="f-status13">${[...new Set([...S13_STATUSES, v('tag')].filter(Boolean))].map(t=>`<option value="${esc(t)}"${t===v('tag')?' selected':''}>${esc(t)}</option>`).join('')}</select></div>
+      ${field('flight','Flight assigned',v('flight'),'e.g. Flight 12')}
+    </div></div>
+    <div class="form-row" id="s13-cat-row"><label>Category</label><input type="text" id="f-tag" list="s13-tag-list" value="${esc(String(v('tag')))}" autocomplete="off" placeholder="Pick a suggestion or type your own"><datalist id="s13-tag-list"></datalist></div>
     ${field('title','Title',v('title'))}
     ${field('date','Date',v('date'),'Used for sorting and, for Road Updates, to decide when it disappears','date')}
     ${ta('body','Details',v('body'))}
@@ -976,7 +982,7 @@ function getForm(type) {
       status, date:launchDate,description:g('description'),image:g('image'),published:g('published')==='true',
       tags:arr('tags'), launchshare, launchshare_volume: launchshare ? lsVolume : null };
   }
-  if (type==='site13_updates') return { id:g('id'),project_id:(editId&&(data.site13_updates.find(x=>x.id===editId)||{}).project_id)||(findStarship()?String(findStarship().id):'Starship'),kind:g('kind')||'faa',tag:g('tag'),title:g('title'),date:g('date'),body:g('body'),image:g('image'),link:g('link') };
+  if (type==='site13_updates') return { id:g('id'),project_id:(editId&&(data.site13_updates.find(x=>x.id===editId)||{}).project_id)||(findStarship()?String(findStarship().id):'Starship'),kind:g('kind')||'faa',tag:(g('kind')==='hardware'?g('status13'):g('tag')),...(g('kind')==='hardware'?{flight:g('flight')}:{}),title:g('title'),date:g('date'),body:g('body'),image:g('image'),link:g('link') };
   if (type==='news') return { id:g('id'),tag:g('tag'),title:g('title'),date:g('date'),body:g('body'),image:g('image'),link:g('link'),tags:arr('tags') };
 }
 
