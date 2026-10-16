@@ -1,3 +1,22 @@
+(function () {
+  if (!('scrollRestoration' in history)) return;
+  history.scrollRestoration = 'manual';
+  const key = 'isa-scroll:' + location.pathname + location.search;
+  const save = () => { try { sessionStorage.setItem(key, String(window.scrollY)); } catch (e) {} };
+  window.addEventListener('pagehide', save);
+  document.addEventListener('click', e => { if (e.target.closest('a[href]')) save(); }, true);
+  const nav = performance.getEntriesByType('navigation')[0];
+  let y = 0;
+  try { y = parseInt(sessionStorage.getItem(key), 10) || 0; } catch (e) {}
+  if (!y || !nav || nav.type !== 'back_forward') return;
+  const t0 = Date.now();
+  (function try_() {
+    const maxY = document.documentElement.scrollHeight - window.innerHeight;
+    if (maxY >= y - 2 || Date.now() - t0 > 4000) { window.scrollTo(0, Math.min(y, Math.max(maxY, 0))); return; }
+    setTimeout(try_, 80);
+  })();
+})();
+
 const GUILD_ID = '1507774799194099903';
 const INVITE_CODE = 'CMDSKwTBnm';
 
@@ -521,14 +540,6 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
   });
 });
 
-// --- Hero title pinning (launch / project / news-post detail pages) ---
-// Used on pages with a `.launch-hero.has-image` block where the photo can
-// be taller than the viewport. While the image still has room below the
-// current scroll position, the title block is pinned to the bottom of the
-// screen (position: fixed) so it's visible without scrolling. Once the
-// bottom of the image scrolls up to meet that position, the pin is
-// released and the block settles in its normal spot, flush with the
-// bottom of the image.
 (function initHeroPin() {
   let hero = null, inner = null, img = null;
   let ticking = false;
@@ -562,10 +573,7 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     img.addEventListener('load', update);
   }
 
-  // The hero image src is set asynchronously after a data fetch on these
-  // pages, so watch for the `has-image` class (and the whole subtree, in
-  // case the hero markup itself gets rendered later) rather than relying
-  // on DOMContentLoaded alone.
+
   const mo = new MutationObserver(() => { if (!hero) start(); else update(); });
   mo.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class', 'src'] });
 
@@ -576,13 +584,7 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
   }
 })();
 
-// --- isaCard(): console-driven shareable badge generator -----------------
-// From the devtools console, on a launch, project, or news page, just type:
-//   isaCard()
-// The title, status, and any custom tags are read straight off the page
-// (whatever is already rendered there) and a PNG badge is downloaded
-// immediately. Pass a truthy argument to also stamp the ISA logo:
-//   isaCard(true)
+
 (function initIsaCard() {
   const STATUS_STYLES = {
     scheduled:      { fg: '#22c55e', bg: 'rgba(34,197,94,0.14)',   label: 'Scheduled' },
@@ -597,9 +599,7 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     scrubbed:       { fg: '#e05555', bg: 'rgba(224,85,85,0.14)',   label: 'Scrubbed' },
   };
 
-  // Badge pills that show a live countdown (e.g. "T-05:12:33") swap their
-  // text content every second, so the status name has to be recovered from
-  // the CSS class instead of the visible text in that case.
+
   const STATUS_CLASS_LABELS = {
     'launch-status-scheduled': 'Scheduled',
     'launch-status-upcoming': 'Upcoming',
@@ -630,8 +630,6 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     return el ? el.textContent.trim() : '';
   }
 
-  // Colors for the non-status badge types, matching their real CSS classes
-  // (launches.css / news.css / shared.css) so the card looks like the site.
   const BADGE_COLORS = {
     mission:     { fg: '#e26bf5', bg: 'rgba(226,107,245,0.12)' }, // .launch-mission-badge
     launchshare: { fg: '#f0a830', bg: 'rgba(240,168,48,0.14)' },  // .launch-launchshare-badge
@@ -639,11 +637,7 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     newsTag:     { fg: '#3b82f6', bg: 'rgba(37,99,235,0.15)' },   // .news-tag
   };
 
-  // Walks a meta/card container and returns every *visible* pill badge in
-  // it, in DOM order, with the color it actually has on the site. This
-  // covers status pills, the rocket/mission badge, the launchshare badge,
-  // and isa-tag pills together — mirrors what a visitor actually sees in
-  // one row, instead of picking one badge type and dropping the rest.
+
   function collectBadges(scope) {
     if (!scope) return [];
     const sel = '.launch-status, .mission-status, .launch-mission-badge, .launch-launchshare-badge, .isa-tag, [data-isa-tag], .news-tag';
@@ -678,9 +672,7 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     return badges;
   }
 
-  // Looks at the current page and pulls whichever launch / project / news
-  // item is already on screen — a detail page's single item, or the first
-  // card on a list page — so nothing has to be typed by hand.
+
   function withFallback(badges, fallbackText, fallbackKey) {
     if (badges.length) return badges;
     const style = fallbackKey === 'news' ? BADGE_COLORS.newsTag : statusStyle(fallbackText);
@@ -688,9 +680,6 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
   }
 
   function detectPageContent() {
-    // Launch detail page — status, mission (rocket) badge, launchshare
-    // badge, and isa-tags all sit in #launch-detail-meta in that order,
-    // exactly as rendered on the page. Read them together as one row.
     const launchTitle = document.getElementById('launch-detail-title');
     if (launchTitle && textOf(launchTitle)) {
       const meta = document.getElementById('launch-detail-meta');
@@ -700,12 +689,6 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
       };
     }
 
-    // Project detail page
-    // NOTE: #project-tags (.mission-tags) is hidden on the site (display:none
-    // in projects.css) — the badges actually shown to visitors (status,
-    // isa-tags) are rendered into #project-meta. Read from meta first so
-    // isaCard() matches what's really on the page; fall back to the hidden
-    // container only if meta somehow has nothing.
     const projectTitle = document.getElementById('project-title');
     if (projectTitle && textOf(projectTitle)) {
       const meta = document.getElementById('project-meta');
@@ -717,8 +700,6 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
       };
     }
 
-    // News post detail page (no separate status concept — the news-tag pill
-    // doubles as the leading badge, followed by any isa-tags)
     const newsTitle = document.getElementById('news-detail-title');
     if (newsTitle && textOf(newsTitle)) {
       const meta = document.getElementById('news-detail-meta');
@@ -992,25 +973,7 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
   );
 })();
 
-// =======================================================================
-// Hero media slideshow — crossfading background of videos + photos
-// pulled from across the whole site. Drop an empty
-//   <div class="hero-media-slideshow" data-hero-media></div>
-// inside any .hero / .page-hero section to opt it in (see index.html,
-// careers.html, news.html, hardware.html, launches.html). Launchshare's
-// page has its own dedicated background video and does not use this.
-//
-// Media pool:
-//  - Videos: the same two clips already used for the homepage hero
-//    (Supabase Storage, "media" bucket — Space A.mp4 / Space B.mp4).
-//  - Photos: the live `image` field of every row in the missions
-//    (projects), launches and news tables — i.e. every photo already
-//    shown somewhere else on the site, fetched fresh via the same
-//    Supabase REST API the rest of the site uses.
-// Photos are shown for ~5s each; videos play once through at their
-// natural length; every switch is a 1.5s crossfade. The play order is
-// reshuffled ("в разброс") each time the pool is exhausted.
-// =======================================================================
+
 (function () {
   const HERO_MEDIA_VIDEOS = [
     'https://fqvghuvmgswegirgitom.supabase.co/storage/v1/object/public/media/Space%20A.mp4',
@@ -1137,11 +1100,6 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
   }
 })();
 
-// ---------------------------------------------------------------------
-// Starship is pinned: first card on hardware.html and the only hardware
-// page with the extra Road / Video / FAA / Hardware sections.
-// Matches id "starship" or name "Starship" first, then any name containing it.
-// ---------------------------------------------------------------------
 function isaIsStarship(m) {
   if (!m) return false;
   const id = String(m.id || '').trim().toLowerCase();
@@ -1156,11 +1114,6 @@ function isaFindStarship(list) {
 }
 
 
-// ---------------------------------------------------------------------
-// Starship nav link: points at the real Starship hardware page. The id is
-// resolved from the missions table (isaFindStarship); the static href in
-// nav.html (?id=starship) is the fallback if the lookup fails.
-// ---------------------------------------------------------------------
 async function initNavStarship() {
   const link = document.getElementById('nav-starship');
   if (!link) return;
