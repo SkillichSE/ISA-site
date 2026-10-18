@@ -303,10 +303,14 @@ function initNavLaunches() {
 
   const panel = document.getElementById('nav-launches-panel');
 
-  widget.addEventListener('pointerenter', () => openPanel());
-  widget.addEventListener('pointerleave', scheduleClose);
-  panel?.addEventListener('pointerenter', cancelClose);
-  panel?.addEventListener('pointerleave', scheduleClose);
+  const isMouse = (e) => e.pointerType === 'mouse';
+  widget.addEventListener('pointerenter', (e) => { if (isMouse(e)) openPanel(); });
+  widget.addEventListener('pointerleave', (e) => { if (isMouse(e)) scheduleClose(); });
+  panel?.addEventListener('pointerenter', (e) => { if (isMouse(e)) cancelClose(); });
+  panel?.addEventListener('pointerleave', (e) => { if (isMouse(e)) scheduleClose(); });
+  toggle.addEventListener('click', () => {
+    widget.classList.contains('open') ? closePanel() : openPanel();
+  });
   document.addEventListener('click', (e) => {
     if (!widget.contains(e.target)) closePanel();
   });
@@ -359,10 +363,11 @@ function initNavOpportunities() {
     }
   }
 
-  widget.addEventListener('pointerenter', () => openPanel());
-  widget.addEventListener('pointerleave', scheduleClose);
-  panel.addEventListener('pointerenter', cancelClose);
-  panel.addEventListener('pointerleave', scheduleClose);
+  const isMouse = (e) => e.pointerType === 'mouse';
+  widget.addEventListener('pointerenter', (e) => { if (isMouse(e)) openPanel(); });
+  widget.addEventListener('pointerleave', (e) => { if (isMouse(e)) scheduleClose(); });
+  panel.addEventListener('pointerenter', (e) => { if (isMouse(e)) cancelClose(); });
+  panel.addEventListener('pointerleave', (e) => { if (isMouse(e)) scheduleClose(); });
   toggle.addEventListener('click', () => {
     widget.classList.contains('open') ? closePanel() : openPanel();
   });
@@ -1080,7 +1085,7 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
   }
 
   async function initHeroMediaSlideshows() {
-    const roots = document.querySelectorAll('[data-hero-media]');
+    const roots = document.querySelectorAll('[data-hero-media]:not([data-hero-manual])');
     if (!roots.length) return;
 
     const photos = await fetchHeroPhotoPool();
@@ -1092,6 +1097,8 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
 
     roots.forEach(root => startHeroMediaSlideshow(root, pool));
   }
+
+  window.initHeroMediaSlideshows = initHeroMediaSlideshows;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initHeroMediaSlideshows);

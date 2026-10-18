@@ -998,10 +998,14 @@ function getForm(type) {
     const status = (existing && existing.status === 'completed')
       ? 'completed'
       : computeLaunchStatus({ date:launchDate });
+    const videoVal = g('video');
+    let videoAt = existing && existing.video_at ? existing.video_at : null;
+    if (!videoVal) videoAt = null;
+    else if (!existing || existing.video !== videoVal) videoAt = new Date().toISOString();
     const lsVolume = parseInt(g('launchshare_volume')) || 0;
     const launchshare = document.getElementById('f-launchshare').checked && lsVolume > 0;
     return { id:g('id'),name:g('name'),mission_id:g('mission_id'),orbit:g('orbit'),branch:g('branch'),
-      status, date:launchDate,description:g('description'),image:g('image'),video:g('video'),published:g('published')==='true',
+      status, date:launchDate,description:g('description'),image:g('image'),video:videoVal,video_at:videoAt,published:g('published')==='true',
       tags:arr('tags'), launchshare, launchshare_volume: launchshare ? lsVolume : null };
   }
   if (type==='site13_updates') return { id:g('id'),project_id:(editId&&(data.site13_updates.find(x=>x.id===editId)||{}).project_id)||(findStarship()?String(findStarship().id):'Starship'),kind:g('kind')||'faa',tag:(g('kind')==='hardware'?g('status13'):g('tag')),...(g('kind')==='hardware'?{flight:g('flight')}:{}),title:g('title'),date:(g('kind')==='hardware'?((editId&&(data.site13_updates.find(x=>x.id===editId)||{}).date)||new Date().toISOString().slice(0,10)):g('date')),body:g('body'),image:g('image'),link:g('link') };
