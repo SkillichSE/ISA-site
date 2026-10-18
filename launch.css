@@ -1,4 +1,3 @@
-/* --- LOADING / NOT FOUND --- */
 .launch-state {
   padding: 200px 0 140px;
   text-align: center;
@@ -22,7 +21,6 @@
 }
 @keyframes launch-spin { to { transform: rotate(360deg); } }
 
-/* --- HERO --- */
 .launch-hero {
   position: relative;
   padding: 150px 0 70px;
@@ -30,21 +28,6 @@
   background-color: var(--panel);
   overflow: hidden;
 }
-/* When an image is present, the hero no longer uses fixed padding —
-   the <img> itself (full width, natural height) sets the hero's
-   height, so the whole photo is visible with no cropping and no
-   letterbox bars. Text is overlaid at the bottom via absolute
-   positioning (left:0;right:0 inside the relatively-positioned hero,
-   so the .container child still centers itself exactly like every
-   other section on the page).
-
-   When the image is taller than the viewport, JS (see shared.js,
-   initHeroPin) adds .is-pinned to this block, which swaps it to
-   position: fixed — same left:0/right:0/bottom:0, so it lands in the
-   exact same horizontal spot, just anchored to the screen instead of
-   the page. JS removes .is-pinned again once the bottom of the image
-   scrolls up to meet that position, so it settles flush with the
-   bottom of the image, right where the content below begins. */
 .launch-hero.has-image {
   padding: 0;
   display: block;
@@ -116,7 +99,6 @@
 }
 .launch-hero-sub span:empty { display: none; }
 
-/* --- BODY --- */
 .section-launch-detail { padding: 64px 0 120px; }
 .launch-detail-grid {
   display: grid;
@@ -124,9 +106,6 @@
   gap: 56px;
   align-items: start;
 }
-/* Body copy now shares the .news-body-text typography from news.css
-   (same rendering as News and Projects) — just bump the size to match
-   the wider detail-page layout used here. */
 .launch-detail-main .news-body-text {
   font-size: 0.98rem;
 }
@@ -144,7 +123,6 @@
   letter-spacing: 0.3px;
 }
 
-/* --- RESPONSIVE --- */
 @media (max-width: 900px) {
   .launch-detail-grid { grid-template-columns: 1fr; }
   .launch-detail-side { position: static; }
@@ -153,3 +131,5 @@
   .launch-hero:not(.has-image) { padding: 130px 0 50px; }
   .launch-hero.has-image .launch-hero-inner { padding-top: 60px; padding-bottom: 24px; }
 }
+.launch-video-wrap { margin: 0 0 28px; border-radius: 14px; overflow: hidden; background: #000; border: 1px solid rgba(255,255,255,0.08); }
+.launch-video-wrap video { display: block; width: 100%; max-height: 560px; background: #000; }

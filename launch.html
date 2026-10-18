@@ -17,7 +17,6 @@
 <body>
   <div id="nav-placeholder"></div>
 
-  <!-- Loading state -->
   <div class="launch-state" id="launch-loading">
     <div class="container">
       <div class="launch-spinner"></div>
@@ -25,7 +24,6 @@
     </div>
   </div>
 
-  <!-- Not found state -->
   <div class="launch-state" id="launch-notfound" style="display:none">
     <div class="container">
       <p class="eyebrow">LAUNCH CALENDAR</p>
@@ -35,7 +33,6 @@
     </div>
   </div>
 
-  <!-- Launch detail -->
   <div id="launch-detail" style="display:none">
     <div class="launch-hero" id="launch-hero">
       <img class="launch-hero-bg-img" id="launch-hero-img" alt="">
@@ -53,6 +50,9 @@
     <section class="section-launch-detail">
       <div class="container launch-detail-grid">
         <div class="launch-detail-main">
+          <div class="launch-video-wrap" id="launch-video-wrap" style="display:none">
+            <video id="launch-video" controls playsinline preload="metadata"></video>
+          </div>
           <div class="news-body-text" id="launch-detail-body"></div>
         </div>
 
@@ -74,17 +74,13 @@
       return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    // Branch badges are colored automatically — same branch name always
-    // gets the same color, picked deterministically from a fixed palette
-    // (a simple string hash % palette length), so no one has to assign
-    // colors by hand when a new branch shows up.
     const BRANCH_PALETTE = [
-      { bg: 'rgba(91,110,245,0.14)',  fg: '#5b6ef5' },  // blue
-      { bg: 'rgba(45,212,191,0.14)',  fg: '#2dd4bf' },  // teal
-      { bg: 'rgba(240,168,48,0.14)',  fg: '#f0a830' },  // amber
-      { bg: 'rgba(226,107,245,0.14)', fg: '#e26bf5' },  // purple
-      { bg: 'rgba(62,207,142,0.14)',  fg: '#3ecf8e' },  // green
-      { bg: 'rgba(224,85,85,0.14)',   fg: '#e05555' },  // red
+      { bg: 'rgba(91,110,245,0.14)',  fg: '#5b6ef5' },
+      { bg: 'rgba(45,212,191,0.14)',  fg: '#2dd4bf' },
+      { bg: 'rgba(240,168,48,0.14)',  fg: '#f0a830' },
+      { bg: 'rgba(226,107,245,0.14)', fg: '#e26bf5' },
+      { bg: 'rgba(62,207,142,0.14)',  fg: '#3ecf8e' },
+      { bg: 'rgba(224,85,85,0.14)',   fg: '#e05555' },
     ];
     function branchColor(branch) {
       const s = String(branch || '');
@@ -207,6 +203,16 @@
       document.getElementById('launch-detail-time').textContent = timeRangeStr(l.date);
 
       document.getElementById('launch-detail-body').innerHTML = mdToHtml(l.description) || '<p>No further details yet.</p>';
+
+      const videoWrap = document.getElementById('launch-video-wrap');
+      if (l.video) {
+        const v = document.getElementById('launch-video');
+        v.src = l.video;
+        if (l.image) v.poster = l.image;
+        videoWrap.style.display = 'block';
+      } else {
+        videoWrap.style.display = 'none';
+      }
 
       const hero = document.getElementById('launch-hero');
       const heroImage = l.image || 'https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?q=80&w=1800&auto=format&fit=crop';
