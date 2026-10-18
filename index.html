@@ -203,69 +203,16 @@
       const oldHero = document.querySelector('header.hero');
       if (!root || !oldHero) return;
 
-      const BRANCH_PALETTE = [
-        { bg: 'rgba(91,110,245,0.14)',  fg: '#5b6ef5' },
-        { bg: 'rgba(45,212,191,0.14)',  fg: '#2dd4bf' },
-        { bg: 'rgba(240,168,48,0.14)',  fg: '#f0a830' },
-        { bg: 'rgba(226,107,245,0.14)', fg: '#e26bf5' },
-        { bg: 'rgba(62,207,142,0.14)',  fg: '#3ecf8e' },
-        { bg: 'rgba(224,85,85,0.14)',   fg: '#e05555' },
-      ];
       const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?q=80&w=1800&auto=format&fit=crop';
 
       function esc(str) {
         return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
       }
-      function branchColor(branch) {
-        const s = String(branch || '');
-        let hash = 0;
-        for (let i = 0; i < s.length; i++) hash = (hash * 31 + s.charCodeAt(i)) >>> 0;
-        return BRANCH_PALETTE[hash % BRANCH_PALETTE.length];
-      }
-      function statusClass(s) {
-        const map = { scheduled: 'launch-status-scheduled', upcoming: 'launch-status-upcoming',
-                      delayed: 'launch-status-delayed', 'in-progress': 'launch-status-in-progress',
-                      completed: 'launch-status-completed', scrubbed: 'launch-status-scrubbed' };
-        return map[s] || 'launch-status-scheduled';
-      }
-      function statusLabel(s) {
-        if (s === 'in-progress') return 'In Progress';
-        s = String(s || '');
-        return s.charAt(0).toUpperCase() + s.slice(1);
-      }
-      function liveStatus(l) {
-        if (l.status === 'completed' || l.status === 'scrubbed') return l.status;
-        const t = l.date ? new Date(l.date).getTime() : NaN;
-        if (!isNaN(t) && Date.now() >= t) return 'in-progress';
-        return l.status || 'upcoming';
-      }
-      function pad2(n) { return String(n).padStart(2, '0'); }
-      function countdownStr(dateIso) {
-        if (!dateIso) return null;
-        const target = new Date(dateIso).getTime();
-        if (isNaN(target)) return null;
-        const diffMs = target - Date.now();
-        const sign = diffMs >= 0 ? 'T-' : 'T+';
-        const abs = Math.abs(diffMs);
-        const hours = Math.floor(abs / 3600000);
-        const mins = Math.floor((abs % 3600000) / 60000);
-        const secs = Math.floor((abs % 60000) / 1000);
-        return `${sign}${pad2(hours)}:${pad2(mins)}:${pad2(secs)}`;
-      }
       function fullDateStr(dateIso) {
         if (!dateIso) return '';
         const d = new Date(dateIso);
         if (isNaN(d.getTime())) return '';
-        return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-      }
-      function timeRangeStr(dateIso) {
-        if (!dateIso) return '';
-        const start = new Date(dateIso);
-        if (isNaN(start.getTime())) return '';
-        const time = start.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-        const tz = Intl.DateTimeFormat('en-US', { timeZoneName: 'short' }).formatToParts(start)
-          .find(p => p.type === 'timeZoneName')?.value || '';
-        return `${time}${tz ? ' ' + tz : ''}`;
+        return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
       }
       function stamp(value) {
         const t = Date.parse(value);
@@ -275,21 +222,6 @@
       function fallback() {
         root.removeAttribute('data-hero-manual');
         if (window.initHeroMediaSlideshows) window.initHeroMediaSlideshows();
-      }
-
-      function metaHtml(l) {
-        const eff = liveStatus(l);
-        const cd = (eff !== 'completed' && eff !== 'scrubbed') ? countdownStr(l.date) : null;
-        const bc = l.branch ? branchColor(l.branch) : null;
-        const tags = Array.isArray(l.tags) ? l.tags : [];
-        return `${cd
-            ? `<span class="launch-status ${statusClass(eff)}" data-countdown="${esc(l.date)}">${cd}</span>`
-            : `<span class="launch-status ${statusClass(eff)}">${esc(statusLabel(eff) || 'scheduled')}</span>`}
-          ${l.mission_id ? `<span class="launch-mission-badge">${esc(String(l.mission_id))}</span>` : ''}
-          ${l.launchshare ? '<span class="launch-launchshare-badge">Launchshare</span>' : ''}
-          ${bc ? `<span class="branch-tag" style="background:${bc.bg};color:${bc.fg}">${esc(l.branch)}</span>` : ''}
-          ${l.orbit ? `<span class="isa-tag">${esc(l.orbit)}</span>` : ''}
-          ${tags.map(t => `<span class="isa-tag">${esc(String(t))}</span>`).join('')}`;
       }
 
       function setupVideo(v, hero) {
@@ -322,15 +254,13 @@
           <video class="launch-hero-bg-video" muted loop playsinline preload="auto"></video>
           <div class="launch-hero-overlay"></div>
           <div class="container launch-hero-inner">
-            <div class="launch-meta">${metaHtml(l)}</div>
+            ${fullDateStr(l.date) ? `<p class="launch-hero-date">${esc(fullDateStr(l.date))}</p>` : ''}
             <h1>${(typeof mdInline === 'function' ? mdInline(l.name) : esc(l.name)) || 'Unnamed Launch'}</h1>
-            <div class="launch-hero-sub">
-              <span>${esc(fullDateStr(l.date))}</span>
-              <span>${esc(timeRangeStr(l.date))}</span>
-            </div>
             <div class="launch-hero-actions">
-              <a href="https://discord.gg/CMDSKwTBnm" target="_blank" class="btn-hero">JOIN DISCORD</a>
-              <a href="launch.html?id=${encodeURIComponent(l.id)}" class="btn-hero">VIEW LAUNCH</a>
+              <a href="launch.html?id=${encodeURIComponent(l.id)}" class="btn-hero">
+                WATCH
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </a>
             </div>
             <div class="video-controls">
               <button class="video-btn" id="video-mute-btn" type="button" aria-label="Toggle mute">
@@ -350,16 +280,6 @@
         video.src = l.video;
         hero.querySelector('.launch-hero-bg-img').src = l.image || FALLBACK_IMAGE;
 
-        setInterval(() => {
-          hero.querySelectorAll('[data-countdown]').forEach(el => {
-            const str = countdownStr(el.dataset.countdown);
-            if (str) el.textContent = str;
-            if (str && str.startsWith('T+') && !el.classList.contains('launch-status-in-progress')) {
-              el.classList.remove('launch-status-scheduled', 'launch-status-upcoming');
-              el.classList.add('launch-status-in-progress');
-            }
-          });
-        }, 1000);
       }
 
       fetch(`${SB_URL}/rest/v1/launches?published=eq.true&video=not.is.null&select=*`, { headers: sbHeaders })
