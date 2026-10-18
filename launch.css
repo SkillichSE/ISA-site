@@ -131,5 +131,56 @@
   .launch-hero:not(.has-image) { padding: 130px 0 50px; }
   .launch-hero.has-image .launch-hero-inner { padding-top: 60px; padding-bottom: 24px; }
 }
-.launch-video-wrap { margin: 0 0 28px; border-radius: 14px; overflow: hidden; background: #000; border: 1px solid rgba(255,255,255,0.08); }
-.launch-video-wrap video { display: block; width: 100%; max-height: 560px; background: #000; }
+
+.launch-hero-bg-video {
+  display: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 1s ease;
+  filter: saturate(1.15) brightness(1.12);
+}
+.launch-hero.has-image .launch-hero-bg-video { display: block; }
+.launch-hero-bg-video.is-ready { opacity: 1; }
+
+.launch-hero .video-controls {
+  position: absolute;
+  right: 24px;
+  bottom: 40px;
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease 0.4s;
+}
+.launch-hero.has-video-ready .video-controls {
+  opacity: 1;
+  pointer-events: auto;
+}
+.launch-hero .video-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.launch-hero .video-btn:hover {
+  background: rgba(255,255,255,0.16);
+  border-color: rgba(255,255,255,0.3);
+}
+@media (max-width: 768px) {
+  .launch-hero .video-controls { right: 16px; bottom: 24px; }
+}

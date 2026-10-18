@@ -36,6 +36,7 @@
   <div id="launch-detail" style="display:none">
     <div class="launch-hero" id="launch-hero">
       <img class="launch-hero-bg-img" id="launch-hero-img" alt="">
+      <video class="launch-hero-bg-video" id="launch-hero-video" muted loop playsinline preload="auto"></video>
       <div class="launch-hero-overlay"></div>
       <div class="container launch-hero-inner">
         <div class="launch-meta" id="launch-detail-meta"></div>
@@ -44,15 +45,22 @@
           <span id="launch-detail-datebig"></span>
           <span id="launch-detail-time"></span>
         </div>
+        <div class="video-controls" id="launch-video-controls">
+          <button class="video-btn" id="video-mute-btn" type="button" aria-label="Toggle mute">
+            <svg class="icon-muted" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+            <svg class="icon-sound" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          </button>
+          <button class="video-btn" id="video-play-btn" type="button" aria-label="Toggle play/pause">
+            <svg class="icon-pause" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            <svg class="icon-play" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </button>
+        </div>
       </div>
     </div>
 
     <section class="section-launch-detail">
       <div class="container launch-detail-grid">
         <div class="launch-detail-main">
-          <div class="launch-video-wrap" id="launch-video-wrap" style="display:none">
-            <video id="launch-video" controls playsinline preload="metadata"></video>
-          </div>
           <div class="news-body-text" id="launch-detail-body"></div>
         </div>
 
@@ -154,6 +162,28 @@
     }
     setInterval(updateCountdowns, 1000);
 
+    function setupHeroVideo(v, hero) {
+      const muteBtn = document.getElementById('video-mute-btn');
+      const playBtn = document.getElementById('video-play-btn');
+      const sync = () => {
+        muteBtn.querySelector('.icon-muted').style.display = v.muted ? '' : 'none';
+        muteBtn.querySelector('.icon-sound').style.display = v.muted ? 'none' : '';
+        playBtn.querySelector('.icon-pause').style.display = v.paused ? 'none' : '';
+        playBtn.querySelector('.icon-play').style.display = v.paused ? '' : 'none';
+      };
+      v.muted = true;
+      v.addEventListener('canplay', () => { v.play().catch(() => {}); }, { once: true });
+      v.addEventListener('playing', () => {
+        v.classList.add('is-ready');
+        hero.classList.add('has-video-ready');
+        sync();
+      }, { once: true });
+      ['play', 'pause', 'volumechange'].forEach(ev => v.addEventListener(ev, sync));
+      muteBtn.addEventListener('click', () => { v.muted = !v.muted; });
+      playBtn.addEventListener('click', () => { if (v.paused) v.play().catch(() => {}); else v.pause(); });
+      sync();
+    }
+
     function showNotFound() {
       document.getElementById('launch-loading').style.display = 'none';
       document.getElementById('launch-notfound').style.display = 'block';
@@ -204,20 +234,16 @@
 
       document.getElementById('launch-detail-body').innerHTML = mdToHtml(l.description) || '<p>No further details yet.</p>';
 
-      const videoWrap = document.getElementById('launch-video-wrap');
-      if (l.video) {
-        const v = document.getElementById('launch-video');
-        v.src = l.video;
-        if (l.image) v.poster = l.image;
-        videoWrap.style.display = 'block';
-      } else {
-        videoWrap.style.display = 'none';
-      }
-
       const hero = document.getElementById('launch-hero');
       const heroImage = l.image || 'https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?q=80&w=1800&auto=format&fit=crop';
       document.getElementById('launch-hero-img').src = heroImage;
       hero.classList.add('has-image');
+
+      if (l.video) {
+        const heroVideo = document.getElementById('launch-hero-video');
+        setupHeroVideo(heroVideo, hero);
+        heroVideo.src = l.video;
+      }
 
       if (l.launchshare) {
         document.getElementById('launch-ls-cta').style.display = 'inline-flex';
