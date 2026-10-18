@@ -487,11 +487,14 @@
           <video class="launch-hero-bg-video" muted loop playsinline preload="auto"></video>
           <div class="launch-hero-overlay"></div>
           <div class="container launch-hero-inner">
-            ${fullDateStr(l.date) ? `<p class="launch-hero-date">${esc(fullDateStr(l.date))}</p>` : ''}
+            ${(l.dateLabel || fullDateStr(l.date)) ? `<p class="launch-hero-date">${esc(l.dateLabel || fullDateStr(l.date))}</p>` : ''}
             <h1>${(typeof mdInline === 'function' ? mdInline(l.name) : esc(l.name)) || 'Unnamed Launch'}</h1>
-            <div class="launch-hero-actions">
-              <a href="${esc(/^https?:\/\//i.test(l.home_watch_url || '') ? l.home_watch_url.trim() : 'launch.html?id=' + encodeURIComponent(l.id))}" class="btn-hero"${/^https?:\/\//i.test(l.home_watch_url || '') ? ' target="_blank" rel="noopener"' : ''}>WATCH</a>
-            </div>
+            ${(() => {
+              const ext = /^https?:\/\//i.test(l.home_watch_url || '');
+              if (l.custom && !ext) return '';
+              const href = ext ? l.home_watch_url.trim() : 'launch.html?id=' + encodeURIComponent(l.id);
+              return `<div class="launch-hero-actions"><a href="${esc(href)}" class="btn-hero"${ext ? ' target="_blank" rel="noopener"' : ''}>${esc(l.buttonText || 'WATCH')}</a></div>`;
+            })()}
             <div class="video-controls">
               <button class="video-btn" id="video-mute-btn" type="button" aria-label="Toggle mute">
                 <svg class="icon-muted" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
@@ -512,9 +515,28 @@
 
       }
 
-      fetch(`${SB_URL}/rest/v1/launches?published=eq.true&video=not.is.null&select=*`, { headers: sbHeaders })
-        .then(r => (r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status))))
-        .then(rows => {
+      const launchesReq = fetch(`${SB_URL}/rest/v1/launches?published=eq.true&video=not.is.null&select=*`, { headers: sbHeaders })
+        .then(r => (r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status))));
+      // custom video + title set in admin (table may not exist yet -> ignore)
+      const customReq = fetch(`${SB_URL}/rest/v1/home_hero?id=eq.1&select=*`, { headers: sbHeaders })
+        .then(r => (r.ok ? r.json() : []))
+        .catch(() => []);
+
+      Promise.all([launchesReq, customReq])
+        .then(([rows, customRows]) => {
+          const c = Array.isArray(customRows) ? customRows[0] : null;
+          if (c && c.enabled === true && c.video && String(c.video).trim() && c.title && String(c.title).trim()) {
+            show({
+              custom: true,
+              name: c.title,
+              video: c.video,
+              image: c.image,
+              dateLabel: c.date_label,
+              buttonText: c.button_text,
+              home_watch_url: c.button_url,
+            });
+            return;
+          }
           const list = (Array.isArray(rows) ? rows : []).filter(l => l.video && String(l.video).trim());
           if (!list.length) { fallback(); return; }
           // admin can pin a launch for the home page (home_featured); otherwise newest video wins
