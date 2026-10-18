@@ -149,6 +149,7 @@
 
 .launch-hero .video-controls {
   position: absolute;
+  left: auto;
   right: 24px;
   bottom: 40px;
   display: flex;
@@ -182,5 +183,12 @@
   border-color: rgba(255,255,255,0.3);
 }
 @media (max-width: 768px) {
-  .launch-hero .video-controls { right: 16px; bottom: 24px; }
+  .launch-hero .video-controls { left: auto; right: 16px; bottom: 24px; }
+}
+
+.launch-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 22px;
 }
