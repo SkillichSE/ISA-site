@@ -8,7 +8,230 @@
   <link rel="stylesheet" href="shared.css?v=7">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="launches.css?v=2">
-  <link rel="stylesheet" href="launch.css?v=2">
+  <style id="launch-hero-css">
+.launch-state {
+  padding: 200px 0 140px;
+  text-align: center;
+}
+.launch-state .container { max-width: 560px; }
+.launch-state h1 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 900;
+  letter-spacing: -1.5px;
+  margin-bottom: 14px;
+}
+.launch-state p { color: var(--muted); margin-bottom: 28px; line-height: 1.7; }
+.launch-state .eyebrow { text-align: center; }
+.launch-spinner {
+  width: 34px; height: 34px;
+  margin: 0 auto 22px;
+  border-radius: 50%;
+  border: 2px solid var(--line2);
+  border-top-color: var(--accent-light);
+  animation: launch-spin 0.8s linear infinite;
+}
+@keyframes launch-spin { to { transform: rotate(360deg); } }
+
+.launch-hero {
+  position: relative;
+  padding: 150px 0 70px;
+  border-bottom: 1px solid var(--line);
+  background-color: var(--panel);
+  overflow: hidden;
+}
+.launch-hero.has-image {
+  padding: 0;
+  display: block;
+}
+.launch-hero-bg-img {
+  display: none;
+  width: 100%;
+  height: auto;
+  filter: saturate(1.15) brightness(1.12);
+}
+.launch-hero.has-image .launch-hero-bg-img { display: block; }
+.launch-hero::before { content: none; }
+.launch-hero-overlay { display: none; }
+.launch-hero.has-image .launch-hero-overlay {
+  display: block;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10,10,10,0.05) 0%, rgba(10,10,10,0.15) 55%, rgba(10,10,10,0.9) 100%);
+  z-index: 1;
+}
+.launch-hero-inner { position: relative; z-index: 2; }
+.launch-hero.has-image .launch-hero-inner {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding-top: 90px;
+  padding-bottom: 40px;
+}
+.launch-hero.has-image .launch-hero-inner.is-pinned {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+}
+.launch-hero:not(.has-image) .launch-hero-inner { padding-top: 40px; }
+.launch-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+  margin-bottom: 26px;
+  transition: color 0.2s, gap 0.15s;
+}
+.launch-back:hover { color: var(--text); gap: 10px; }
+.launch-hero .launch-meta { margin-bottom: 18px; }
+.launch-hero h1 {
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 900;
+  letter-spacing: -1.8px;
+  line-height: 1.02;
+  margin-bottom: 18px;
+  max-width: 800px;
+}
+.launch-hero-sub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+.launch-hero-sub span:first-child::after {
+  content: '';
+}
+.launch-hero-sub span + span {
+  padding-left: 10px;
+  border-left: 1px solid var(--line2);
+}
+.launch-hero-sub span:empty { display: none; }
+
+.section-launch-detail { padding: 64px 0 120px; }
+.launch-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 56px;
+  align-items: start;
+}
+.launch-detail-main .news-body-text {
+  font-size: 0.98rem;
+}
+
+.launch-detail-side { position: sticky; top: 110px; }
+.launch-ls-cta { width: 100%; margin-top: 16px; }
+
+.branch-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+}
+
+@media (max-width: 900px) {
+  .launch-detail-grid { grid-template-columns: 1fr; }
+  .launch-detail-side { position: static; }
+}
+@media (max-width: 600px) {
+  .launch-hero:not(.has-image) { padding: 130px 0 50px; }
+  .launch-hero.has-image .launch-hero-inner { padding-top: 60px; padding-bottom: 24px; }
+}
+
+.launch-hero-bg-video {
+  display: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 1s ease;
+  filter: saturate(1.15) brightness(1.12);
+}
+.launch-hero.has-image .launch-hero-bg-video { display: block; }
+.launch-hero-bg-video.is-ready { opacity: 1; }
+
+.launch-hero .video-controls {
+  position: absolute;
+  left: auto;
+  right: 24px;
+  bottom: 40px;
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease 0.4s;
+}
+.launch-hero.has-video-ready .video-controls {
+  opacity: 1;
+  pointer-events: auto;
+}
+.launch-hero .video-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.launch-hero .video-btn:hover {
+  background: rgba(255,255,255,0.16);
+  border-color: rgba(255,255,255,0.3);
+}
+@media (max-width: 768px) {
+  .launch-hero .video-controls { left: auto; right: 16px; bottom: 24px; }
+}
+
+.launch-hero-date {
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.78);
+  margin-bottom: 10px;
+}
+.launch-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.launch-hero.launch-hero-home.has-image .launch-hero-overlay {
+  background:
+    linear-gradient(180deg, rgba(10,10,10,0.75) 0, rgba(10,10,10,0.3) 140px, rgba(10,10,10,0) 280px),
+    linear-gradient(180deg, rgba(10,10,10,0) 45%, rgba(10,10,10,0.35) 70%, rgba(10,10,10,0.92) 100%);
+}
+
+.launch-hero.launch-hero-home.has-image {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 480px;
+}
+.launch-hero-home .launch-hero-bg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+  </style>
   <link rel="icon" type="image/png" href="ISSSSSSSAAAA.png">
 </head>
 <body>
