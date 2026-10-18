@@ -550,7 +550,7 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
   let ticking = false;
 
   function find() {
-    hero = document.querySelector('.launch-hero.has-image');
+    hero = document.querySelector('.launch-hero.has-image:not(.launch-hero-home)');
     inner = hero && hero.querySelector('.launch-hero-inner');
     img = hero && hero.querySelector('.launch-hero-bg-img');
     return !!(hero && inner && img);
