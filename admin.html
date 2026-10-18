@@ -113,6 +113,11 @@
     .badge-in-progress { background:rgba(240,168,48,0.15); color:var(--warn); }
     .badge-completed { background:rgba(255,255,255,0.06); color:var(--text-3); }
     .badge-volunteer { background:rgba(91,110,245,0.12); color:var(--accent); }
+    .badge-home { background:rgba(91,110,245,0.18); color:var(--accent); }
+    .home-pick { display:flex; align-items:center; gap:12px; flex-wrap:wrap; background:var(--surface2); border:1px solid var(--border); border-radius:var(--r-sm); padding:12px 14px; margin-bottom:14px; }
+    .home-pick-lbl { font-size:12px; font-weight:700; color:var(--text-2); text-transform:uppercase; letter-spacing:.04em; }
+    .home-pick select { flex:1; min-width:200px; max-width:420px; background:var(--surface3); border:1px solid var(--border); color:var(--text); border-radius:var(--r-sm); padding:7px 10px; font-family:inherit; font-size:13px; }
+    .home-pick-hint { width:100%; font-size:11px; color:var(--text-3); }
     .badge-launchshare { background:rgba(240,168,48,0.15); color:var(--warn); }
 
     .btn-edit { background:var(--surface3); border:1px solid var(--border); color:var(--text-2); border-radius:var(--r-sm); padding:6px 13px; font-family:inherit; font-size:12px; font-weight:500; cursor:pointer; transition:all .15s; }
@@ -478,6 +483,49 @@ function pageCareers() {
   return `<div class="page-head"><div class="page-head-left"><div class="page-title">Careers</div><div class="page-desc">Open volunteer positions.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search positions…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('careers')">+ Add Position</button></div></div><div class="item-list">${items}</div>`;
 }
 
+function homeCandidates() {
+  return data.launches.filter(l => l.published && l.video && String(l.video).trim());
+}
+
+function homePickPanel() {
+  const cands = homeCandidates();
+  const cur = data.launches.find(l => l.home_featured);
+  const curValid = cur && cands.includes(cur);
+  const opts = cands.map(l => `<option value="${esc(l.id)}" ${curValid && cur.id===l.id ? 'selected' : ''}>${esc(mdToPlain(l.name))}</option>`).join('');
+  const hint = cur && !curValid
+    ? '⚠ The selected launch is unpublished or has no video, so the home page falls back to Auto.'
+    : 'Only published launches with a video can be shown on the home page. “Auto” shows the launch with the most recently added video.';
+  return `<div class="home-pick">
+    <span class="home-pick-lbl">🏠 Home page launch</span>
+    <select onchange="setHomeLaunch(this.value)">
+      <option value="" ${curValid ? '' : 'selected'}>Auto (latest video)</option>${opts}
+    </select>
+    <div class="home-pick-hint">${hint}</div>
+  </div>`;
+}
+
+async function setHomeLaunch(id) {
+  document.getElementById('saving-overlay').classList.remove('hidden');
+  try {
+    // clear the flag everywhere first, then set it on the chosen launch
+    for (const l of data.launches.filter(x => x.home_featured && x.id !== id)) {
+      await sbFetch('launches', 'PATCH', { home_featured:false }, `?id=eq.${encodeURIComponent(l.id)}`);
+      l.home_featured = false;
+    }
+    if (id) {
+      await sbFetch('launches', 'PATCH', { home_featured:true }, `?id=eq.${encodeURIComponent(id)}`);
+      const l = data.launches.find(x => x.id === id);
+      if (l) l.home_featured = true;
+    }
+    toast(id ? 'Home page launch updated ✓' : 'Home page set to Auto ✓', 'success');
+  } catch(e) {
+    const missing = /home_featured/i.test(e.message);
+    toast(missing ? 'Column home_featured is missing — run scripts/add-home-featured.sql in Supabase.' : 'Error: ' + e.message, 'error');
+  }
+  document.getElementById('saving-overlay').classList.add('hidden');
+  render();
+}
+
 function pageLaunches() {
   const statusMap = { open:'Open', upcoming:'Upcoming', closed:'Closed', 'in-progress':'In Progress', completed:'Completed' };
   const items = data.launches.length ? data.launches.map(l=>{
@@ -490,6 +538,7 @@ function pageLaunches() {
           <span class="item-title">${l.name}</span>
           <span class="badge badge-${liveStatus}">${statusMap[liveStatus]||liveStatus}</span>
           ${l.published ? '<span class="badge badge-active">Published</span>' : '<span class="badge badge-inactive">Draft</span>'}
+          ${l.home_featured && homeCandidates().includes(l) ? '<span class="badge badge-home">🏠 On home</span>' : ''}
           ${l.launchshare ? '<a href="/launchshare/" target="_blank" class="badge badge-launchshare" style="text-decoration:none" title="Open the Launchshare page">Launchshare ↗</a>' : ''}
         </div>
         <div class="item-meta">${l.orbit} · ${dateLabel}${l.date ? ' UTC' : ''}${l.branch ? ' · ' + l.branch : ''}${l.mission_id ? ' · Mission: ' + l.mission_id : ''}${l.launchshare && l.launchshare_volume ? ' · ' + l.launchshare_volume + ' blocks' : ''}</div>
@@ -502,7 +551,7 @@ function pageLaunches() {
       </div>
     </div>`;
   }).join('') : `<div class="empty"><div class="empty-icon">🛰️</div>No launches yet.</div>`;
-  return `<div class="page-head"><div class="page-head-left"><div class="page-title">Launches</div><div class="page-desc">Launchshare mission slots.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search launches…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('launches')">+ Add Launch</button></div></div><div class="item-list">${items}</div>`;
+  return `<div class="page-head"><div class="page-head-left"><div class="page-title">Launches</div><div class="page-desc">Launchshare mission slots.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search launches…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('launches')">+ Add Launch</button></div></div>${homePickPanel()}<div class="item-list">${items}</div>`;
 }
 
 function pageNews() {
@@ -1023,7 +1072,7 @@ async function saveItem() {
     if (editId) {
       await sbFetch(editType, 'PATCH', item, `?id=eq.${encodeURIComponent(editId)}`);
       const i = data[editType].findIndex(x=>x.id===editId);
-      if (i>-1) data[editType][i] = item;
+      if (i>-1) data[editType][i] = { ...data[editType][i], ...item };
     } else {
       if (exists) { toast('ID already exists','error'); btn.disabled=false; document.getElementById('saving-overlay').classList.add('hidden'); return; }
       await sbFetch(editType, 'POST', item);
