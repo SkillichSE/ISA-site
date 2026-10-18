@@ -501,7 +501,31 @@ function homePickPanel() {
       <option value="" ${curValid ? '' : 'selected'}>Auto (latest video)</option>${opts}
     </select>
     <div class="home-pick-hint">${hint}</div>
+    <span class="home-pick-lbl" style="margin-top:10px">🔗 WATCH button link</span>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <input type="url" id="home-watch-url" style="flex:1;min-width:240px" placeholder="https://youtube.com/… (empty = launch page)" value="${curValid ? esc(cur.home_watch_url || '') : ''}" ${curValid ? '' : 'disabled'} onkeydown="if(event.key==='Enter')setHomeWatchUrl(this.value)">
+      <button class="btn-edit" type="button" ${curValid ? '' : 'disabled'} onclick="setHomeWatchUrl(document.getElementById('home-watch-url').value)">Save link</button>
+    </div>
+    <div class="home-pick-hint">${curValid ? 'Where the WATCH button on the home page leads. Leave empty to open the launch page.' : 'Pick a specific launch above to set the WATCH link (not available in Auto).'}</div>
   </div>`;
+}
+
+async function setHomeWatchUrl(url) {
+  const cur = data.launches.find(l => l.home_featured);
+  if (!cur) return;
+  url = String(url || '').trim();
+  if (url && !/^https?:\/\//i.test(url)) { toast('Link must start with http:// or https://', 'error'); return; }
+  document.getElementById('saving-overlay').classList.remove('hidden');
+  try {
+    await sbFetch('launches', 'PATCH', { home_watch_url: url || null }, `?id=eq.${encodeURIComponent(cur.id)}`);
+    cur.home_watch_url = url || null;
+    toast('WATCH link saved ✓', 'success');
+  } catch(e) {
+    const missing = /home_watch_url/i.test(e.message);
+    toast(missing ? 'Column home_watch_url is missing — run scripts/add-home-watch-url.sql in Supabase.' : 'Error: ' + e.message, 'error');
+  }
+  document.getElementById('saving-overlay').classList.add('hidden');
+  render();
 }
 
 async function setHomeLaunch(id) {

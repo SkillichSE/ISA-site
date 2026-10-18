@@ -490,7 +490,7 @@
             ${fullDateStr(l.date) ? `<p class="launch-hero-date">${esc(fullDateStr(l.date))}</p>` : ''}
             <h1>${(typeof mdInline === 'function' ? mdInline(l.name) : esc(l.name)) || 'Unnamed Launch'}</h1>
             <div class="launch-hero-actions">
-              <a href="launch.html?id=${encodeURIComponent(l.id)}" class="btn-hero">WATCH</a>
+              <a href="${esc(/^https?:\/\//i.test(l.home_watch_url || '') ? l.home_watch_url.trim() : 'launch.html?id=' + encodeURIComponent(l.id))}" class="btn-hero"${/^https?:\/\//i.test(l.home_watch_url || '') ? ' target="_blank" rel="noopener"' : ''}>WATCH</a>
             </div>
             <div class="video-controls">
               <button class="video-btn" id="video-mute-btn" type="button" aria-label="Toggle mute">
