@@ -200,3 +200,9 @@
   gap: 12px;
   margin-top: 26px;
 }
+
+.launch-hero.launch-hero-home.has-image .launch-hero-overlay {
+  background:
+    linear-gradient(180deg, rgba(10,10,10,0.75) 0, rgba(10,10,10,0.3) 140px, rgba(10,10,10,0) 280px),
+    linear-gradient(180deg, rgba(10,10,10,0) 45%, rgba(10,10,10,0.35) 70%, rgba(10,10,10,0.92) 100%);
+}
