@@ -294,8 +294,10 @@
         .then(rows => {
           const list = (Array.isArray(rows) ? rows : []).filter(l => l.video && String(l.video).trim());
           if (!list.length) { fallback(); return; }
+          // admin can pin a launch for the home page (home_featured); otherwise newest video wins
+          const pinned = list.find(l => l.home_featured === true);
           list.sort((a, b) => (stamp(b.video_at) - stamp(a.video_at)) || (stamp(b.date) - stamp(a.date)));
-          show(list[0]);
+          show(pinned || list[0]);
         })
         .catch(fallback);
     })();

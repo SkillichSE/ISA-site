@@ -1,222 +1,1130 @@
-.launch-state {
-  padding: 200px 0 140px;
-  text-align: center;
-}
-.launch-state .container { max-width: 560px; }
-.launch-state h1 {
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 900;
-  letter-spacing: -1.5px;
-  margin-bottom: 14px;
-}
-.launch-state p { color: var(--muted); margin-bottom: 28px; line-height: 1.7; }
-.launch-state .eyebrow { text-align: center; }
-.launch-spinner {
-  width: 34px; height: 34px;
-  margin: 0 auto 22px;
-  border-radius: 50%;
-  border: 2px solid var(--line2);
-  border-top-color: var(--accent-light);
-  animation: launch-spin 0.8s linear infinite;
-}
-@keyframes launch-spin { to { transform: rotate(360deg); } }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ISA Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="ISSSSSSSAAAA.png">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+  <script src="markdown.js"></script>
+  <script src="launchshare/capacity.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #07070d;
+      --surface: #0f0f18;
+      --surface2: #16161f;
+      --surface3: #1e1e2a;
+      --border: rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.12);
+      --accent: #5b6ef5;
+      --accent-glow: rgba(91,110,245,0.2);
+      --danger: #e05555;
+      --danger-bg: rgba(224,85,85,0.1);
+      --success: #3ecf8e;
+      --warn: #f0a830;
+      --text: #e2e2ee;
+      --text-2: rgba(226,226,238,0.6);
+      --text-3: rgba(226,226,238,0.35);
+      --r: 10px;
+      --r-sm: 7px;
+    }
+    body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; font-size:14px; line-height:1.5; }
 
-.launch-hero {
-  position: relative;
-  padding: 150px 0 70px;
-  border-bottom: 1px solid var(--line);
-  background-color: var(--panel);
-  overflow: hidden;
-}
-.launch-hero.has-image {
-  padding: 0;
-  display: block;
-}
-.launch-hero-bg-img {
-  display: none;
-  width: 100%;
-  height: auto;
-  filter: saturate(1.15) brightness(1.12);
-}
-.launch-hero.has-image .launch-hero-bg-img { display: block; }
-.launch-hero::before { content: none; }
-.launch-hero-overlay { display: none; }
-.launch-hero.has-image .launch-hero-overlay {
-  display: block;
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(10,10,10,0.05) 0%, rgba(10,10,10,0.15) 55%, rgba(10,10,10,0.9) 100%);
-  z-index: 1;
-}
-.launch-hero-inner { position: relative; z-index: 2; }
-.launch-hero.has-image .launch-hero-inner {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  padding-top: 90px;
-  padding-bottom: 40px;
-}
-.launch-hero.has-image .launch-hero-inner.is-pinned {
-  position: fixed;
-  left: 0; right: 0; bottom: 0;
-}
-.launch-hero:not(.has-image) .launch-hero-inner { padding-top: 40px; }
-.launch-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--muted);
-  text-decoration: none;
-  margin-bottom: 26px;
-  transition: color 0.2s, gap 0.15s;
-}
-.launch-back:hover { color: var(--text); gap: 10px; }
-.launch-hero .launch-meta { margin-bottom: 18px; }
-.launch-hero h1 {
-  font-size: clamp(2.2rem, 5vw, 3.6rem);
-  font-weight: 900;
-  letter-spacing: -1.8px;
-  line-height: 1.02;
-  margin-bottom: 18px;
-  max-width: 800px;
-}
-.launch-hero-sub {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-  color: var(--muted);
-  font-size: 0.92rem;
-  font-weight: 500;
-}
-.launch-hero-sub span:first-child::after {
-  content: '';
-}
-.launch-hero-sub span + span {
-  padding-left: 10px;
-  border-left: 1px solid var(--line2);
-}
-.launch-hero-sub span:empty { display: none; }
+    #login-screen { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; background:radial-gradient(ellipse at 50% 0%, rgba(91,110,245,0.08) 0%, transparent 60%); }
+    .login-wrap { width:100%; max-width:380px; }
+    .login-logo { display:flex; align-items:center; gap:10px; margin-bottom:40px; }
+    .login-logo-mark { width:36px; height:36px; background:var(--accent); border-radius:9px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:15px; color:#fff; }
+    .login-logo-text { font-weight:700; font-size:17px; }
+    .login-logo-sub { font-size:12px; color:var(--text-3); font-weight:400; }
+    .login-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:32px; }
+    .login-title { font-size:20px; font-weight:700; margin-bottom:6px; }
+    .login-desc { font-size:13px; color:var(--text-2); margin-bottom:28px; }
+    .field { margin-bottom:16px; }
+    .field label { display:block; font-size:11px; font-weight:600; color:var(--text-3); text-transform:uppercase; letter-spacing:.07em; margin-bottom:7px; }
+    .field input { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:var(--r-sm); padding:11px 13px; color:var(--text); font-family:inherit; font-size:14px; outline:none; transition:border-color .2s,box-shadow .2s; }
+    .field input:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); }
+    .field-hint { font-size:11px; color:var(--text-3); margin-top:6px; }
+    .btn-login { width:100%; margin-top:8px; background:var(--accent); color:#fff; border:none; border-radius:var(--r-sm); padding:12px; font-family:inherit; font-size:14px; font-weight:600; cursor:pointer; transition:opacity .2s,transform .1s; }
+    .btn-login:hover { opacity:.9; }
+    .btn-login:active { transform:scale(.99); }
+    .btn-login:disabled { opacity:.45; cursor:not-allowed; }
+    .login-err { color:var(--danger); font-size:12px; margin-top:12px; display:none; padding:10px 12px; background:var(--danger-bg); border-radius:var(--r-sm); border:1px solid rgba(224,85,85,0.2); }
 
-.section-launch-detail { padding: 64px 0 120px; }
-.launch-detail-grid {
-  display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 56px;
-  align-items: start;
-}
-.launch-detail-main .news-body-text {
-  font-size: 0.98rem;
+    #app { display:none; }
+    .topbar { height:52px; background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 20px; position:sticky; top:0; z-index:100; }
+    .topbar-left { display:flex; align-items:center; gap:14px; }
+    .topbar-logo-mark { width:28px; height:28px; background:var(--accent); border-radius:7px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:12px; color:#fff; flex-shrink:0; }
+    .topbar-name { font-weight:700; font-size:15px; }
+    .topbar-pill { font-size:11px; background:rgba(91,110,245,0.15); color:var(--accent); border:1px solid rgba(91,110,245,0.25); padding:2px 8px; border-radius:20px; font-weight:600; }
+    .topbar-right { display:flex; align-items:center; gap:10px; }
+    .topbar-repo { font-size:12px; color:var(--text-3); text-decoration:none; transition:color .2s; }
+    .topbar-repo:hover { color:var(--text-2); }
+    .btn-logout { background:transparent; border:1px solid var(--border); color:var(--text-2); border-radius:var(--r-sm); padding:5px 13px; font-family:inherit; font-size:12px; cursor:pointer; transition:all .2s; }
+    .btn-logout:hover { border-color:var(--danger); color:var(--danger); }
+
+    .layout { display:flex; height:calc(100vh - 52px); }
+    .sidebar { width:216px; flex-shrink:0; background:var(--surface); border-right:1px solid var(--border); padding:16px 10px; display:flex; flex-direction:column; overflow-y:auto; }
+    .sidebar-label { font-size:10px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:.1em; padding:0 8px; margin:18px 0 6px; }
+    .sidebar-label:first-child { margin-top:0; }
+    .nav-btn { display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:500; color:var(--text-2); transition:all .15s; border:none; background:none; width:100%; text-align:left; position:relative; }
+    .nav-btn:hover { background:var(--surface2); color:var(--text); }
+    .nav-btn.active { background:rgba(91,110,245,0.12); color:var(--accent); }
+    .nav-btn.active::before { content:''; position:absolute; left:0; top:50%; transform:translateY(-50%); width:3px; height:18px; background:var(--accent); border-radius:0 3px 3px 0; }
+    .nav-icon { font-size:15px; width:20px; text-align:center; flex-shrink:0; }
+    .sidebar-bottom { margin-top:auto; padding-top:16px; border-top:1px solid var(--border); }
+    .sidebar-info { font-size:11px; color:var(--text-3); padding:0 10px; line-height:1.6; }
+
+    .main { flex:1; overflow-y:auto; padding:32px 36px; }
+    @media(max-width:900px) { .main { padding:20px 18px; } }
+
+    .page-head { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:28px; gap:16px; }
+    .page-head-left {}
+    .page-head-right { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+    .page-search input { background:var(--surface2); border:1px solid var(--border); border-radius:var(--r-sm); padding:9px 13px; font-family:inherit; font-size:13px; color:var(--text); width:190px; outline:none; transition:border-color .2s,box-shadow .2s,width .2s; }
+    .page-search input:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); width:230px; }
+    .page-search input::placeholder { color:var(--text-3); }
+    .page-title { font-size:22px; font-weight:800; letter-spacing:-.4px; }
+    .page-desc { font-size:13px; color:var(--text-2); margin-top:4px; }
+    .btn-add { display:flex; align-items:center; gap:7px; background:var(--accent); color:#fff; border:none; border-radius:var(--r-sm); padding:9px 16px; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; transition:opacity .2s,box-shadow .2s; white-space:nowrap; flex-shrink:0; }
+    .btn-add:hover { opacity:.88; box-shadow:0 4px 20px var(--accent-glow); }
+
+    .item-list { display:flex; flex-direction:column; gap:8px; }
+    .item-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:16px 18px; display:flex; align-items:center; gap:14px; transition:border-color .2s,background .2s; cursor:default; }
+    .item-card:hover { border-color:var(--border2); background:var(--surface2); }
+    .item-thumb { width:48px; height:48px; border-radius:8px; background-size:cover; background-position:center; flex-shrink:0; border:1px solid var(--border); }
+    .item-thumb-icon { width:48px; height:48px; border-radius:8px; background:var(--surface3); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; border:1px solid var(--border); }
+    .item-body { flex:1; min-width:0; }
+    .item-top { display:flex; align-items:center; gap:8px; margin-bottom:3px; }
+    .item-title { font-weight:600; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .item-meta { font-size:12px; color:var(--text-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .item-desc { font-size:12px; color:var(--text-3); margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:480px; }
+    .item-actions { display:flex; gap:6px; flex-shrink:0; }
+
+    .badge { display:inline-flex; align-items:center; font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; text-transform:uppercase; letter-spacing:.04em; }
+    .badge-active { background:rgba(62,207,142,0.12); color:var(--success); }
+    .badge-development { background:rgba(240,168,48,0.12); color:var(--warn); }
+    .badge-inactive { background:rgba(255,255,255,0.06); color:var(--text-3); }
+    .badge-open { background:rgba(62,207,142,0.12); color:var(--success); }
+    .badge-upcoming { background:rgba(91,110,245,0.15); color:var(--accent); }
+    .badge-closed { background:rgba(255,255,255,0.06); color:var(--text-3); }
+    .badge-in-progress { background:rgba(240,168,48,0.15); color:var(--warn); }
+    .badge-completed { background:rgba(255,255,255,0.06); color:var(--text-3); }
+    .badge-volunteer { background:rgba(91,110,245,0.12); color:var(--accent); }
+    .badge-home { background:rgba(91,110,245,0.18); color:var(--accent); }
+    .home-pick { display:flex; align-items:center; gap:12px; flex-wrap:wrap; background:var(--surface2); border:1px solid var(--border); border-radius:var(--r-sm); padding:12px 14px; margin-bottom:14px; }
+    .home-pick-lbl { font-size:12px; font-weight:700; color:var(--text-2); text-transform:uppercase; letter-spacing:.04em; }
+    .home-pick select { flex:1; min-width:200px; max-width:420px; background:var(--surface3); border:1px solid var(--border); color:var(--text); border-radius:var(--r-sm); padding:7px 10px; font-family:inherit; font-size:13px; }
+    .home-pick-hint { width:100%; font-size:11px; color:var(--text-3); }
+    .badge-launchshare { background:rgba(240,168,48,0.15); color:var(--warn); }
+
+    .btn-edit { background:var(--surface3); border:1px solid var(--border); color:var(--text-2); border-radius:var(--r-sm); padding:6px 13px; font-family:inherit; font-size:12px; font-weight:500; cursor:pointer; transition:all .15s; }
+    .btn-edit:hover { border-color:var(--border2); color:var(--text); }
+    .btn-del { background:transparent; border:1px solid transparent; color:var(--text-3); border-radius:var(--r-sm); padding:6px 10px; font-family:inherit; font-size:12px; cursor:pointer; transition:all .15s; }
+    .btn-del:hover { background:var(--danger-bg); border-color:rgba(224,85,85,0.25); color:var(--danger); }
+    .btn-finish { background:transparent; border:1px solid rgba(62,207,142,0.3); color:var(--success); border-radius:var(--r-sm); padding:6px 13px; font-family:inherit; font-size:12px; font-weight:500; cursor:pointer; transition:all .15s; }
+    .btn-finish:hover { background:rgba(62,207,142,0.12); border-color:rgba(62,207,142,0.5); }
+
+    .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:200; padding:20px; backdrop-filter:blur(6px); }
+    .overlay.hidden { display:none; }
+    .modal { background:var(--surface); border:1px solid var(--border2); border-radius:16px; width:100%; max-width:540px; max-height:90vh; overflow-y:auto; display:flex; flex-direction:column; }
+    .modal-head { padding:24px 28px 0; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; background:var(--surface); padding-bottom:20px; border-bottom:1px solid var(--border); }
+    .modal-title { font-size:17px; font-weight:700; }
+    .btn-close { background:none; border:none; color:var(--text-3); cursor:pointer; font-size:20px; line-height:1; padding:4px; transition:color .15s; }
+    .btn-close:hover { color:var(--text); }
+    .modal-body { padding:24px 28px; flex:1; }
+    .modal-foot { padding:16px 28px 24px; display:flex; justify-content:flex-end; gap:8px; border-top:1px solid var(--border); }
+
+    .form-row { margin-bottom:16px; }
+    .form-row label { display:block; font-size:11px; font-weight:600; color:var(--text-3); text-transform:uppercase; letter-spacing:.07em; margin-bottom:7px; }
+    .form-row input, .form-row textarea, .form-row select { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:var(--r-sm); padding:10px 12px; color:var(--text); font-family:inherit; font-size:14px; outline:none; transition:border-color .2s,box-shadow .2s; }
+    .form-row input:focus,.form-row textarea:focus,.form-row select:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); }
+    .form-row textarea { resize:vertical; min-height:88px; line-height:1.7; }
+    .form-row select option { background:var(--surface2); }
+    .form-hint { font-size:11px; color:var(--text-3); margin-top:5px; }
+    .form-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+    .btn-save { background:var(--accent); color:#fff; border:none; border-radius:var(--r-sm); padding:10px 22px; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; transition:opacity .2s; }
+    .btn-save:hover { opacity:.88; }
+    .btn-save:disabled { opacity:.4; cursor:not-allowed; }
+    .btn-cancel { background:transparent; border:1px solid var(--border); color:var(--text-2); border-radius:var(--r-sm); padding:10px 18px; font-family:inherit; font-size:13px; cursor:pointer; transition:all .2s; }
+    .btn-cancel:hover { border-color:var(--border2); color:var(--text); }
+
+    .saving-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.55); display:flex; align-items:center; justify-content:center; z-index:300; backdrop-filter:blur(8px); }
+    .saving-overlay.hidden { display:none; }
+    .saving-box { background:var(--surface); border:1px solid var(--border2); border-radius:16px; padding:28px 36px; text-align:center; }
+    .saving-ring { width:36px; height:36px; border:3px solid var(--border2); border-top-color:var(--accent); border-radius:50%; animation:spin .75s linear infinite; margin:0 auto 14px; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .saving-text { font-size:13px; color:var(--text-2); }
+
+    #toast { position:fixed; bottom:24px; right:24px; z-index:999; background:var(--surface2); border:1px solid var(--border2); border-radius:var(--r); padding:12px 18px; font-size:13px; font-weight:500; pointer-events:none; transform:translateY(60px); opacity:0; transition:all .28s cubic-bezier(.34,1.56,.64,1); max-width:300px; display:flex; align-items:center; gap:10px; }
+    #toast.show { transform:translateY(0); opacity:1; }
+    #toast.success { border-color:rgba(62,207,142,0.3); }
+    #toast.error { border-color:rgba(224,85,85,0.3); }
+    .toast-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+    .success .toast-dot { background:var(--success); }
+    .error .toast-dot { background:var(--danger); }
+
+    .empty { padding:48px 24px; text-align:center; color:var(--text-3); font-size:13px; border:1px dashed var(--border); border-radius:var(--r); }
+    .empty-icon { font-size:32px; margin-bottom:12px; }
+
+    .img-field-wrap { display:flex; flex-direction:column; gap:8px; }
+    .img-input-row { display:flex; gap:8px; align-items:center; }
+    .img-input-row input { flex:1; }
+    .btn-upload-img { background:var(--surface3); border:1px solid var(--border); color:var(--text-2); border-radius:var(--r-sm); padding:9px 14px; font-family:inherit; font-size:12px; font-weight:500; cursor:pointer; white-space:nowrap; transition:all .15s; flex-shrink:0; }
+    .btn-upload-img:hover { border-color:var(--border2); color:var(--text); }
+    .btn-upload-img:disabled { opacity:.5; cursor:not-allowed; }
+    .img-preview { width:100%; height:120px; border-radius:var(--r-sm); background:var(--surface3); border:1px solid var(--border); background-size:cover; background-position:center; display:none; }
+    .img-preview.visible { display:block; }
+    #img-file-input, #video-file-input { display:none; }
+
+    .md-field-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:7px; }
+    .md-field-head label { margin-bottom:0; }
+    .md-tabs { display:flex; gap:2px; background:var(--surface2); border:1px solid var(--border); border-radius:7px; padding:2px; }
+    .md-tab { background:none; border:none; color:var(--text-3); font-family:inherit; font-size:11px; font-weight:600; padding:4px 10px; border-radius:5px; cursor:pointer; transition:all .15s; }
+    .md-tab.active { background:var(--surface3); color:var(--text); }
+    .md-toolbar { display:flex; gap:3px; background:var(--surface2); border:1px solid var(--border); border-bottom:none; border-radius:7px 7px 0 0; padding:5px 6px; flex-wrap:wrap; }
+    .md-toolbar button { background:none; border:none; color:var(--text-2); font-family:inherit; font-size:12px; width:26px; height:24px; border-radius:5px; cursor:pointer; transition:all .15s; display:flex; align-items:center; justify-content:center; }
+    .md-toolbar button:hover { background:var(--surface3); color:var(--text); }
+    .md-field textarea { border-radius:0 0 var(--r-sm) var(--r-sm); border-top:none; font-family:inherit; font-size:15px; line-height:1.8; min-height:260px; color:#ffffff; }
+    .md-field textarea:focus { border-color:var(--border); box-shadow:none; }
+    .md-field-head + .md-toolbar { margin-top:0; }
+    .md-preview { display:none; min-height:88px; max-height:280px; overflow-y:auto; background:var(--surface2); border:1px solid var(--border); border-radius:0 0 var(--r-sm) var(--r-sm); border-top:none; padding:12px 14px; font-size:14.5px; line-height:1.75; color:var(--text-2); }
+    .md-preview.visible { display:block; }
+    .md-field textarea.hidden { display:none; }
+    .md-preview:empty::after { content:'Nothing to preview yet.'; color:var(--text-3); }
+    .md-preview p { margin:0 0 10px; }
+    .md-preview p:last-child { margin-bottom:0; }
+    .md-preview h1,.md-preview h2,.md-preview h3 { color:var(--text); margin:14px 0 8px; font-weight:700; }
+    .md-preview h1 { font-size:16px; } .md-preview h2 { font-size:14.5px; } .md-preview h3 { font-size:13.5px; }
+    .md-preview ul,.md-preview ol { margin:0 0 10px; padding-left:20px; }
+    .md-preview li { margin-bottom:4px; }
+    .md-preview a { color:var(--accent); }
+    .md-preview blockquote { border-left:2px solid var(--border2); padding-left:10px; color:var(--text-3); margin:0 0 10px; }
+    .md-preview code { background:var(--surface3); border-radius:4px; padding:1px 5px; font-size:0.9em; }
+    .md-preview pre { background:var(--surface3); border-radius:6px; padding:10px 12px; overflow-x:auto; margin:0 0 10px; }
+    .md-preview pre code { background:none; padding:0; }
+    .md-preview img { max-width:100%; border-radius:6px; }
+    .md-preview small { opacity:0.65; font-size:0.85em; }
+
+    .modal, .md-preview, .form-row textarea, .md-field textarea { scrollbar-width: thin; scrollbar-color: #3a3a3a transparent; }
+    .modal::-webkit-scrollbar, .md-preview::-webkit-scrollbar, .form-row textarea::-webkit-scrollbar { width: 8px; height: 8px; }
+    .modal::-webkit-scrollbar-track, .md-preview::-webkit-scrollbar-track, .form-row textarea::-webkit-scrollbar-track { background: transparent; }
+    .modal::-webkit-scrollbar-thumb, .md-preview::-webkit-scrollbar-thumb, .form-row textarea::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 8px; }
+    .modal::-webkit-scrollbar-thumb:hover, .md-preview::-webkit-scrollbar-thumb:hover, .form-row textarea::-webkit-scrollbar-thumb:hover { background: #555; }
+    .form-row textarea::-webkit-resizer { background: transparent; }
+  </style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-wrap">
+    <div class="login-logo">
+      <div class="login-logo-mark">ISA</div>
+      <div>
+        <div class="login-logo-text">ISA Admin</div>
+        <div class="login-logo-sub">International Space Association</div>
+      </div>
+    </div>
+    <div class="login-card">
+      <div class="login-title">Sign in</div>
+      <div class="login-desc">Enter the admin password to access the panel.</div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="token-input" placeholder="••••••••" autocomplete="off">
+        <div class="field-hint">Contact the site owner if you don't have access.</div>
+      </div>
+      <button class="btn-login" id="login-btn" onclick="doLogin()">Continue →</button>
+      <div class="login-err" id="login-err">Incorrect password.</div>
+    </div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo-mark">ISA</div>
+      <span class="topbar-name">Admin</span>
+      <span class="topbar-pill">Content Manager</span>
+    </div>
+    <div class="topbar-right">
+      <a class="topbar-repo" href="https://supabase.com/dashboard/project/fqvghuvmgswegirgitom" target="_blank">Supabase ↗</a>
+      <button class="btn-logout" onclick="logout()">Sign out</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <nav class="sidebar">
+      <div class="sidebar-label">Content</div>
+      <button class="nav-btn active" onclick="nav('missions',this)"><span class="nav-icon">🛠️</span> Hardware</button>
+      <button class="nav-btn" onclick="nav('programs',this)"><span class="nav-icon">🪐</span> Missions</button>
+      <button class="nav-btn" onclick="nav('careers',this)"><span class="nav-icon">💼</span> Careers</button>
+      <button class="nav-btn" onclick="nav('launches',this)"><span class="nav-icon">🛰️</span> Launches</button>
+      <button class="nav-btn" onclick="nav('news',this)"><span class="nav-icon">📰</span> News</button>
+      <button class="nav-btn" onclick="nav('site13_updates',this)"><span class="nav-icon">🚀</span> Starship</button>
+
+      <div class="sidebar-bottom">
+        <div class="sidebar-info">Changes save instantly to Supabase. No deploys needed.</div>
+      </div>
+    </nav>
+
+    <main class="main" id="main"></main>
+  </div>
+</div>
+
+<div class="overlay hidden" id="overlay" onclick="overlayClick(event)">
+  <div class="modal" id="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-title"></div>
+      <button class="btn-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" id="btn-save" onclick="saveItem()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="saving-overlay hidden" id="saving-overlay">
+  <div class="saving-box">
+    <div class="saving-ring"></div>
+    <div class="saving-text">Saving to Supabase…</div>
+  </div>
+</div>
+
+<div id="toast"><div class="toast-dot"></div><span id="toast-msg"></span></div>
+<input type="file" id="img-file-input" accept="image/*">
+<input type="file" id="video-file-input" accept="video/mp4,video/webm,video/quicktime">
+
+<script>
+let data = { missions:[], programs:[], careers:[], launches:[], news:[], site13_updates:[] };
+let page = 'missions', editId = null, editType = null;
+
+async function sbFetch(table, method='GET', body=null, filters='') {
+  const r = await fetch('/api/admin/data', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ table, method, body, filters }),
+  });
+  if (r.status === 401) {
+    logout();
+    throw new Error('Session expired. Please sign in again.');
+  }
+  const payload = await r.json().catch(() => ({}));
+  if (!r.ok || !payload.ok) {
+    throw new Error(payload.error || `HTTP ${r.status}`);
+  }
+  if (method === 'GET' || method === 'POST') return payload.data;
+  return true;
 }
 
-.launch-detail-side { position: sticky; top: 110px; }
-.launch-ls-cta { width: 100%; margin-top: 16px; }
-
-.branch-tag {
-  display: inline-flex;
-  align-items: center;
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 20px;
-  letter-spacing: 0.3px;
+function sortLaunchesByDate(launches) {
+  return [...launches].sort((a, b) => {
+    const ta = a.date ? new Date(a.date).getTime() : NaN;
+    const tb = b.date ? new Date(b.date).getTime() : NaN;
+    return (isNaN(ta) ? Infinity : ta) - (isNaN(tb) ? Infinity : tb);
+  });
 }
 
-@media (max-width: 900px) {
-  .launch-detail-grid { grid-template-columns: 1fr; }
-  .launch-detail-side { position: static; }
-}
-@media (max-width: 600px) {
-  .launch-hero:not(.has-image) { padding: 130px 0 50px; }
-  .launch-hero.has-image .launch-hero-inner { padding-top: 60px; padding-bottom: 24px; }
-}
-
-.launch-hero-bg-video {
-  display: none;
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 0;
-  opacity: 0;
-  transition: opacity 1s ease;
-  filter: saturate(1.15) brightness(1.12);
-}
-.launch-hero.has-image .launch-hero-bg-video { display: block; }
-.launch-hero-bg-video.is-ready { opacity: 1; }
-
-.launch-hero .video-controls {
-  position: absolute;
-  left: auto;
-  right: 24px;
-  bottom: 40px;
-  display: flex;
-  gap: 8px;
-  z-index: 10;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.6s ease 0.4s;
-}
-.launch-hero.has-video-ready .video-controls {
-  opacity: 1;
-  pointer-events: auto;
-}
-.launch-hero .video-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 50%;
-  color: #fff;
-  cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
-}
-.launch-hero .video-btn:hover {
-  background: rgba(255,255,255,0.16);
-  border-color: rgba(255,255,255,0.3);
-}
-@media (max-width: 768px) {
-  .launch-hero .video-controls { left: auto; right: 16px; bottom: 24px; }
+async function loadAll() {
+  const [missions, programs, careers, launches, news, site13_updates] = await Promise.all([
+    sbFetch('missions', 'GET', null, '?order=id'),
+    sbFetch('programs', 'GET', null, '?order=id'),
+    sbFetch('careers',  'GET', null, '?order=id'),
+    sbFetch('launches', 'GET', null, '?order=date'),
+    sbFetch('news',     'GET', null, '?order=id'),
+    sbFetch('site13_updates', 'GET', null, '?order=date').catch(() => []),
+  ]);
+  data = { missions, programs, careers, launches: sortLaunchesByDate(launches), news, site13_updates: [...site13_updates].reverse() };
 }
 
-.launch-hero-date {
-  font-size: 0.9rem;
-  font-weight: 500;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.78);
-  margin-bottom: 10px;
+async function doLogin() {
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('login-err');
+  const pwd = document.getElementById('token-input').value.trim();
+  if (!pwd) return;
+  btn.disabled = true; btn.textContent = 'Signing in…'; err.style.display = 'none';
+  try {
+    const check = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pwd })
+    });
+    if (!check.ok) { err.textContent = 'Incorrect password.'; err.style.display = 'block'; btn.disabled=false; btn.textContent='Continue →'; return; }
+    await loadAll();
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    render();
+  } catch(e) {
+    err.textContent = 'Connection error: ' + e.message;
+    err.style.display = 'block';
+  }
+  btn.disabled = false; btn.textContent = 'Continue →';
 }
-.launch-hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 26px;
+document.getElementById('token-input').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+async function logout() {
+  try { await fetch('/api/auth', { method: 'DELETE' }); } catch {}
+  data = { missions:[], programs:[], careers:[], launches:[], news:[], site13_updates:[] };
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('token-input').value='';
 }
 
-.launch-hero.launch-hero-home.has-image .launch-hero-overlay {
-  background:
-    linear-gradient(180deg, rgba(10,10,10,0.75) 0, rgba(10,10,10,0.3) 140px, rgba(10,10,10,0) 280px),
-    linear-gradient(180deg, rgba(10,10,10,0) 45%, rgba(10,10,10,0.35) 70%, rgba(10,10,10,0.92) 100%);
+(async function checkExistingSession() {
+  try {
+    await loadAll();
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    render();
+  } catch {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+  }
+})();
+function nav(p, el) {
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  page = p; render();
 }
 
-.launch-hero.launch-hero-home.has-image {
-  height: 100vh;
-  height: 100dvh;
-  min-height: 480px;
+function filterItems(q) {
+  q = q.trim().toLowerCase();
+  document.querySelectorAll('.item-list .item-card').forEach(card => {
+    card.style.display = (!q || card.textContent.toLowerCase().includes(q)) ? '' : 'none';
+  });
 }
-.launch-hero-home .launch-hero-bg-img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
+
+function render() {
+  const m = document.getElementById('main');
+  if (page==='missions') m.innerHTML = pageMissions();
+  else if (page==='programs') m.innerHTML = pagePrograms();
+  else if (page==='careers') m.innerHTML = pageCareers();
+  else if (page==='launches') m.innerHTML = pageLaunches();
+  else if (page==='news') m.innerHTML = pageNews();
+  else if (page==='site13_updates') m.innerHTML = pageSite13();
 }
+
+function isStarshipItem(m) {
+  return typeof isaIsStarship === 'function'
+    ? isaIsStarship(m)
+    : /^starship$/i.test(String(m.id||'').trim()) || /^starship$/i.test(String(m.name||'').trim());
+}
+function findStarship() {
+  return data.missions.find(isStarshipItem)
+    || data.missions.find(m=>/starship/i.test(String(m.id)+' '+String(m.name||'')) && !/super\s*heavy|booster/i.test(String(m.name||'')))
+    || null;
+}
+
+function pageMissions() {
+  const statusMap = { active:'Active', development:'In Development', inactive:'Inactive' };
+  const ss = findStarship();
+  const list = data.missions.filter(m => m !== ss);
+  const items = list.length ? list.map(m=>`
+    <div class="item-card">
+      <div class="item-thumb" style="background-image:url('${m.image}')"></div>
+      <div class="item-body">
+        <div class="item-top">
+          <span class="item-title">${m.name}</span>
+          <span class="badge badge-${m.status}">${statusMap[m.status]||m.status}</span>
+        </div>
+        <div class="item-meta">${m.division}</div>
+        <div class="item-desc">${esc(mdToPlain(m.description))}</div>
+      </div>
+      <div class="item-actions">
+        <button class="btn-edit" onclick="openEdit('missions','${m.id}')">Edit</button>
+        <button class="btn-del" onclick="del('missions','${m.id}')" title="Delete">✕</button>
+      </div>
+    </div>`).join('') : `<div class="empty"><div class="empty-icon">🚀</div>No hardware yet.</div>`;
+  return `<div class="page-head"><div class="page-head-left"><div class="page-title">Hardware</div><div class="page-desc">Cards on the Hardware page. Starship is edited on its own page (Starship in the sidebar).</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search hardware…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('missions')">+ Add Hardware</button></div></div><div class="item-list">${items}</div>`;
+}
+
+function pagePrograms() {
+  const statusMap = { active:'Active', development:'In Development', inactive:'Inactive' };
+  const items = data.programs.length ? data.programs.map(m=>`
+    <div class="item-card">
+      <div class="item-thumb" style="background-image:url('${m.image}')"></div>
+      <div class="item-body">
+        <div class="item-top">
+          <span class="item-title">${m.name}</span>
+          <span class="badge badge-${m.status}">${statusMap[m.status]||m.status}</span>
+        </div>
+        <div class="item-meta">${m.division}</div>
+        <div class="item-desc">${esc(mdToPlain(m.description))}</div>
+      </div>
+      <div class="item-actions">
+        <button class="btn-edit" onclick="openEdit('programs','${m.id}')">Edit</button>
+        <button class="btn-del" onclick="del('programs','${m.id}')" title="Delete">✕</button>
+      </div>
+    </div>`).join('') : `<div class="empty"><div class="empty-icon">🪐</div>No missions yet.</div>`;
+  return `<div class="page-head"><div class="page-head-left"><div class="page-title">Missions</div><div class="page-desc">Content shown on the Missions page.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search missions…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('programs')">+ Add Mission</button></div></div><div class="item-list">${items}</div>`;
+}
+
+function pageCareers() {
+  const items = data.careers.length ? data.careers.map(c=>`
+    <div class="item-card">
+      <div class="item-thumb-icon">💼</div>
+      <div class="item-body">
+        <div class="item-top">
+          <span class="item-title">${c.title}</span>
+          <span class="badge badge-volunteer">${c.type}</span>
+        </div>
+        <div class="item-meta">${c.program}</div>
+        <div class="item-desc">${esc(mdToPlain(c.description))}</div>
+      </div>
+      <div class="item-actions">
+        <button class="btn-edit" onclick="openEdit('careers','${c.id}')">Edit</button>
+        <button class="btn-del" onclick="del('careers','${c.id}')" title="Delete">✕</button>
+      </div>
+    </div>`).join('') : `<div class="empty"><div class="empty-icon">💼</div>No positions yet.</div>`;
+  return `<div class="page-head"><div class="page-head-left"><div class="page-title">Careers</div><div class="page-desc">Open volunteer positions.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search positions…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('careers')">+ Add Position</button></div></div><div class="item-list">${items}</div>`;
+}
+
+function homeCandidates() {
+  return data.launches.filter(l => l.published && l.video && String(l.video).trim());
+}
+
+function homePickPanel() {
+  const cands = homeCandidates();
+  const cur = data.launches.find(l => l.home_featured);
+  const curValid = cur && cands.includes(cur);
+  const opts = cands.map(l => `<option value="${esc(l.id)}" ${curValid && cur.id===l.id ? 'selected' : ''}>${esc(mdToPlain(l.name))}</option>`).join('');
+  const hint = cur && !curValid
+    ? '⚠ The selected launch is unpublished or has no video, so the home page falls back to Auto.'
+    : 'Only published launches with a video can be shown on the home page. “Auto” shows the launch with the most recently added video.';
+  return `<div class="home-pick">
+    <span class="home-pick-lbl">🏠 Home page launch</span>
+    <select onchange="setHomeLaunch(this.value)">
+      <option value="" ${curValid ? '' : 'selected'}>Auto (latest video)</option>${opts}
+    </select>
+    <div class="home-pick-hint">${hint}</div>
+  </div>`;
+}
+
+async function setHomeLaunch(id) {
+  document.getElementById('saving-overlay').classList.remove('hidden');
+  try {
+    // clear the flag everywhere first, then set it on the chosen launch
+    for (const l of data.launches.filter(x => x.home_featured && x.id !== id)) {
+      await sbFetch('launches', 'PATCH', { home_featured:false }, `?id=eq.${encodeURIComponent(l.id)}`);
+      l.home_featured = false;
+    }
+    if (id) {
+      await sbFetch('launches', 'PATCH', { home_featured:true }, `?id=eq.${encodeURIComponent(id)}`);
+      const l = data.launches.find(x => x.id === id);
+      if (l) l.home_featured = true;
+    }
+    toast(id ? 'Home page launch updated ✓' : 'Home page set to Auto ✓', 'success');
+  } catch(e) {
+    const missing = /home_featured/i.test(e.message);
+    toast(missing ? 'Column home_featured is missing — run scripts/add-home-featured.sql in Supabase.' : 'Error: ' + e.message, 'error');
+  }
+  document.getElementById('saving-overlay').classList.add('hidden');
+  render();
+}
+
+function pageLaunches() {
+  const statusMap = { open:'Open', upcoming:'Upcoming', closed:'Closed', 'in-progress':'In Progress', completed:'Completed' };
+  const items = data.launches.length ? data.launches.map(l=>{
+    const dateLabel = formatLaunchListDate(l.date);
+    const liveStatus = computeLaunchStatus(l);
+    return `<div class="item-card">
+      ${l.image ? `<div class="item-thumb" style="background-image:url('${esc(l.image)}')"></div>` : `<div class="item-thumb-icon">🛰️</div>`}
+      <div class="item-body">
+        <div class="item-top">
+          <span class="item-title">${l.name}</span>
+          <span class="badge badge-${liveStatus}">${statusMap[liveStatus]||liveStatus}</span>
+          ${l.published ? '<span class="badge badge-active">Published</span>' : '<span class="badge badge-inactive">Draft</span>'}
+          ${l.home_featured && homeCandidates().includes(l) ? '<span class="badge badge-home">🏠 On home</span>' : ''}
+          ${l.launchshare ? '<a href="/launchshare/" target="_blank" class="badge badge-launchshare" style="text-decoration:none" title="Open the Launchshare page">Launchshare ↗</a>' : ''}
+        </div>
+        <div class="item-meta">${l.orbit} · ${dateLabel}${l.date ? ' UTC' : ''}${l.branch ? ' · ' + l.branch : ''}${l.mission_id ? ' · Mission: ' + l.mission_id : ''}${l.launchshare && l.launchshare_volume ? ' · ' + l.launchshare_volume + ' blocks' : ''}</div>
+        <div class="item-desc">${esc(mdToPlain(l.description))}</div>
+      </div>
+      <div class="item-actions">
+        <button class="btn-edit" onclick="openEdit('launches','${l.id}')">Edit</button>
+        ${liveStatus!=='completed' ? `<button class="btn-finish" onclick="finishLaunch('${l.id}')" title="Mark this launch as finished">Finish</button>` : ''}
+        <button class="btn-del" onclick="del('launches','${l.id}')" title="Delete">✕</button>
+      </div>
+    </div>`;
+  }).join('') : `<div class="empty"><div class="empty-icon">🛰️</div>No launches yet.</div>`;
+  return `<div class="page-head"><div class="page-head-left"><div class="page-title">Launches</div><div class="page-desc">Launchshare mission slots.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search launches…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('launches')">+ Add Launch</button></div></div>${homePickPanel()}<div class="item-list">${items}</div>`;
+}
+
+function pageNews() {
+  const tagColors = { 'Mission Update':'badge-active','Community':'badge-upcoming','Research':'badge-development','Engineering':'badge-volunteer','Launchshare':'badge-inactive' };
+  const items = data.news.length ? data.news.map(n=>`
+    <div class="item-card">
+      <div class="item-thumb" style="background-image:url('${n.image||''}');background-color:var(--surface3)"></div>
+      <div class="item-body">
+        <div class="item-top">
+          <span class="item-title">${n.title}</span>
+          <span class="badge ${tagColors[n.tag]||'badge-inactive'}">${n.tag||'—'}</span>
+        </div>
+        <div class="item-meta">${n.date}</div>
+        <div class="item-desc">${esc(mdToPlain(n.body))}</div>
+      </div>
+      <div class="item-actions">
+        <button class="btn-edit" onclick="openEdit('news','${n.id}')">Edit</button>
+        <button class="btn-del" onclick="del('news','${n.id}')" title="Delete">✕</button>
+      </div>
+    </div>`).join('') : `<div class="empty"><div class="empty-icon">📰</div>No news posts yet.</div>`;
+  return `<div class="page-head"><div class="page-head-left"><div class="page-title">News</div><div class="page-desc">Updates shown on the News page.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search posts…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('news')">+ Add Post</button></div></div><div class="item-list">${items}</div>`;
+}
+
+const S13_STATUSES = ['Active','Scrapped','Destroyed','Expended','Retired'];
+const S13_KINDS = { road:'Road Update', video:'Video Update', faa:'FAA Update', hardware:'Hardware Tracker' };
+const S13_TAGS = {
+  faa:['FAA Update','License','Environmental','Airspace','Other'],
+  road:['Closure','Transport','Test'],
+  video:['Starbase','Flight Test','Static Fire','Other'],
+  hardware:['Full Stacks','Boosters','Ships','Suborbital Ships','Other']
+};
+const S13_HINTS = {
+  faa:'Shows under "FAA Updates" on the Starship page. Date is used for sorting (newest first).',
+  road:'Shows under "Road Updates" until the date passes. Put the closure date in Date and the times in Details.',
+  video:'Shows under "Video Updates". Paste a YouTube link in Source Link — it becomes a playable thumbnail. Image is optional.',
+  hardware:'Shows in the Hardware tracker on the Starship page. Status picks the filter, Flight assigned shows as a tag. Title e.g. "Booster 19".'
+};
+function pageSite13() {
+  const ss = findStarship();
+  const statusMap = { active:'Active', development:'In Development', inactive:'Inactive' };
+  const head = ss ? `
+    <div class="item-card" style="margin-bottom:22px">
+      <div class="item-thumb" style="background-image:url('${esc(ss.image||'')}');background-color:var(--surface3)"></div>
+      <div class="item-body">
+        <div class="item-top"><span class="item-title">${esc(ss.name||'Starship')}</span><span class="badge badge-${esc(ss.status||'')}">${statusMap[ss.status]||esc(ss.status||'')}</span></div>
+        <div class="item-meta">Main Starship page — title, picture, description</div>
+        <div class="item-desc">${esc(mdToPlain(ss.description||''))}</div>
+      </div>
+      <div class="item-actions"><button class="btn-edit" onclick="openEdit('missions','${esc(String(ss.id))}')">Edit page</button></div>
+    </div>` : `
+    <div class="empty" style="margin-bottom:22px"><div class="empty-icon">🚀</div>The Starship page doesn't exist yet.<br><br><button class="btn-add" onclick="newStarship()">+ Create Starship page</button></div>`;
+  const list = data.site13_updates;
+  const items = list.length ? list.map(n=>`
+    <div class="item-card">
+      <div class="item-thumb" style="background-image:url('${esc(n.image||'')}');background-color:var(--surface3)"></div>
+      <div class="item-body">
+        <div class="item-top">
+          <span class="item-title">${esc(n.title||'')}</span>
+          <span class="badge badge-development">${esc(S13_KINDS[n.kind||'faa']||'FAA Update')}</span>
+        </div>
+        <div class="item-meta">${esc(n.tag||'—')} · ${esc(n.date||'')}</div>
+        <div class="item-desc">${esc(mdToPlain(n.body||''))}</div>
+      </div>
+      <div class="item-actions">
+        <button class="btn-edit" onclick="openEdit('site13_updates','${esc(n.id)}')">Edit</button>
+        <button class="btn-del" onclick="del('site13_updates','${esc(n.id)}')" title="Delete">✕</button>
+      </div>
+    </div>`).join('') : `<div class="empty"><div class="empty-icon">🚀</div>No Starship entries yet.</div>`;
+  return `<div class="page-head"><div class="page-head-left"><div class="page-title">Starship</div><div class="page-desc">Everything on the Starship page: the main card plus Road, Video, FAA and Hardware tracker entries.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search entries…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('site13_updates')">+ Add Entry</button></div></div>${head}<div class="item-list">${items}</div>`;
+}
+function newStarship() {
+  editId=null; editType='missions';
+  openModal('Create Starship page', buildForm('missions', { id:'starship', name:'Starship', status:'active', division:'', description:'', tags:[], image:'' }));
+  formDirty = true;
+}
+
+function s13KindChanged() {
+  const k = (document.getElementById('f-kind')||{}).value || 'faa';
+  const dl = document.getElementById('s13-tag-list');
+  if (dl) dl.innerHTML = (S13_TAGS[k]||[]).map(t=>`<option value="${esc(t)}">`).join('');
+  const hw = k==='hardware';
+  const hr = document.getElementById('s13-hw-rows'), cr = document.getElementById('s13-cat-row');
+  if (hr) hr.style.display = hw ? '' : 'none';
+  if (cr) cr.style.display = hw ? 'none' : '';
+  const dr = document.getElementById('s13-date-row');
+  if (dr) dr.style.display = hw ? 'none' : '';
+  const h = document.getElementById('s13-kind-hint');
+  if (h) h.textContent = S13_HINTS[k] || '';
+}
+
+function openNew(type) { editId=null; editType=type; openModal(`New ${label(type)}`, buildForm(type, null)); }
+function openEdit(type, id) { editId=id; editType=type; openModal(`Edit ${label(type)}`, buildForm(type, data[type].find(x=>x.id===id))); }
+function label(t) { return {missions:'Hardware',programs:'Mission',careers:'Position',launches:'Launch',news:'News Post',site13_updates:'Starship Entry'}[t]; }
+
+let formDirty = false;
+function openModal(title, body) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = body;
+  document.getElementById('overlay').classList.remove('hidden');
+  formDirty = false;
+  if (editType === 'launches') updateLaunchshareCapacityPreview();
+}
+function closeModal(force) {
+  if (!force && formDirty && !confirm('Discard unsaved changes?')) return false;
+  document.getElementById('overlay').classList.add('hidden');
+  formDirty = false;
+  return true;
+}
+function overlayClick(e) { if(e.target===document.getElementById('overlay')) closeModal(); }
+document.getElementById('modal-body').addEventListener('input', () => { formDirty = true; });
+document.getElementById('modal-body').addEventListener('change', () => { formDirty = true; });
+
+function field(id, lbl, val='', hint='', type='text') {
+  return `<div class="form-row"><label>${lbl}</label><input type="${type}" id="f-${id}" value="${esc(String(val))}"><div class="form-hint">${hint}</div></div>`;
+}
+function imgField(id, lbl, val='') {
+  return `<div class="form-row"><label>${lbl}</label>
+    <div class="img-field-wrap">
+      <div class="img-input-row">
+        <input type="text" id="f-${id}" value="${esc(String(val))}" placeholder="https://... or upload below" oninput="updateImgPreview('${id}')">
+        <button type="button" class="btn-upload-img" id="upload-btn-${id}" onclick="triggerUpload('${id}')">↑ Upload</button>
+      </div>
+      <div class="img-preview" id="img-preview-${id}" style="${val ? `background-image:url('${esc(val)}')` : ''}; ${val ? 'display:block' : ''}"></div>
+    </div>
+  </div>`;
+}
+function videoField(id, lbl, val='') {
+  return `<div class="form-row"><label>${lbl}</label>
+    <div class="img-field-wrap">
+      <div class="img-input-row">
+        <input type="text" id="f-${id}" value="${esc(String(val))}" placeholder="https://... .mp4 or upload" oninput="updateVideoPreview('${id}')">
+        <button type="button" class="btn-upload-img" id="upload-btn-${id}" onclick="triggerVideoUpload('${id}')">↑ Upload</button>
+        <button type="button" class="btn-upload-img" onclick="clearVideo('${id}')">✕</button>
+      </div>
+      <video class="video-preview" id="video-preview-${id}" controls preload="metadata" style="${val ? 'display:block' : 'display:none'};width:100%;max-height:220px;margin-top:8px;border-radius:8px;background:#000" ${val ? `src="${esc(val)}"` : ''}></video>
+      <div class="form-hint">MP4, WebM or MOV, up to 50 MB. Shown on the launch page.</div>
+    </div>
+  </div>`;
+}
+function updateVideoPreview(id) {
+  const url = document.getElementById('f-'+id)?.value?.trim();
+  const el = document.getElementById('video-preview-'+id);
+  if (!el) return;
+  if (url) { el.src = url; el.style.display = 'block'; }
+  else { el.removeAttribute('src'); el.load(); el.style.display = 'none'; }
+}
+function clearVideo(id) {
+  document.getElementById('f-'+id).value = '';
+  updateVideoPreview(id);
+  formDirty = true;
+}
+function triggerVideoUpload(fieldId) {
+  const input = document.getElementById('video-file-input');
+  input.onchange = () => uploadVideo(input, fieldId);
+  input.click();
+}
+const MAX_VIDEO_BYTES = 50 * 1024 * 1024;
+const VIDEO_TYPES_OK = ['video/mp4', 'video/webm', 'video/quicktime'];
+
+async function uploadVideo(input, fieldId) {
+  const file = input.files[0];
+  if (!file) return;
+  const btn = document.getElementById('upload-btn-'+fieldId);
+  btn.disabled = true; btn.textContent = 'Uploading…';
+  try {
+    if (!VIDEO_TYPES_OK.includes(file.type)) throw new Error('Only MP4, WebM or MOV.');
+    if (file.size > MAX_VIDEO_BYTES) throw new Error('File is too large (max 50 MB).');
+
+    const signRes = await fetch('/api/admin/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contentType: file.type })
+    });
+    if (signRes.status === 401) { logout(); throw new Error('Session expired. Please sign in again.'); }
+    const sign = await signRes.json().catch(() => ({}));
+    if (!signRes.ok || !sign.ok) throw new Error(sign.error || 'Upload failed');
+
+    const putRes = await fetch(sign.uploadUrl, {
+      method: 'PUT',
+      headers: { apikey: sign.apikey, 'Content-Type': sign.contentType },
+      body: file
+    });
+    if (!putRes.ok) throw new Error('Upload to storage failed');
+
+    document.getElementById('f-'+fieldId).value = sign.publicUrl;
+    updateVideoPreview(fieldId);
+    formDirty = true;
+    toast('Video uploaded ✓', 'success');
+  } catch(e) {
+    toast('Upload error: '+e.message, 'error');
+  }
+  btn.disabled = false; btn.textContent = '↑ Upload';
+  input.value = '';
+}
+function updateImgPreview(id) {
+  const url = document.getElementById('f-'+id)?.value?.trim();
+  const preview = document.getElementById('img-preview-'+id);
+  if (!preview) return;
+  if (url) { preview.style.backgroundImage = `url('${url}')`; preview.classList.add('visible'); }
+  else { preview.classList.remove('visible'); }
+}
+function triggerUpload(fieldId) {
+  const input = document.getElementById('img-file-input');
+  input.onchange = () => uploadImage(input, fieldId);
+  input.click();
+}
+const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+
+async function uploadImage(input, fieldId) {
+  const file = input.files[0];
+  if (!file) return;
+  const btn = document.getElementById('upload-btn-'+fieldId);
+  btn.disabled = true; btn.textContent = 'Uploading…';
+  try {
+    if (file.size > MAX_UPLOAD_BYTES) throw new Error('File is too large (max 5 MB).');
+
+    const signRes = await fetch('/api/admin/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contentType: file.type })
+    });
+    if (signRes.status === 401) { logout(); throw new Error('Session expired. Please sign in again.'); }
+    const sign = await signRes.json().catch(() => ({}));
+    if (!signRes.ok || !sign.ok) throw new Error(sign.error || 'Upload failed');
+
+    const putRes = await fetch(sign.uploadUrl, {
+      method: 'PUT',
+      headers: { apikey: sign.apikey, 'Content-Type': sign.contentType },
+      body: file
+    });
+    if (!putRes.ok) throw new Error('Upload to storage failed');
+
+    document.getElementById('f-'+fieldId).value = sign.publicUrl;
+    updateImgPreview(fieldId);
+    toast('Image uploaded ✓', 'success');
+  } catch(e) {
+    toast('Upload error: '+e.message, 'error');
+  }
+  btn.disabled = false; btn.textContent = '↑ Upload';
+  input.value = '';
+}
+async function importFromDiscord() {
+  const urlInput = document.getElementById('discord-import-url');
+  const btn = document.getElementById('discord-import-btn');
+  const url = urlInput.value.trim();
+  if (!url) { toast('Paste a Discord message link first', 'error'); return; }
+
+  btn.disabled = true; btn.textContent = 'Fetching…';
+  try {
+    const res = await fetch('/api/admin/discord-fetch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
+    });
+    if (res.status === 401) { logout(); throw new Error('Session expired. Please sign in again.'); }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) throw new Error(data.error || 'Import failed');
+
+    document.getElementById('f-id').value = data.id;
+    document.getElementById('f-title').value = data.title;
+    document.getElementById('f-date').value = data.date;
+    document.getElementById('f-body').value = data.body;
+    if (data.tag) document.getElementById('f-tag').value = data.tag;
+    if (data.image) {
+      document.getElementById('f-image').value = data.image;
+      updateImgPreview('image');
+    }
+    formDirty = true;
+    toast('Imported ✓ — review before saving', 'success');
+  } catch (e) {
+    toast('Import error: ' + e.message, 'error');
+  }
+  btn.disabled = false; btn.textContent = 'Fetch';
+}
+
+function ta(id, lbl, val='') {
+  return `<div class="form-row md-field">
+    <div class="md-field-head">
+      <label>${lbl}</label>
+      <div class="md-tabs">
+        <button type="button" class="md-tab active" id="mdtab-write-${id}" onclick="mdSwitch('${id}','write')">Write</button>
+        <button type="button" class="md-tab" id="mdtab-preview-${id}" onclick="mdSwitch('${id}','preview')">Preview</button>
+      </div>
+    </div>
+    <div class="md-toolbar">
+      <button type="button" title="Bold" onclick="mdWrap('${id}','**','**')"><b>B</b></button>
+      <button type="button" title="Italic" onclick="mdWrap('${id}','_','_')"><i>I</i></button>
+      <button type="button" title="Heading" onclick="mdPrefix('${id}','## ')">H</button>
+      <button type="button" title="Quote" onclick="mdPrefix('${id}','&gt; ')">&rdquo;</button>
+      <button type="button" title="Bulleted list" onclick="mdPrefix('${id}','- ')">&bull;</button>
+      <button type="button" title="Numbered list" onclick="mdPrefix('${id}','1. ')">1.</button>
+      <button type="button" title="Link" onclick="mdLink('${id}')">&#128279;</button>
+      <button type="button" title="Code" onclick="mdWrap('${id}','\`','\`')">&lt;/&gt;</button>
+    </div>
+    <textarea id="f-${id}">${esc(String(val))}</textarea>
+    <div class="md-preview" id="mdprev-${id}"></div>
+    <div class="form-hint">Markdown supported — **bold**, _italic_, # headings, - lists, [text](link), &gt; quote, \`code\`.</div>
+  </div>`;
+}
+
+function mdSwitch(id, mode) {
+  const textarea = document.getElementById('f-'+id);
+  const preview = document.getElementById('mdprev-'+id);
+  const tabWrite = document.getElementById('mdtab-write-'+id);
+  const tabPreview = document.getElementById('mdtab-preview-'+id);
+  if (!textarea || !preview) return;
+  if (mode === 'preview') {
+    preview.innerHTML = mdToHtml(textarea.value);
+    textarea.classList.add('hidden');
+    preview.classList.add('visible');
+    tabWrite.classList.remove('active');
+    tabPreview.classList.add('active');
+  } else {
+    textarea.classList.remove('hidden');
+    preview.classList.remove('visible');
+    tabWrite.classList.add('active');
+    tabPreview.classList.remove('active');
+  }
+}
+function mdWrap(id, before, after) {
+  const t = document.getElementById('f-'+id);
+  if (!t) return;
+  const start = t.selectionStart, end = t.selectionEnd;
+  const selected = t.value.slice(start, end) || 'text';
+  t.value = t.value.slice(0, start) + before + selected + after + t.value.slice(end);
+  t.focus();
+  t.selectionStart = start + before.length;
+  t.selectionEnd = start + before.length + selected.length;
+}
+function mdPrefix(id, prefix) {
+  const t = document.getElementById('f-'+id);
+  if (!t) return;
+  const start = t.selectionStart, end = t.selectionEnd;
+  const lineStart = t.value.lastIndexOf('\n', start - 1) + 1;
+  let lineEnd = t.value.indexOf('\n', end);
+  if (lineEnd === -1) lineEnd = t.value.length;
+  const block = t.value.slice(lineStart, lineEnd);
+  const prefixed = block.split('\n').map(line => prefix + line).join('\n');
+  t.value = t.value.slice(0, lineStart) + prefixed + t.value.slice(lineEnd);
+  t.focus();
+  t.selectionStart = lineStart;
+  t.selectionEnd = lineStart + prefixed.length;
+}
+function mdLink(id) {
+  const t = document.getElementById('f-'+id);
+  if (!t) return;
+  const start = t.selectionStart, end = t.selectionEnd;
+  const selected = t.value.slice(start, end) || 'link text';
+  const url = prompt('Link URL:', 'https://');
+  if (url === null) return;
+  const md = `[${selected}](${url})`;
+  t.value = t.value.slice(0, start) + md + t.value.slice(end);
+  t.focus();
+}
+function sel(id, lbl, val, opts) {
+  return `<div class="form-row"><label>${lbl}</label><select id="f-${id}">${opts.map(o=>`<option value="${o}"${o===val?' selected':''}>${o}</option>`).join('')}</select></div>`;
+}
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function g(id) { return (document.getElementById('f-'+id)||{}).value?.trim()||''; }
+function arr(id) { return g(id).split(',').map(s=>s.trim()).filter(Boolean); }
+
+function toUTCDatetimeInput(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())}T${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
+}
+function fromUTCDatetimeInput(value) {
+  if (!value) return null;
+  const d = new Date(value + ':00Z');
+  return isNaN(d.getTime()) ? null : d.toISOString();
+}
+
+const LAUNCH_OPEN_WINDOW_MS = 2 * 60 * 60 * 1000;
+function computeLaunchStatus(l) {
+  if (!l) return 'upcoming';
+  if (l.status === 'completed') return 'completed';
+  if (!l.date) return 'upcoming';
+  const launchTime = new Date(l.date).getTime();
+  if (isNaN(launchTime)) return 'upcoming';
+  const now = Date.now();
+  if (now >= launchTime) return 'in-progress';
+  if (launchTime - now <= LAUNCH_OPEN_WINDOW_MS) return 'open';
+  return 'upcoming';
+}
+function formatLaunchListDate(dateIso) {
+  if (!dateIso) return 'No date';
+  const d = new Date(dateIso);
+  if (isNaN(d.getTime())) return 'No date';
+  return d.toLocaleString(undefined, { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+function buildForm(type, item) {
+  const v = (k,d='') => item ? (item[k]??d) : d;
+  if (type==='missions') return `
+    <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. atlas')}${sel('status','Status',v('status','active'),['active','development','inactive'])}</div>
+    ${field('name','Name',v('name'))}
+    ${field('division','Division',v('division'),'e.g. Launch Systems')}
+    ${ta('description','Description',v('description'))}
+    ${field('tags','Tags',Array.isArray(v('tags'))?v('tags',[]).join(', '):v('tags'),'Comma-separated')}
+    ${imgField('image','Image',v('image'))}`;
+  if (type==='programs') return `
+    <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. artemis-relay')}${sel('status','Status',v('status','active'),['active','development','inactive'])}</div>
+    ${field('name','Mission Name',v('name'))}
+    ${field('division','Division',v('division'),'e.g. Deep Space Research')}
+    ${ta('description','Description',v('description'))}
+    ${field('tags','Tags',Array.isArray(v('tags'))?v('tags',[]).join(', '):v('tags'),'Comma-separated')}
+    ${imgField('image','Image',v('image'))}`;
+  if (type==='careers') return `
+    <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. gnc-engineer')}${sel('type','Type',v('type','Volunteer'),['Volunteer','Part-time','Full-time'])}</div>
+    ${field('title','Job Title',v('title'))}
+    ${field('program','Program',v('program'),'e.g. Atlas — Launch Systems')}
+    ${ta('description','Description',v('description'))}
+    ${field('skills','Skills',Array.isArray(v('skills'))?v('skills',[]).join(', '):v('skills'),'Comma-separated')}`;
+  if (type==='launches') return `
+    <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. launch-003')}<div class="form-row"><label>Visible on site?</label><select id="f-published"><option value="true"${v('published')?' selected':''}>Yes — published</option><option value="false"${v('published')?'':' selected'}>No — draft (hidden)</option></select></div></div>
+    ${field('name','Mission Name',v('name'))}
+    <div class="form-row-2">${field('mission_id','Mission ID (optional)',v('mission_id'),'Optional — ID of the Mission this launch belongs to')}${sel('orbit','Orbit',v('orbit','LEO'),['LEO','MEO','GEO','SSO','HEO'])}</div>
+    ${field('branch','Branch',v('branch'),'e.g. Launch Systems — colors the badge on the launch page automatically')}
+    ${field('date','Launch Time (UTC)',toUTCDatetimeInput(v('date')),'UTC time','datetime-local')}
+    <div class="form-hint">Status (Open / Upcoming / In Progress) is set automatically based on this time. Once the launch time passes it shows as "In Progress" on the site — use the Finish button on the launch card to mark it Completed.</div>
+    ${field('tags','Tags',Array.isArray(v('tags'))?v('tags',[]).join(', '):v('tags'),'Comma-separated, e.g. LEO, Rideshare. Shown as small badges on the site')}
+    ${ta('description','Description',v('description'))}
+    ${imgField('image','Image',v('image'))}
+    ${videoField('video','Video (optional)',v('video'))}
+    <div class="form-row"><label class="lschk-label"><input type="checkbox" id="f-launchshare" ${v('launchshare')?'checked':''} onchange="toggleLaunchshareVolume()"> Launchshare</label>
+      <div class="form-hint">Marks this launch as a Launchshare slot — adds the Launchshare tag on the public site and links to the booking page.</div>
+    </div>
+    <div class="form-row" id="launchshare-volume-row" style="display:${v('launchshare')?'block':'none'}">
+      <label for="f-launchshare_volume">SATELLITE VOLUME (blocks)</label>
+      <input type="number" id="f-launchshare_volume" value="${esc(String(v('launchshare_volume','')))}" min="0" oninput="updateLaunchshareCapacityPreview()">
+      <div class="form-hint" id="launchshare-capacity-preview"></div>
+    </div>`;
+  if (type==='site13_updates') {
+    const kind = v('kind','faa');
+    setTimeout(s13KindChanged, 0);
+    return `
+    <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. booster-19-static-fire')}
+      <div class="form-row"><label>Section on Starship page</label><select id="f-kind" onchange="s13KindChanged()">${Object.entries(S13_KINDS).map(([k,l])=>`<option value="${k}"${k===kind?' selected':''}>${l}</option>`).join('')}</select></div></div>
+    <div class="form-hint" id="s13-kind-hint" style="margin:-6px 0 14px"></div>
+    <div class="form-row" id="s13-hw-rows" style="display:none"><div class="form-row-2">
+      <div class="form-row"><label>Status</label><select id="f-status13">${[...new Set([...S13_STATUSES, v('tag')].filter(Boolean))].map(t=>`<option value="${esc(t)}"${t===v('tag')?' selected':''}>${esc(t)}</option>`).join('')}</select></div>
+      ${field('flight','Flight assigned',v('flight'),'e.g. Flight 12')}
+    </div></div>
+    <div class="form-row" id="s13-cat-row"><label>Category</label><input type="text" id="f-tag" list="s13-tag-list" value="${esc(String(v('tag')))}" autocomplete="off" placeholder="Pick a suggestion or type your own"><datalist id="s13-tag-list"></datalist></div>
+    ${field('title','Title',v('title'))}
+    <div id="s13-date-row">${field('date','Date',v('date'),'Used for sorting and, for Road Updates, to decide when it disappears','date')}</div>
+    ${ta('body','Details',v('body'))}
+    ${imgField('image','Image (optional)',v('image'))}
+    ${field('link','Source Link',v('link'),'Link to the source: FAA page, tweet, or the YouTube video (for Video entries)')}`;
+  }
+  if (type==='news') return `
+    <div class="form-row"><label>Import from a Discord message</label>
+      <div class="img-input-row">
+        <input type="text" id="discord-import-url" placeholder="Paste the Discord message link here">
+        <button type="button" class="btn-upload-img" id="discord-import-btn" onclick="importFromDiscord()">Fetch</button>
+      </div>
+      <div class="form-hint">Right-click a message in Discord → Copy Message Link, paste it above, then hit Fetch. It will fill in the title, date, image and text below automatically — check everything looks right before you save.</div>
+    </div>
+    <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. atlas-review-2026')}${sel('tag','Tag',v('tag','Mission Update'),['Mission Update','Community','Research','Engineering','Launchshare','Kazakhstan','Main ISA'])}</div>
+    ${field('title','Title',v('title'))}
+    ${field('date','Date',v('date'),'Written as shown on the site, e.g. Jun 2, 2026')}
+    ${field('tags','Additional Tags',Array.isArray(v('tags'))?v('tags',[]).join(', '):v('tags'),'Comma-separated, e.g. LEO, Rideshare. Shown as small badges on the site')}
+    ${ta('body','Summary / Body',v('body'))}
+    ${imgField('image','Image',v('image'))}
+    ${field('link','Read More Link',v('link','hardware.html'),'Where the "Read more" button goes — e.g. hardware.html or a full https:// link')}`;
+}
+
+function toggleLaunchshareVolume() {
+  const on = document.getElementById('f-launchshare').checked;
+  document.getElementById('launchshare-volume-row').style.display = on ? 'block' : 'none';
+  updateLaunchshareCapacityPreview();
+}
+function updateLaunchshareCapacityPreview() {
+  const el = document.getElementById('launchshare-capacity-preview');
+  if (!el) return;
+  const vol = parseInt(document.getElementById('f-launchshare_volume').value) || 0;
+  if (!vol || !window.LaunchshareCapacity) { el.textContent = 'Enter a volume to see the satellite capacity breakdown.'; return; }
+  const rows = window.LaunchshareCapacity.breakdown(vol).filter(c => c.count > 0);
+  el.innerHTML = rows.length
+    ? 'Fits roughly: ' + rows.map(c => `<b>${c.count}×</b> ${esc(c.label)}`).join(' &nbsp;or&nbsp; ')
+    : 'Volume too small for any known satellite class.';
+}
+
+function getForm(type) {
+  if (type==='missions') return { id:g('id'),name:g('name'),division:g('division'),status:g('status'),description:g('description'),tags:arr('tags'),image:g('image') };
+  if (type==='programs') return { id:g('id'),name:g('name'),division:g('division'),status:g('status'),description:g('description'),tags:arr('tags'),image:g('image') };
+  if (type==='careers') return { id:g('id'),title:g('title'),program:g('program'),type:g('type'),description:g('description'),skills:arr('skills') };
+  if (type==='launches') {
+    const launchDate = fromUTCDatetimeInput(g('date'));
+    const existing = editId ? data.launches.find(x=>x.id===editId) : null;
+    const status = (existing && existing.status === 'completed')
+      ? 'completed'
+      : computeLaunchStatus({ date:launchDate });
+    const videoVal = g('video');
+    let videoAt = existing && existing.video_at ? existing.video_at : null;
+    if (!videoVal) videoAt = null;
+    else if (!existing || existing.video !== videoVal) videoAt = new Date().toISOString();
+    const lsVolume = parseInt(g('launchshare_volume')) || 0;
+    const launchshare = document.getElementById('f-launchshare').checked && lsVolume > 0;
+    return { id:g('id'),name:g('name'),mission_id:g('mission_id'),orbit:g('orbit'),branch:g('branch'),
+      status, date:launchDate,description:g('description'),image:g('image'),video:videoVal,video_at:videoAt,published:g('published')==='true',
+      tags:arr('tags'), launchshare, launchshare_volume: launchshare ? lsVolume : null };
+  }
+  if (type==='site13_updates') return { id:g('id'),project_id:(editId&&(data.site13_updates.find(x=>x.id===editId)||{}).project_id)||(findStarship()?String(findStarship().id):'Starship'),kind:g('kind')||'faa',tag:(g('kind')==='hardware'?g('status13'):g('tag')),...(g('kind')==='hardware'?{flight:g('flight')}:{}),title:g('title'),date:(g('kind')==='hardware'?((editId&&(data.site13_updates.find(x=>x.id===editId)||{}).date)||new Date().toISOString().slice(0,10)):g('date')),body:g('body'),image:g('image'),link:g('link') };
+  if (type==='news') return { id:g('id'),tag:g('tag'),title:g('title'),date:g('date'),body:g('body'),image:g('image'),link:g('link'),tags:arr('tags') };
+}
+
+async function saveItem() {
+  const item = getForm(editType);
+  if (!item.id) { toast('ID is required','error'); return; }
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true;
+  document.getElementById('saving-overlay').classList.remove('hidden');
+  try {
+    const exists = data[editType].find(x=>x.id===item.id);
+    if (editId) {
+      await sbFetch(editType, 'PATCH', item, `?id=eq.${encodeURIComponent(editId)}`);
+      const i = data[editType].findIndex(x=>x.id===editId);
+      if (i>-1) data[editType][i] = { ...data[editType][i], ...item };
+    } else {
+      if (exists) { toast('ID already exists','error'); btn.disabled=false; document.getElementById('saving-overlay').classList.add('hidden'); return; }
+      await sbFetch(editType, 'POST', item);
+      data[editType].push(item);
+    }
+    closeModal(true);
+    toast('Saved ✓','success');
+    render();
+  } catch(e) {
+    toast('Error: '+e.message,'error');
+  }
+  btn.disabled = false;
+  document.getElementById('saving-overlay').classList.add('hidden');
+}
+
+async function finishLaunch(id) {
+  if (!confirm('Mark this launch as finished? It will show as Completed on the site.')) return;
+  document.getElementById('saving-overlay').classList.remove('hidden');
+  try {
+    await sbFetch('launches', 'PATCH', { status:'completed' }, `?id=eq.${encodeURIComponent(id)}`);
+    const i = data.launches.findIndex(x=>x.id===id);
+    if (i>-1) data.launches[i] = { ...data.launches[i], status:'completed' };
+    toast('Launch marked as finished ✓','success');
+    render();
+  } catch(e) {
+    toast('Error: '+e.message,'error');
+  }
+  document.getElementById('saving-overlay').classList.add('hidden');
+}
+
+async function del(type, id) {
+  if (!confirm('Delete this item?')) return;
+  document.getElementById('saving-overlay').classList.remove('hidden');
+  try {
+    await sbFetch(type, 'DELETE', null, `?id=eq.${encodeURIComponent(id)}`);
+    data[type] = data[type].filter(x=>x.id!==id);
+    toast('Deleted','success');
+    render();
+  } catch(e) {
+    toast('Error: '+e.message,'error');
+  }
+  document.getElementById('saving-overlay').classList.add('hidden');
+}
+
+let toastT;
+function toast(msg, type='success') {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  el.className = `show ${type}`;
+  clearTimeout(toastT);
+  toastT = setTimeout(()=>{ el.className=''; }, 3400);
+}
+</script>
+</body>
+</html>
