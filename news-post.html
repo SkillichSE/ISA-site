@@ -123,7 +123,8 @@
       const bodyEl = document.getElementById('news-detail-body');
       const bodyHtml = mdToHtml(newsBodyWithoutTitle(n.title, n.body));
       bodyEl.innerHTML = bodyHtml;
-      if (!bodyHtml) bodyEl.style.display = 'none';
+      // no text besides the title: drop the whole section so no empty gap is left
+      if (!bodyHtml) bodyEl.closest('section').style.display = 'none';
 
       if (n.image) {
         const hero = document.getElementById('news-hero');
