@@ -980,11 +980,12 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
 
 
 (function () {
-  const HERO_MEDIA_VIDEOS = [
-    'https://fqvghuvmgswegirgitom.supabase.co/storage/v1/object/public/media/Space%20A.mp4',
-    'https://fqvghuvmgswegirgitom.supabase.co/storage/v1/object/public/media/Space%20B.mp4',
-  ];
+  // The hero slideshow is photos only (no videos).
   const HERO_PHOTO_MS = 5000;
+  // Bandwidth cap: the slideshow used to cycle through *every* photo and video
+  // in the database forever, so one visitor could pull 200+ MB. Now each visit
+  // gets a small random sample (one pass, then it stays on the last slide).
+  const HERO_MAX_PHOTOS = 5;
 
   function heroShuffle(arr) {
     const a = arr.slice();
@@ -1045,6 +1046,7 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     let queue = heroShuffle(basePool);
     let activeIdx = -1;
     let destroyed = false;
+    let shown = 0;
 
     root._heroMediaDestroy = () => { destroyed = true; };
 
@@ -1053,7 +1055,18 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
       return queue.shift();
     }
 
+    // Don't keep downloading slides in a background tab.
+    function whenVisible() {
+      if (!document.hidden) return Promise.resolve();
+      return new Promise(res => {
+        const h = () => { if (!document.hidden) { document.removeEventListener('visibilitychange', h); res(); } };
+        document.addEventListener('visibilitychange', h);
+      });
+    }
+
     async function advance() {
+      if (destroyed) return;
+      await whenVisible();
       if (destroyed) return;
       const item = nextItem();
       const nextIdx = activeIdx === 0 ? 1 : 0;
@@ -1069,14 +1082,20 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
         if (prevLayer) prevLayer.classList.remove('active');
       });
       activeIdx = nextIdx;
+      shown += 1;
+      const isLast = shown >= basePool.length; // one pass only, then hold
 
       root.dispatchEvent(new CustomEvent('hero-media-change', { detail: { type: item.type, el } }));
 
       if (item.type === 'video') {
         el.play().catch(() => {});
-        el.addEventListener('ended', advance, { once: true });
-        el.addEventListener('error', () => setTimeout(advance, 300), { once: true });
-      } else {
+        if (isLast) {
+          el.loop = true; // already downloaded, just keep looping it
+        } else {
+          el.addEventListener('ended', advance, { once: true });
+          el.addEventListener('error', () => setTimeout(advance, 300), { once: true });
+        }
+      } else if (!isLast) {
         setTimeout(advance, HERO_PHOTO_MS);
       }
     }
@@ -1090,8 +1109,7 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
 
     const photos = await fetchHeroPhotoPool();
     const pool = [
-      ...HERO_MEDIA_VIDEOS.map(src => ({ type: 'video', src })),
-      ...photos.map(src => ({ type: 'photo', src })),
+      ...heroShuffle(photos).slice(0, HERO_MAX_PHOTOS).map(src => ({ type: 'photo', src })),
     ];
     if (!pool.length) return;
 
