@@ -176,3 +176,13 @@ function mdToPlain(text) {
     .replace(/\n/g, ' ')
     .trim();
 }
+
+// News titles are built from the first sentence of the post body, so the
+// body starts with the title again. Returns the body without that leading
+// repeat (and the period/whitespace that followed it); '' if nothing is left.
+function newsBodyWithoutTitle(title, body) {
+  const b = String(body || '').trim();
+  const t = String(title || '').trim();
+  if (!t || !b.startsWith(t)) return b;
+  return b.slice(t.length).replace(/^\./, '').trim();
+}

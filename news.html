@@ -94,6 +94,11 @@
           return;
         }
 
+        const descHtml = n => {
+          const d = mdToPlain(newsBodyWithoutTitle(n.title, n.body));
+          return d ? `<p>${escHtml(d)}</p>` : '';
+        };
+
         const [featured, ...rest] = posts;
         window._newsPosts = posts;
 
@@ -110,7 +115,7 @@
                 <span class="news-date">${formatNiceDate(featured.date)}</span>
               </div>
               <h2>${mdInline(featured.title)}</h2>
-              <p>${escHtml(mdToPlain(featured.body))}</p>
+              ${descHtml(featured)}
               <span class="news-read">Read full story →</span>
             </div>
           </a>`;
@@ -128,7 +133,7 @@
                 <span class="news-date">${formatNiceDate(n.date)}</span>
               </div>
               <h3>${mdInline(n.title)}</h3>
-              <p>${escHtml(mdToPlain(n.body))}</p>
+              ${descHtml(n)}
               <span class="news-read">Read more →</span>
             </div>
           </a>`;
