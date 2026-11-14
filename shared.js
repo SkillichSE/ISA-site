@@ -813,12 +813,12 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     let size = 72;
     const minSize = 34;
     while (size >= minSize) {
-      ctx.font = `800 ${size}px Inter, sans-serif`;
+      ctx.font = `800 ${size}px D-DIN, sans-serif`;
       const lines = wrapText(ctx, text, maxWidth, maxLines, false);
       if (lines) return { size, lines };
       size -= 4;
     }
-    ctx.font = `800 ${minSize}px Inter, sans-serif`;
+    ctx.font = `800 ${minSize}px D-DIN, sans-serif`;
     return { size: minSize, lines: wrapText(ctx, text, maxWidth, maxLines, true) };
   }
 
@@ -830,10 +830,10 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     if (!document.fonts) return;
     try {
       await Promise.all([
-        document.fonts.load('800 72px Inter'),
-        document.fonts.load('700 22px Inter'),
-        document.fonts.load('600 15px Inter'),
-        document.fonts.load('700 20px Inter'),
+        document.fonts.load('800 72px D-DIN'),
+        document.fonts.load('700 22px D-DIN'),
+        document.fonts.load('600 15px D-DIN'),
+        document.fonts.load('700 20px D-DIN'),
       ]);
       await document.fonts.ready;
     } catch (e) { /* fall back to default sans-serif */ }
@@ -903,7 +903,7 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
 
     // Badge row: status + mission badge + isa-tags, all together, same
     // size, in page order — matches the single meta row shown on the site.
-    ctx.font = '700 16px Inter, sans-serif';
+    ctx.font = '700 16px D-DIN, sans-serif';
     const badgePadX = 16, badgeH = 34, badgeGapX = 10;
     const badgeWidths = badges.map(b => ctx.measureText(b.text).width + badgePadX * 2);
 
@@ -925,7 +925,7 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
 
     // badge row (status, mission badge, tags — one row, above the title)
     if (badges.length) {
-      ctx.font = '700 16px Inter, sans-serif';
+      ctx.font = '700 16px D-DIN, sans-serif';
       ctx.textBaseline = 'middle';
       let bx = PAD;
       badges.forEach((b, idx) => {
@@ -944,12 +944,12 @@ document.querySelectorAll('[data-stagger]').forEach(grid => {
     ctx.fillStyle = '#ffffff';
     ctx.textBaseline = 'alphabetic';
     lines.forEach((line, i) => {
-      ctx.font = `800 ${size}px Inter, sans-serif`;
+      ctx.font = `800 ${size}px D-DIN, sans-serif`;
       ctx.fillText(line, PAD, titleTop + size + i * lineHeight);
     });
 
     // footer URL - BOTTOM LEFT always
-    ctx.font = '600 13px Inter, sans-serif';
+    ctx.font = '600 13px D-DIN, sans-serif';
     ctx.fillStyle = '#888888';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'bottom';
