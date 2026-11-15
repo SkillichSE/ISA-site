@@ -257,12 +257,13 @@ body {
   position: relative;
   color: var(--muted);
   text-decoration: none;
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   font-weight: 500;
   padding: 7px 14px;
   border-radius: 8px;
   transition: color 0.2s, background 0.2s;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
 }
 .nav-links a:hover { color: var(--text); background: rgba(255,255,255,0.06); }
 .nav-links a.active { color: var(--text); }
@@ -290,12 +291,13 @@ body {
   color: var(--muted);
   background: none;
   border: none;
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   font-weight: 500;
   padding: 7px 14px;
   border-radius: 8px;
   cursor: pointer;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
   transition: color 0.2s, background 0.2s;
 }
 .nav-launches-toggle:hover { color: var(--text); background: rgba(255,255,255,0.06); }
@@ -433,12 +435,13 @@ body {
   color: var(--muted);
   background: none;
   border: none;
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   font-weight: 500;
   padding: 7px 14px;
   border-radius: 8px;
   cursor: pointer;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
   transition: color 0.2s, background 0.2s;
 }
 .nav-opportunities-toggle:hover { color: var(--text); background: rgba(255,255,255,0.06); }
