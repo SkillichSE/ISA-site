@@ -527,6 +527,7 @@ body {
   letter-spacing: -1.5px;
   line-height: 1.02;
   margin-bottom: 48px;
+  text-transform: uppercase;
 }
 .page-hero {
   position: relative;
@@ -551,6 +552,13 @@ body {
   letter-spacing: -2px;
   line-height: 0.95;
   margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+/* Other big titles (launch hero, launch status pages) */
+.launch-hero h1,
+.launch-state h1 {
+  text-transform: uppercase;
 }
 .page-hero p {
   color: var(--muted);
