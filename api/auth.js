@@ -39,26 +39,30 @@ function sign(value) {
   return crypto.createHmac('sha256', getSecret()).update(value).digest('hex');
 }
 
-function createSessionToken() {
+// Roles:
+//   main   -> ADMIN_PASSWORD        (full access, can edit everything)
+//   viewer -> ADMIN_VIEW_PASSWORD   (read-only, can look but not edit)
+function createSessionToken(role) {
   const expires = Date.now() + SESSION_TTL_MS;
-  const payload = `admin.${expires}`;
+  const payload = `${role}.${expires}`;
   const sig = sign(payload);
   return `${payload}.${sig}`;
 }
 
+// returns 'main' | 'viewer' | null
 function verifySessionToken(token) {
-  if (!token) return false;
+  if (!token) return null;
   const parts = token.split('.');
-  if (parts.length !== 3) return false;
+  if (parts.length !== 3) return null;
   const [role, expires, sig] = parts;
   const payload = `${role}.${expires}`;
   const expected = sign(payload);
   const sigBuf = Buffer.from(sig, 'hex');
   const expectedBuf = Buffer.from(expected, 'hex');
-  if (sigBuf.length !== expectedBuf.length) return false;
-  if (!crypto.timingSafeEqual(sigBuf, expectedBuf)) return false;
-  if (Date.now() > Number(expires)) return false;
-  return role === 'admin';
+  if (sigBuf.length !== expectedBuf.length) return null;
+  if (!crypto.timingSafeEqual(sigBuf, expectedBuf)) return null;
+  if (Date.now() > Number(expires)) return null;
+  return role === 'main' || role === 'viewer' ? role : null;
 }
 
 function parseCookies(req) {
@@ -73,9 +77,26 @@ function parseCookies(req) {
   );
 }
 
-function isAuthenticated(req) {
+function getRole(req) {
   const cookies = parseCookies(req);
   return verifySessionToken(cookies[COOKIE_NAME]);
+}
+
+// Main admins only. Every endpoint that writes / uploads / posts to Discord
+// uses this, so view-only admins can never reach them.
+function isAuthenticated(req) {
+  return getRole(req) === 'main';
+}
+
+// Any logged-in admin (main or view-only). Used for read-only access.
+function canView(req) {
+  return getRole(req) !== null;
+}
+
+function safeEqual(input, expected) {
+  const a = Buffer.from(String(input));
+  const b = Buffer.from(String(expected));
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
 }
 
 function setSessionCookie(res, token) {
@@ -96,6 +117,18 @@ function clearSessionCookie(res) {
 }
 
 module.exports = async function handler(req, res) {
+  if (req.method === 'GET') { // who am I?
+    const role = getRole(req);
+    if (!role) return res.status(401).json({ ok: false });
+    return res.status(200).json({ ok: true, role });
+  }
+
+  if (req.method === 'GET') { // who am I?
+    const role = getRole(req);
+    if (!role) return res.status(401).json({ ok: false });
+    return res.status(200).json({ ok: true, role });
+  }
+
   if (req.method === 'DELETE') { // logout
     clearSessionCookie(res);
     return res.status(200).json({ ok: true });
@@ -115,18 +148,23 @@ module.exports = async function handler(req, res) {
   const { password } = req.body || {};
   if (!password) return res.status(400).json({ ok: false });
 
-  const a = Buffer.from(String(password));
-  const b = Buffer.from(String(process.env.ADMIN_PASSWORD));
-  const matches = a.length === b.length && crypto.timingSafeEqual(a, b);
+  let role = null;
+  if (safeEqual(password, process.env.ADMIN_PASSWORD)) {
+    role = 'main';
+  } else if (process.env.ADMIN_VIEW_PASSWORD && safeEqual(password, process.env.ADMIN_VIEW_PASSWORD)) {
+    role = 'viewer';
+  }
 
-  if (!matches) {
+  if (!role) {
     return res.status(401).json({ ok: false });
   }
 
-  const token = createSessionToken();
+  const token = createSessionToken(role);
   setSessionCookie(res, token);
-  res.status(200).json({ ok: true });
+  res.status(200).json({ ok: true, role });
 };
 
 module.exports.isAuthenticated = isAuthenticated;
+module.exports.getRole = getRole;
+module.exports.canView = canView;
 module.exports.COOKIE_NAME = COOKIE_NAME;
