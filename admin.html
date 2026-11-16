@@ -215,6 +215,35 @@
     .modal::-webkit-scrollbar-thumb, .md-preview::-webkit-scrollbar-thumb, .form-row textarea::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 8px; }
     .modal::-webkit-scrollbar-thumb:hover, .md-preview::-webkit-scrollbar-thumb:hover, .form-row textarea::-webkit-scrollbar-thumb:hover { background: #555; }
     .form-row textarea::-webkit-resizer { background: transparent; }
+
+    /* ---- roles ---- */
+    body.viewer .btn-add, body.viewer .btn-edit, body.viewer .btn-del, body.viewer .btn-finish, body.viewer .edit-only { display:none !important; }
+    body.viewer .ops-card { cursor:default; }
+    .sidebar-sub { font-size:11px; font-weight:600; color:var(--text-2); padding:0 10px; margin:10px 0 4px; }
+    .ro-banner { font-size:12px; color:var(--warn); background:rgba(240,168,48,0.08); border:1px solid rgba(240,168,48,0.25); border-radius:var(--r-sm); padding:8px 12px; margin-bottom:18px; }
+    /* ---- ISA OPS: launch board ---- */
+    .board { display:flex; gap:14px; align-items:flex-start; overflow-x:auto; padding-bottom:14px; }
+    .board-col { flex:0 0 260px; background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:12px; min-height:120px; transition:border-color .15s, background .15s; }
+    .board-col.drag-over { border-color:var(--accent); background:var(--surface2); }
+    .board-col-head { display:flex; justify-content:space-between; font-size:11px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:.1em; margin-bottom:10px; }
+    .ops-card { background:var(--surface2); border:1px solid var(--border); border-radius:var(--r-sm); padding:11px 12px; margin-bottom:8px; cursor:grab; font-size:12px; color:var(--text-3); line-height:1.5; }
+    .ops-card:hover { border-color:var(--border2); }
+    .ops-card.dragging { opacity:.4; }
+    .ops-card-title { font-size:14px; font-weight:700; color:var(--text); margin-bottom:2px; }
+    .ops-card a { color:var(--accent); }
+    .ops-card .ops-actions { display:flex; gap:6px; margin-top:8px; }
+    /* ---- ISA OPS: asset tracker ---- */
+    .rocket-block { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:18px; margin-bottom:20px; }
+    .rocket-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+    .rocket-name { font-size:16px; font-weight:700; }
+    .tbl-wrap { overflow-x:auto; }
+    table.asset-tbl { width:100%; border-collapse:collapse; font-size:13px; }
+    table.asset-tbl th { text-align:left; font-size:10px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:.08em; padding:8px 10px; border-bottom:1px solid var(--border); white-space:nowrap; }
+    table.asset-tbl td { padding:10px; border-bottom:1px solid var(--border); vertical-align:middle; }
+    table.asset-tbl tr:last-child td { border-bottom:none; }
+    table.asset-tbl select { background:var(--surface3); border:1px solid var(--border); color:var(--text); border-radius:var(--r-sm); padding:5px 8px; font-family:inherit; font-size:12px; }
+    .badge-asset { background:rgba(240,168,48,0.12); color:var(--warn); white-space:nowrap; }
+    .reg-grid-note { font-size:11px; color:var(--text-3); margin-top:4px; }
   </style>
 </head>
 <body>
@@ -230,7 +259,7 @@
     </div>
     <div class="login-card">
       <div class="login-title">Sign in</div>
-      <div class="login-desc">Enter the admin password to access the panel.</div>
+      <div class="login-desc">Enter your admin password to access the panel.</div>
       <div class="field">
         <label>Password</label>
         <input type="password" id="token-input" placeholder="••••••••" autocomplete="off">
@@ -247,7 +276,7 @@
     <div class="topbar-left">
       <div class="topbar-logo-mark">ISA</div>
       <span class="topbar-name">Admin</span>
-      <span class="topbar-pill">Content Manager</span>
+      <span class="topbar-pill" id="role-pill">Content Manager</span>
     </div>
     <div class="topbar-right">
       <a class="topbar-repo" href="https://supabase.com/dashboard/project/fqvghuvmgswegirgitom" target="_blank">Supabase ↗</a>
@@ -257,13 +286,20 @@
 
   <div class="layout">
     <nav class="sidebar">
-      <div class="sidebar-label">Content</div>
+      <div class="sidebar-label">Main Website</div>
       <button class="nav-btn active" onclick="nav('missions',this)"><span class="nav-icon">🛠️</span> Hardware</button>
       <button class="nav-btn" onclick="nav('programs',this)"><span class="nav-icon">🪐</span> Missions</button>
       <button class="nav-btn" onclick="nav('careers',this)"><span class="nav-icon">💼</span> Careers</button>
       <button class="nav-btn" onclick="nav('launches',this)"><span class="nav-icon">🛰️</span> Launches</button>
       <button class="nav-btn" onclick="nav('news',this)"><span class="nav-icon">📰</span> News</button>
       <button class="nav-btn" onclick="nav('site13_updates',this)"><span class="nav-icon">🚀</span> Starship</button>
+
+      <div class="sidebar-label">ISA OPS</div>
+      <div class="sidebar-sub">Flight Operations</div>
+      <button class="nav-btn" onclick="nav('ops_launches',this)"><span class="nav-icon">🗓️</span> Launch Schedule</button>
+      <div class="sidebar-sub">Engineering</div>
+      <button class="nav-btn" onclick="nav('vehicle_registry',this)"><span class="nav-icon">📚</span> Vehicle Registry</button>
+      <button class="nav-btn" onclick="nav('vehicle_assets',this)"><span class="nav-icon">🔩</span> Vehicle Asset Tracker</button>
 
       <div class="sidebar-bottom">
         <div class="sidebar-info">Changes save instantly to Supabase. No deploys needed.</div>
@@ -300,7 +336,10 @@
 <input type="file" id="video-file-input" accept="video/mp4,video/webm,video/quicktime">
 
 <script>
-let data = { missions:[], programs:[], careers:[], launches:[], news:[], site13_updates:[], home_hero:null };
+let data = { missions:[], programs:[], careers:[], launches:[], news:[], site13_updates:[], home_hero:null, ops_launches:[], vehicle_registry:[], asset_rockets:[], vehicle_assets:[] };
+let role = null; // 'main' | 'viewer'
+const isMain = () => role === 'main';
+const OPS_TYPES = ['ops_launches','vehicle_registry','asset_rockets','vehicle_assets'];
 let page = 'missions', editId = null, editType = null;
 
 async function sbFetch(table, method='GET', body=null, filters='') {
@@ -330,7 +369,7 @@ function sortLaunchesByDate(launches) {
 }
 
 async function loadAll() {
-  const [missions, programs, careers, launches, news, site13_updates, heroRows] = await Promise.all([
+  const [missions, programs, careers, launches, news, site13_updates, heroRows, ops_launches, vehicle_registry, asset_rockets, vehicle_assets] = await Promise.all([
     sbFetch('missions', 'GET', null, '?order=id'),
     sbFetch('programs', 'GET', null, '?order=id'),
     sbFetch('careers',  'GET', null, '?order=id'),
@@ -338,8 +377,19 @@ async function loadAll() {
     sbFetch('news',     'GET', null, '?order=id'),
     sbFetch('site13_updates', 'GET', null, '?order=date').catch(() => []),
     sbFetch('home_hero', 'GET', null, '?order=id').catch(() => null),
+    sbFetch('ops_launches', 'GET', null, '?order=id').catch(() => []),
+    sbFetch('vehicle_registry', 'GET', null, '?order=id').catch(() => []),
+    sbFetch('asset_rockets', 'GET', null, '?order=id').catch(() => []),
+    sbFetch('vehicle_assets', 'GET', null, '?order=id').catch(() => []),
   ]);
-  data = { missions, programs, careers, launches: sortLaunchesByDate(launches), news, site13_updates: [...site13_updates].reverse(), home_hero: (Array.isArray(heroRows) && heroRows[0]) || null, home_hero_missing: !Array.isArray(heroRows) };
+  data = { missions, programs, careers, launches: sortLaunchesByDate(launches), news, site13_updates: [...site13_updates].reverse(), home_hero: (Array.isArray(heroRows) && heroRows[0]) || null, home_hero_missing: !Array.isArray(heroRows), ops_launches, vehicle_registry, asset_rockets, vehicle_assets };
+}
+
+function applyRole(r) {
+  role = r;
+  document.body.classList.toggle('viewer', r !== 'main');
+  const pill = document.getElementById('role-pill');
+  if (pill) pill.textContent = r === 'main' ? 'Main Admin' : 'View only';
 }
 
 async function doLogin() {
@@ -355,6 +405,8 @@ async function doLogin() {
       body: JSON.stringify({ password: pwd })
     });
     if (!check.ok) { err.textContent = 'Incorrect password.'; err.style.display = 'block'; btn.disabled=false; btn.textContent='Continue →'; return; }
+    const who = await check.json().catch(() => ({}));
+    applyRole(who.role === 'main' ? 'main' : 'viewer');
     await loadAll();
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
@@ -369,7 +421,8 @@ document.getElementById('token-input').addEventListener('keydown', e => { if(e.k
 
 async function logout() {
   try { await fetch('/api/auth', { method: 'DELETE' }); } catch {}
-  data = { missions:[], programs:[], careers:[], launches:[], news:[], site13_updates:[] };
+  data = { missions:[], programs:[], careers:[], launches:[], news:[], site13_updates:[], home_hero:null, ops_launches:[], vehicle_registry:[], asset_rockets:[], vehicle_assets:[] };
+  role = null;
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('app').style.display='none';
   document.getElementById('token-input').value='';
@@ -377,6 +430,9 @@ async function logout() {
 
 (async function checkExistingSession() {
   try {
+    const me = await fetch('/api/auth');
+    if (!me.ok) throw new Error('no session');
+    applyRole((await me.json()).role === 'main' ? 'main' : 'viewer');
     await loadAll();
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
@@ -407,6 +463,18 @@ function render() {
   else if (page==='launches') m.innerHTML = pageLaunches();
   else if (page==='news') m.innerHTML = pageNews();
   else if (page==='site13_updates') m.innerHTML = pageSite13();
+  else if (page==='ops_launches') m.innerHTML = pageOpsLaunches();
+  else if (page==='vehicle_registry') m.innerHTML = pageVehicleRegistry();
+  else if (page==='vehicle_assets') m.innerHTML = pageVehicleAssets();
+  if (!isMain()) {
+    m.insertAdjacentHTML('afterbegin', '<div class="ro-banner">👁 View-only access — you can look at everything but cannot edit.</div>');
+    // lock every control except the search boxes
+    m.querySelectorAll('input, select, textarea, button').forEach(el => {
+      if (el.closest('.page-search')) return;
+      el.disabled = true;
+    });
+    m.querySelectorAll('[draggable]').forEach(el => el.removeAttribute('draggable'));
+  }
 }
 
 function isStarshipItem(m) {
@@ -512,6 +580,7 @@ function homePickPanel() {
 }
 
 async function setHomeWatchUrl(url) {
+  if (!requireMain()) return;
   const cur = data.launches.find(l => l.home_featured);
   if (!cur) return;
   url = String(url || '').trim();
@@ -530,6 +599,7 @@ async function setHomeWatchUrl(url) {
 }
 
 async function setHomeLaunch(id) {
+  if (!requireMain()) return;
   document.getElementById('saving-overlay').classList.remove('hidden');
   try {
     // clear the flag everywhere first, then set it on the chosen launch
@@ -578,6 +648,7 @@ function homeHeroPanel() {
 }
 
 async function saveHomeHero() {
+  if (!requireMain()) return;
   const val = id => (document.getElementById(id)?.value || '').trim();
   const enabled = val('hh-enabled') === 'true';
   const row = {
@@ -701,6 +772,7 @@ function pageSite13() {
   return `<div class="page-head"><div class="page-head-left"><div class="page-title">Starship</div><div class="page-desc">Everything on the Starship page: the main card plus Road, Video, FAA and Hardware tracker entries.</div></div><div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search entries…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('site13_updates')">+ Add Entry</button></div></div>${head}<div class="item-list">${items}</div>`;
 }
 function newStarship() {
+  if (!requireMain()) return;
   editId=null; editType='missions';
   openModal('Create Starship page', buildForm('missions', { id:'starship', name:'Starship', status:'active', division:'', description:'', tags:[], image:'' }));
   formDirty = true;
@@ -720,9 +792,10 @@ function s13KindChanged() {
   if (h) h.textContent = S13_HINTS[k] || '';
 }
 
-function openNew(type) { editId=null; editType=type; openModal(`New ${label(type)}`, buildForm(type, null)); }
-function openEdit(type, id) { editId=id; editType=type; openModal(`Edit ${label(type)}`, buildForm(type, data[type].find(x=>x.id===id))); }
-function label(t) { return {missions:'Hardware',programs:'Mission',careers:'Position',launches:'Launch',news:'News Post',site13_updates:'Starship Entry'}[t]; }
+function openNew(type) { if (!requireMain()) return; editId=null; editType=type; openModal(`New ${label(type)}`, buildForm(type, null)); }
+function openEdit(type, id) { if (!requireMain()) return; editId=id; editType=type; openModal(`Edit ${label(type)}`, buildForm(type, data[type].find(x=>x.id===id))); }
+function label(t) { return {missions:'Hardware',programs:'Mission',careers:'Position',launches:'Launch',news:'News Post',site13_updates:'Starship Entry',ops_launches:'Launch (Schedule)',vehicle_registry:'Vehicle',asset_rockets:'Rocket',vehicle_assets:'Asset'}[t]; }
+function requireMain() { if (isMain()) return true; toast('View-only access: you cannot edit.', 'error'); return false; }
 
 let formDirty = false;
 function openModal(title, body) {
@@ -1024,6 +1097,7 @@ function formatLaunchListDate(dateIso) {
 }
 
 function buildForm(type, item) {
+  if (OPS_TYPES.includes(type)) return buildOpsForm(type, item);
   const v = (k,d='') => item ? (item[k]??d) : d;
   if (type==='missions') return `
     <div class="form-row-2">${field('id','ID / Slug',v('id'),'e.g. atlas')}${sel('status','Status',v('status','active'),['active','development','inactive'])}</div>
@@ -1116,6 +1190,7 @@ function updateLaunchshareCapacityPreview() {
 }
 
 function getForm(type) {
+  if (OPS_TYPES.includes(type)) return getOpsForm(type);
   if (type==='missions') return { id:g('id'),name:g('name'),division:g('division'),status:g('status'),description:g('description'),tags:arr('tags'),image:g('image') };
   if (type==='programs') return { id:g('id'),name:g('name'),division:g('division'),status:g('status'),description:g('description'),tags:arr('tags'),image:g('image') };
   if (type==='careers') return { id:g('id'),title:g('title'),program:g('program'),type:g('type'),description:g('description'),skills:arr('skills') };
@@ -1140,7 +1215,10 @@ function getForm(type) {
 }
 
 async function saveItem() {
+  if (!requireMain()) return;
   const item = getForm(editType);
+  const verr = validateOps(editType, item);
+  if (verr) { toast(verr,'error'); return; }
   if (!item.id) { toast('ID is required','error'); return; }
   const btn = document.getElementById('btn-save');
   btn.disabled = true;
@@ -1167,6 +1245,7 @@ async function saveItem() {
 }
 
 async function finishLaunch(id) {
+  if (!requireMain()) return;
   if (!confirm('Mark this launch as finished? It will show as Completed on the site.')) return;
   document.getElementById('saving-overlay').classList.remove('hidden');
   try {
@@ -1182,6 +1261,7 @@ async function finishLaunch(id) {
 }
 
 async function del(type, id) {
+  if (!requireMain()) return;
   if (!confirm('Delete this item?')) return;
   document.getElementById('saving-overlay').classList.remove('hidden');
   try {
@@ -1193,6 +1273,252 @@ async function del(type, id) {
     toast('Error: '+e.message,'error');
   }
   document.getElementById('saving-overlay').classList.add('hidden');
+}
+
+/* =====================================================================
+   ISA OPS
+   ===================================================================== */
+const OPS_COLUMNS = [
+  { key:'planning',  label:'Planning',  dated:false },
+  { key:'approved',  label:'Approved',  dated:true  },
+  { key:'scheduled', label:'Scheduled', dated:true  },
+  { key:'flown',     label:'Flown',     dated:true  },
+  { key:'scrubbed',  label:'Scrubbed',  dated:true  },
+];
+const OPS_MISSION_TYPES = ['Standard','Dedicated','Rideshare'];
+// Edit this list to add/remove asset statuses
+const OPS_ASSET_STATUSES = ['Stacking','Recovery','Rollout','Welding','Flight preparation','Static fire preparation','Cryo preparation','Engine installation','Examination'];
+const OPS_RECOVERY = ['Unassigned','RTLS','ASDS','Expended'];
+let opsCtx = {};   // e.g. { rocket_id } when adding an asset
+
+function newId() { return (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2); }
+function utcStamp(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return isNaN(d.getTime()) ? '' : d.toISOString().replace('T',' ').slice(0,19);
+}
+
+/* ---------- Launch Schedule (kanban) ---------- */
+function opsCardHtml(l) {
+  const main = isMain();
+  return `<div class="ops-card" ${main ? 'draggable="true"' : ''} data-id="${esc(l.id)}"
+      ondragstart="opsDragStart(event,'${esc(l.id)}')" ondragend="this.classList.remove('dragging')"
+      ${main ? `ondblclick="openEdit('ops_launches','${esc(l.id)}')"` : ''}>
+    <div class="ops-card-title">${esc(l.name||'')}</div>
+    ${l.vehicle ? `<div>${esc(l.vehicle)}</div>` : ''}
+    <div>${esc(l.mission_type||'Standard')}${l.orbit ? ' · ' + esc(l.orbit) : ''}</div>
+    ${l.date ? `<div>NET ${esc(utcStamp(l.date))}</div>` : ''}
+    ${l.payloads > 0 ? `<div style="color:var(--accent)">${l.payloads} payload(s) manifested</div>` : ''}
+    ${l.webcast_url ? `<div><a href="${esc(l.webcast_url)}" target="_blank" rel="noopener">Webcast linked ↗</a></div>` : ''}
+    ${l.notes ? `<div>${esc(l.notes)}</div>` : ''}
+    <div class="ops-actions edit-only">
+      <button class="btn-edit" onclick="openEdit('ops_launches','${esc(l.id)}')">Edit</button>
+      <button class="btn-del" onclick="del('ops_launches','${esc(l.id)}')" title="Delete">✕</button>
+    </div>
+  </div>`;
+}
+function pageOpsLaunches() {
+  const cols = OPS_COLUMNS.map(c => {
+    let list = data.ops_launches.filter(l => (l.status||'planning') === c.key);
+    list.sort((a,b) => {
+      const ta = a.date ? new Date(a.date).getTime() : Infinity, tb = b.date ? new Date(b.date).getTime() : Infinity;
+      return c.key === 'flown' ? tb - ta : ta - tb;
+    });
+    return `<div class="board-col" data-status="${c.key}" ondragover="opsDragOver(event)" ondragleave="this.classList.remove('drag-over')" ondrop="opsDrop(event,'${c.key}')">
+      <div class="board-col-head"><span>${c.label}</span><span>${list.length}</span></div>
+      ${list.map(opsCardHtml).join('')}
+    </div>`;
+  }).join('');
+  return `<div class="page-head"><div class="page-head-left"><div class="page-title">Launch Schedule</div>
+    <div class="page-desc">Flight Operations. Planning has no date; Approved, Scheduled, Flown and Scrubbed need a date (NET, UTC). Drag cards between columns to update status.</div></div>
+    <div class="page-head-right"><button class="btn-add" onclick="openNew('ops_launches')">+ Add Launch</button></div></div>
+    <div class="board">${cols}</div>`;
+}
+let opsDragId = null;
+function opsDragStart(e, id) {
+  if (!isMain()) { e.preventDefault(); return; }
+  opsDragId = id;
+  e.dataTransfer.effectAllowed = 'move';
+  try { e.dataTransfer.setData('text/plain', id); } catch {}
+  e.target.classList.add('dragging');
+}
+function opsDragOver(e) { if (!isMain()) return; e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+async function opsDrop(e, status) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if (!requireMain()) return;
+  const id = opsDragId; opsDragId = null;
+  const l = data.ops_launches.find(x => x.id === id);
+  if (!l || (l.status||'planning') === status) return;
+  const col = OPS_COLUMNS.find(c => c.key === status);
+  if (col.dated && !l.date) {
+    // needs a date first: open the editor with the new status pre-selected
+    editId = l.id; editType = 'ops_launches';
+    openModal('Set a date for ' + col.label, buildForm('ops_launches', { ...l, status }));
+    formDirty = true;
+    toast('Pick a date (NET) to move it to ' + col.label, 'error');
+    return;
+  }
+  const patch = col.dated ? { status } : { status, date: null };
+  document.getElementById('saving-overlay').classList.remove('hidden');
+  try {
+    await sbFetch('ops_launches', 'PATCH', patch, `?id=eq.${encodeURIComponent(id)}`);
+    Object.assign(l, patch);
+    toast('Moved to ' + col.label + ' ✓', 'success');
+  } catch (err) { toast('Error: ' + err.message, 'error'); }
+  document.getElementById('saving-overlay').classList.add('hidden');
+  render();
+}
+
+/* ---------- Vehicle Registry ---------- */
+function pageVehicleRegistry() {
+  const badge = { active:'badge-active', retired:'badge-inactive' };
+  const items = data.vehicle_registry.length ? data.vehicle_registry.map(v => `
+    <div class="item-card">
+      ${v.image ? `<div class="item-thumb" style="background-image:url('${esc(v.image)}')"></div>` : `<div class="item-thumb-icon">🚀</div>`}
+      <div class="item-body">
+        <div class="item-top"><span class="item-title">${esc(v.title||'')}</span><span class="badge ${badge[v.status]||'badge-inactive'}">${esc(v.status||'')}</span></div>
+        <div class="item-meta">${esc(v.subtitle||'')}</div>
+      </div>
+      <div class="item-actions">
+        <button class="btn-edit" onclick="openEdit('vehicle_registry','${esc(v.id)}')">Edit</button>
+        <button class="btn-del" onclick="del('vehicle_registry','${esc(v.id)}')" title="Delete">✕</button>
+      </div>
+    </div>`).join('') : `<div class="empty"><div class="empty-icon">📚</div>No vehicles yet.</div>`;
+  return `<div class="page-head"><div class="page-head-left"><div class="page-title">Vehicle Registry</div><div class="page-desc">Engineering. Rockets that are Active or Retired, each with a title, subtitle and image.</div></div>
+    <div class="page-head-right"><div class="page-search"><input type="text" placeholder="🔍 Search vehicles…" oninput="filterItems(this.value)"></div><button class="btn-add" onclick="openNew('vehicle_registry')">+ Add Vehicle</button></div></div>
+    <div class="item-list">${items}</div>`;
+}
+
+/* ---------- Vehicle Asset Tracker ---------- */
+function assetRow(a) {
+  const main = isMain();
+  const statusCell = main
+    ? `<select onchange="setAssetStatus('${esc(a.id)}', this.value)">${OPS_ASSET_STATUSES.map(s=>`<option ${s===a.status?'selected':''}>${s}</option>`).join('')}${OPS_ASSET_STATUSES.includes(a.status) ? '' : `<option selected>${esc(a.status||'')}</option>`}</select>`
+    : `<span class="badge badge-asset">${esc(a.status||'')}</span>`;
+  return `<tr>
+    <td><strong>${esc(a.asset||'')}</strong></td>
+    <td>${statusCell}</td>
+    <td>${Number(a.flights)||0}</td>
+    <td>${esc(a.assigned_flight||'Unassigned')}</td>
+    <td>${esc(a.recovery||'Unassigned')}</td>
+    <td style="color:var(--text-2);max-width:340px">${esc(a.notes||'')}</td>
+    <td class="edit-only" style="white-space:nowrap">
+      <button class="btn-edit" onclick="openEdit('vehicle_assets','${esc(a.id)}')">Edit</button>
+      <button class="btn-del" onclick="del('vehicle_assets','${esc(a.id)}')" title="Delete">✕</button>
+    </td>
+  </tr>`;
+}
+function pageVehicleAssets() {
+  const blocks = data.asset_rockets.length ? data.asset_rockets.map(r => {
+    const rows = data.vehicle_assets.filter(a => a.rocket_id === r.id);
+    return `<div class="rocket-block">
+      <div class="rocket-head">
+        <div class="rocket-name">${esc(r.name||'')}</div>
+        <div class="edit-only" style="display:flex;gap:6px">
+          <button class="btn-add" onclick="addAsset('${esc(r.id)}')">+ Add Asset</button>
+          <button class="btn-edit" onclick="openEdit('asset_rockets','${esc(r.id)}')">Rename</button>
+          <button class="btn-del" onclick="delRocket('${esc(r.id)}')" title="Delete rocket">✕</button>
+        </div>
+      </div>
+      <div class="tbl-wrap"><table class="asset-tbl">
+        <thead><tr><th>Asset</th><th>Status</th><th>Flights</th><th>Assigned Flight</th><th>Recovery</th><th>Notes</th><th class="edit-only"></th></tr></thead>
+        <tbody>${rows.length ? rows.map(assetRow).join('') : `<tr><td colspan="7" style="color:var(--text-3)">No hardware yet.</td></tr>`}</tbody>
+      </table></div>
+    </div>`;
+  }).join('') : `<div class="empty"><div class="empty-icon">🔩</div>No rockets yet. Add one to start tracking hardware.</div>`;
+  return `<div class="page-head"><div class="page-head-left"><div class="page-title">Vehicle Asset Tracker</div><div class="page-desc">Engineering. Rockets (they don't need to be in the Vehicle Registry) and the hardware built for them. Only main admins can change anything, including status.</div></div>
+    <div class="page-head-right"><button class="btn-add" onclick="openNew('asset_rockets')">+ Add Rocket</button></div></div>${blocks}`;
+}
+function addAsset(rocketId) { if (!requireMain()) return; opsCtx = { rocket_id: rocketId }; openNew('vehicle_assets'); }
+async function setAssetStatus(id, status) {
+  if (!requireMain()) return;
+  const a = data.vehicle_assets.find(x => x.id === id); if (!a) return;
+  try {
+    await sbFetch('vehicle_assets', 'PATCH', { status }, `?id=eq.${encodeURIComponent(id)}`);
+    a.status = status;
+    toast('Status updated ✓', 'success');
+  } catch (e) { toast('Error: ' + e.message, 'error'); }
+  render();
+}
+async function delRocket(id) {
+  if (!requireMain()) return;
+  const n = data.vehicle_assets.filter(a => a.rocket_id === id).length;
+  if (!confirm(n ? `Delete this rocket and its ${n} asset(s)?` : 'Delete this rocket?')) return;
+  document.getElementById('saving-overlay').classList.remove('hidden');
+  try {
+    for (const a of data.vehicle_assets.filter(a => a.rocket_id === id)) {
+      await sbFetch('vehicle_assets', 'DELETE', null, `?id=eq.${encodeURIComponent(a.id)}`);
+    }
+    await sbFetch('asset_rockets', 'DELETE', null, `?id=eq.${encodeURIComponent(id)}`);
+    data.vehicle_assets = data.vehicle_assets.filter(a => a.rocket_id !== id);
+    data.asset_rockets = data.asset_rockets.filter(r => r.id !== id);
+    toast('Deleted', 'success');
+  } catch (e) { toast('Error: ' + e.message, 'error'); }
+  document.getElementById('saving-overlay').classList.add('hidden');
+  render();
+}
+
+/* ---------- OPS forms ---------- */
+function dl(id, opts) { return `<datalist id="${id}">${opts.map(o=>`<option value="${esc(String(o))}">`).join('')}</datalist>`; }
+function buildOpsForm(type, item) {
+  const v = (k, d='') => item ? (item[k] ?? d) : d;
+  if (type === 'ops_launches') return `
+    ${field('name','Mission name',v('name'),'e.g. SQUANTUM 01-06')}
+    <div class="form-row-2">${field('vehicle','Vehicle',v('vehicle'),'e.g. Phoebe')}${sel('mission_type','Type',v('mission_type','Standard'),OPS_MISSION_TYPES)}</div>
+    ${field('orbit','Orbit / destination',v('orbit'),'e.g. Other · Moon')}
+    <div class="form-row-2">
+      <div class="form-row"><label>Status</label><select id="f-status">${OPS_COLUMNS.map(c=>`<option value="${c.key}" ${c.key===v('status','planning')?'selected':''}>${c.label}</option>`).join('')}</select></div>
+      ${field('payloads','Payloads manifested',v('payloads',0),'','number')}
+    </div>
+    <div class="form-row"><label>NET date (UTC)</label><input type="datetime-local" id="f-date" value="${toUTCDatetimeInput(v('date',''))}"><div class="form-hint">Leave empty for Planning. Required for Approved, Scheduled, Flown and Scrubbed.</div></div>
+    ${field('webcast_url','Webcast link',v('webcast_url'),'https://…')}
+    ${field('notes','Notes',v('notes'))}`;
+  if (type === 'vehicle_registry') return `
+    ${field('title','Title',v('title'),'e.g. Phoebe')}
+    ${field('subtitle','Subtitle',v('subtitle'),'e.g. Medium-lift reusable launch vehicle')}
+    ${imgField('image','Image',v('image'))}
+    ${sel('status','Status',v('status','active'),['active','retired'])}`;
+  if (type === 'asset_rockets') return `
+    <div class="form-row"><label>Rocket name</label><input type="text" id="f-name" list="rocket-names" value="${esc(String(v('name')))}"><div class="form-hint">Type any name, or pick one from the Vehicle Registry.</div></div>
+    ${dl('rocket-names', data.vehicle_registry.map(r=>r.title))}`;
+  if (type === 'vehicle_assets') return `
+    <div class="form-row-2">${field('asset','Asset',v('asset'),'e.g. PV.001')}
+      <div class="form-row"><label>Status</label><select id="f-status">${[...OPS_ASSET_STATUSES, ...(v('status') && !OPS_ASSET_STATUSES.includes(v('status')) ? [v('status')] : [])].map(o=>`<option ${o===v('status','Stacking')?'selected':''}>${esc(o)}</option>`).join('')}</select></div></div>
+    <div class="form-row-2">${field('flights','Flights',v('flights',0),'','number')}
+      <div class="form-row"><label>Recovery</label><input type="text" id="f-recovery" list="recovery-list" value="${esc(String(v('recovery','Unassigned')))}"></div></div>
+    <div class="form-row"><label>Assigned flight</label><input type="text" id="f-assigned_flight" list="flight-list" value="${esc(String(v('assigned_flight','Unassigned')))}"><div class="form-hint">Pick a launch from the schedule or type one.</div></div>
+    ${field('notes','Notes',v('notes'))}
+    ${dl('recovery-list', OPS_RECOVERY)}${dl('flight-list', ['Unassigned', ...data.ops_launches.map(l=>l.name)])}`;
+}
+function getOpsForm(type) {
+  const existing = editId ? (data[type].find(x => x.id === editId) || null) : null;
+  const id = editId || newId();
+  if (type === 'ops_launches') {
+    const status = g('status') || 'planning';
+    const col = OPS_COLUMNS.find(c => c.key === status);
+    return { id, name:g('name'), vehicle:g('vehicle'), mission_type:g('mission_type'), orbit:g('orbit'), status,
+      date: col && col.dated ? fromUTCDatetimeInput(g('date')) : null,
+      payloads: parseInt(g('payloads')) || 0, webcast_url:g('webcast_url'), notes:g('notes') };
+  }
+  if (type === 'vehicle_registry') return { id, title:g('title'), subtitle:g('subtitle'), image:g('image'), status:g('status') };
+  if (type === 'asset_rockets') return { id, name:g('name') };
+  if (type === 'vehicle_assets') return { id, rocket_id: existing ? existing.rocket_id : opsCtx.rocket_id, asset:g('asset'), status:g('status'),
+    flights: parseInt(g('flights')) || 0, assigned_flight: g('assigned_flight') || 'Unassigned', recovery: g('recovery') || 'Unassigned', notes:g('notes') };
+}
+function validateOps(type, item) {
+  if (type === 'ops_launches') {
+    if (!item.name) return 'Mission name is required.';
+    const col = OPS_COLUMNS.find(c => c.key === item.status);
+    if (col && col.dated && !item.date) return `A date is required for "${col.label}".`;
+  }
+  if (type === 'vehicle_registry' && !item.title) return 'Title is required.';
+  if (type === 'asset_rockets' && !item.name) return 'Rocket name is required.';
+  if (type === 'vehicle_assets') {
+    if (!item.asset) return 'Asset name is required.';
+    if (!item.rocket_id) return 'No rocket selected.';
+  }
+  return null;
 }
 
 let toastT;
