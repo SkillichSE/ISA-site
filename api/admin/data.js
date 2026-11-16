@@ -1,6 +1,8 @@
-const { isAuthenticated } = require('../auth');
+const { getRole } = require('../auth');
 
-const ALLOWED_TABLES = new Set(['missions', 'programs', 'careers', 'launches', 'news', 'site13_updates', 'home_hero']);
+const ALLOWED_TABLES = new Set(['missions', 'programs', 'careers', 'launches', 'news', 'site13_updates', 'home_hero',
+  // ISA OPS
+  'ops_launches', 'vehicle_registry', 'asset_rockets', 'vehicle_assets']);
 const ALLOWED_METHODS = new Set(['GET', 'POST', 'PATCH', 'DELETE']);
 
 function getSupabaseConfig() {
@@ -13,7 +15,8 @@ function getSupabaseConfig() {
 }
 
 module.exports = async function handler(req, res) {
-  if (!isAuthenticated(req)) {
+  const role = getRole(req);
+  if (!role) {
     return res.status(401).json({ ok: false, error: 'Not authenticated.' });
   }
 
@@ -29,6 +32,11 @@ module.exports = async function handler(req, res) {
   }
 
   const { table, method = 'GET', body = null, filters = '' } = payload;
+
+  // view-only admins can read, never write
+  if (role !== 'main' && method !== 'GET') {
+    return res.status(403).json({ ok: false, error: 'View-only access: you cannot edit.' });
+  }
 
   if (!ALLOWED_TABLES.has(table)) {
     return res.status(400).json({ ok: false, error: 'Unknown table.' });
